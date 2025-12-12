@@ -149,20 +149,20 @@ export default function RepDashboard() {
     <div className="min-h-screen bg-slate-50">
       <div className="max-w-4xl mx-auto px-4 py-6">
         {/* Header */}
-        <div className="mb-6">
+        <div className="mb-8">
           <button
             onClick={() => navigate(createPageUrl("MyBuildings"))}
-            className="text-sm text-slate-500 hover:text-slate-700 mb-2"
+            className="text-sm text-slate-600 hover:text-primary mb-3 flex items-center gap-1"
           >
             ← 내 건물 목록
           </button>
-          <div className="flex items-center gap-3">
-            <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-blue-500 to-blue-600 flex items-center justify-center">
-              <Building2 className="w-6 h-6 text-white" />
+          <div className="flex items-center gap-4">
+            <div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-primary to-primary-dark flex items-center justify-center">
+              <Building2 className="w-7 h-7 text-white" />
             </div>
             <div>
-              <h1 className="text-xl font-bold text-slate-900">{building?.name}</h1>
-              <p className="text-sm text-slate-500">대표자 관리 화면</p>
+              <h1 className="text-2xl font-bold text-slate-900">{building?.name}</h1>
+              <p className="text-sm text-slate-600">대표자님 환영합니다</p>
             </div>
           </div>
         </div>
