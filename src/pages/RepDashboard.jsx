@@ -169,59 +169,59 @@ export default function RepDashboard() {
 
         {/* Stats Cards */}
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
-          <Card>
-            <CardContent className="pt-4 pb-4">
+          <Card className="card-rounded border-0 shadow-sm">
+            <CardContent className="pt-5 pb-5">
               <div className="flex items-center gap-3">
-                <div className="w-10 h-10 rounded-lg bg-blue-100 flex items-center justify-center">
-                  <Users className="w-5 h-5 text-blue-600" />
+                <div className="w-12 h-12 rounded-2xl bg-primary-light flex items-center justify-center">
+                  <Users className="w-6 h-6 text-primary" />
                 </div>
                 <div>
-                  <p className="text-2xl font-bold text-slate-900">{stats.totalUnits}</p>
-                  <p className="text-xs text-slate-500">총 세대</p>
+                  <p className="text-2xl font-bold text-slate-900 tracking-tight">{stats.totalUnits}</p>
+                  <p className="text-xs text-slate-500 mt-0.5">총 세대</p>
                 </div>
               </div>
             </CardContent>
           </Card>
           
-          <Card>
-            <CardContent className="pt-4 pb-4">
+          <Card className="card-rounded border-0 shadow-sm">
+            <CardContent className="pt-5 pb-5">
               <div className="flex items-center gap-3">
-                <div className="w-10 h-10 rounded-lg bg-green-100 flex items-center justify-center">
-                  <CheckCircle2 className="w-5 h-5 text-green-600" />
+                <div className="w-12 h-12 rounded-2xl bg-green-100 flex items-center justify-center">
+                  <CheckCircle2 className="w-6 h-6 text-green-600" />
                 </div>
                 <div>
-                  <p className="text-2xl font-bold text-slate-900">{stats.invitedUnits}</p>
-                  <p className="text-xs text-slate-500">초대 완료</p>
+                  <p className="text-2xl font-bold text-slate-900 tracking-tight">{stats.invitedUnits}</p>
+                  <p className="text-xs text-slate-500 mt-0.5">초대 완료</p>
                 </div>
               </div>
             </CardContent>
           </Card>
           
-          <Card>
-            <CardContent className="pt-4 pb-4">
+          <Card className="card-rounded border-0 shadow-sm">
+            <CardContent className="pt-5 pb-5">
               <div className="flex items-center gap-3">
-                <div className="w-10 h-10 rounded-lg bg-orange-100 flex items-center justify-center">
-                  <Clock className="w-5 h-5 text-orange-600" />
+                <div className="w-12 h-12 rounded-2xl bg-yellow-100 flex items-center justify-center">
+                  <Clock className="w-6 h-6 text-yellow-600" />
                 </div>
                 <div>
-                  <p className="text-2xl font-bold text-slate-900">{stats.unpaidCount}</p>
-                  <p className="text-xs text-slate-500">미납 세대</p>
+                  <p className="text-2xl font-bold text-slate-900 tracking-tight">{stats.unpaidCount}</p>
+                  <p className="text-xs text-slate-500 mt-0.5">미납 세대</p>
                 </div>
               </div>
             </CardContent>
           </Card>
           
-          <Card>
-            <CardContent className="pt-4 pb-4">
+          <Card className="card-rounded border-0 shadow-sm">
+            <CardContent className="pt-5 pb-5">
               <div className="flex items-center gap-3">
-                <div className="w-10 h-10 rounded-lg bg-purple-100 flex items-center justify-center">
-                  <Receipt className="w-5 h-5 text-purple-600" />
+                <div className="w-12 h-12 rounded-2xl bg-indigo-100 flex items-center justify-center">
+                  <Receipt className="w-6 h-6 text-indigo-600" />
                 </div>
                 <div>
-                  <p className="text-2xl font-bold text-slate-900">
+                  <p className="text-2xl font-bold text-slate-900 tracking-tight">
                     {stats.currentMonthTotal > 0 ? `${(stats.currentMonthTotal / 10000).toFixed(0)}만` : '-'}
                   </p>
-                  <p className="text-xs text-slate-500">이번달 총액</p>
+                  <p className="text-xs text-slate-500 mt-0.5">이번달 총액</p>
                 </div>
               </div>
             </CardContent>
