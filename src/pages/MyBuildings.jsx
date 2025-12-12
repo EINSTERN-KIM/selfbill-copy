@@ -82,7 +82,10 @@ export default function MyBuildings() {
             <h1 className="text-2xl font-bold text-slate-900">내 공동주택</h1>
             <p className="text-slate-500 mt-1">관리 중인 공동주택 목록</p>
           </div>
-          <Button onClick={() => navigate(createPageUrl("BuildingCreate"))}>
+          <Button 
+            onClick={() => navigate(createPageUrl("BuildingCreate"))}
+            className="bg-primary hover:bg-primary-dark text-white rounded-full px-6 font-semibold"
+          >
             <Plus className="w-4 h-4 mr-2" />
             새 건물 등록
           </Button>
