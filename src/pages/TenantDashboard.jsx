@@ -138,14 +138,14 @@ export default function TenantDashboard() {
 
         {/* Current Month Summary */}
         {latestCharge && (
-          <Card className="mb-6 bg-gradient-to-br from-blue-50 to-indigo-50 border-blue-100">
-            <CardContent className="pt-5 pb-5">
-              <div className="flex items-center justify-between mb-3">
-                <span className="text-sm text-blue-700 font-medium">
+          <Card className="mb-6 bg-gradient-to-br from-primary-light/20 to-primary/10 border-primary-light card-rounded border-0 shadow-md">
+            <CardContent className="pt-6 pb-6">
+              <div className="flex items-center justify-between mb-4">
+                <span className="text-sm text-primary font-semibold">
                   {latestCharge.year_month} 관리비
                 </span>
                 {paymentStatus && (
-                  <span className={`text-xs px-2 py-1 rounded-full font-medium ${
+                  <span className={`text-xs px-3 py-1 rounded-full font-semibold ${
                     paymentStatus.status === "완납" 
                       ? "bg-green-100 text-green-700"
                       : paymentStatus.status === "부분납"
@@ -156,11 +156,11 @@ export default function TenantDashboard() {
                   </span>
                 )}
               </div>
-              <p className="text-3xl font-bold text-slate-900">
-                {latestCharge.amount_total?.toLocaleString()}원
+              <p className="text-3xl font-bold text-slate-900 tracking-tight">
+                {latestCharge.amount_total?.toLocaleString()}<span className="text-2xl text-slate-600">원</span>
               </p>
               {building?.due_day && (
-                <p className="text-sm text-slate-500 mt-2">
+                <p className="text-sm text-slate-600 mt-3">
                   납기일: 매월 {building.due_day}일
                 </p>
               )}
