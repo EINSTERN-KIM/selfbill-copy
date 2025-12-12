@@ -241,16 +241,16 @@ export default function RepDashboard() {
                   return (
                     <Card 
                       key={itemIdx}
-                      className="cursor-pointer hover:shadow-md transition-all group"
+                      className="cursor-pointer hover:shadow-lg transition-all group card-rounded border-0 shadow-sm"
                       onClick={() => navigate(createPageUrl(`${item.page}?buildingId=${buildingId}`))}
                     >
                       <CardContent className="p-4">
                         <div className="flex items-center gap-3">
-                          <div className={`w-10 h-10 rounded-lg bg-${item.color}-100 flex items-center justify-center`}>
+                          <div className={`w-11 h-11 rounded-2xl bg-${item.color}-100 flex items-center justify-center`}>
                             <Icon className={`w-5 h-5 text-${item.color}-600`} />
                           </div>
-                          <span className="font-medium text-slate-700 flex-1">{item.label}</span>
-                          <ChevronRight className="w-4 h-4 text-slate-300 group-hover:text-slate-500" />
+                          <span className="font-semibold text-slate-800 flex-1 text-sm">{item.label}</span>
+                          <ChevronRight className="w-4 h-4 text-slate-300 group-hover:text-primary transition-colors" />
                         </div>
                       </CardContent>
                     </Card>
