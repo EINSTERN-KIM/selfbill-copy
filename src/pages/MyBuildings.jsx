@@ -102,12 +102,12 @@ export default function MyBuildings() {
             {buildingsData.map((item) => (
               <Card 
                 key={item.id}
-                className="cursor-pointer hover:shadow-lg transition-all group"
+                className="cursor-pointer hover:shadow-xl transition-all group card-rounded border border-slate-200"
                 onClick={() => handleBuildingClick(item)}
               >
                 <CardContent className="p-5">
                   <div className="flex items-start gap-4">
-                    <div className="w-14 h-14 rounded-xl bg-gradient-to-br from-blue-500 to-blue-600 flex items-center justify-center flex-shrink-0">
+                    <div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-primary to-primary-dark flex items-center justify-center flex-shrink-0">
                       <Building2 className="w-7 h-7 text-white" />
                     </div>
                     <div className="flex-1 min-w-0">
