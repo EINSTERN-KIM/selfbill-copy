@@ -26,27 +26,66 @@ export default function RepPlan() {
   const { isLoading, building, error } = useBuildingAuth(buildingId, "대표자");
   const [isSaving, setIsSaving] = useState(false);
   const [formData, setFormData] = useState({
-    selfbill_bank_name: "",
-    selfbill_account_holder: "",
-    selfbill_account_number: "",
-    selfbill_billing_start_date: ""
+    selfbill_auto_bank_name: "",
+    selfbill_auto_bank_holder: "",
+    selfbill_auto_bank_account: "",
+    selfbill_auto_start_date: ""
   });
+  const [planConfirmed, setPlanConfirmed] = useState(false);
 
   useEffect(() => {
     if (building) {
       setFormData({
-        selfbill_bank_name: building.selfbill_bank_name || "",
-        selfbill_account_holder: building.selfbill_account_holder || "",
-        selfbill_account_number: building.selfbill_account_number || "",
-        selfbill_billing_start_date: building.selfbill_billing_start_date || ""
+        selfbill_auto_bank_name: building.selfbill_auto_bank_name || "",
+        selfbill_auto_bank_holder: building.selfbill_auto_bank_holder || "",
+        selfbill_auto_bank_account: building.selfbill_auto_bank_account || "",
+        selfbill_auto_start_date: building.selfbill_auto_start_date || ""
       });
+      setPlanConfirmed(!!building.selfbill_plan_confirmed_at);
     }
   }, [building]);
 
+  const calculateAutoStartDate = () => {
+    const today = new Date();
+    const threeMonthsLater = new Date(today);
+    threeMonthsLater.setMonth(threeMonthsLater.getMonth() + 3);
+    
+    // Handle month overflow (e.g., Jan 31 + 1 month = Feb 28/29)
+    if (threeMonthsLater.getDate() < today.getDate()) {
+      threeMonthsLater.setDate(0); // Set to last day of previous month
+    }
+    
+    return threeMonthsLater.toISOString().split('T')[0];
+  };
+
   const handleSave = async () => {
+    if (!planConfirmed) {
+      alert("요금제 및 월 이용료 확인에 동의해 주세요.");
+      return;
+    }
+    
+    if (!formData.selfbill_auto_bank_name || !formData.selfbill_auto_bank_holder || !formData.selfbill_auto_bank_account) {
+      alert("셀프빌 자동이체 계좌 정보를 모두 입력해 주세요.");
+      return;
+    }
+    
     setIsSaving(true);
     try {
-      await base44.entities.Building.update(buildingId, formData);
+      const updateData = {
+        ...formData,
+        billing_amount_per_unit: 9900,
+        billing_unit_count: billingUnitCount,
+        billing_monthly_fee_krw: monthlyFee
+      };
+      
+      // If this is the first time confirming the plan
+      if (!building.selfbill_plan_confirmed_at) {
+        const today = new Date().toISOString().split('T')[0];
+        updateData.selfbill_plan_confirmed_at = today;
+        updateData.selfbill_auto_start_date = calculateAutoStartDate();
+      }
+      
+      await base44.entities.Building.update(buildingId, updateData);
       navigate(createPageUrl(`RepDashboard?buildingId=${buildingId}`));
     } catch (err) {
       console.error("Error saving:", err);
@@ -89,40 +128,62 @@ export default function RepPlan() {
         />
 
         {/* Pricing Card */}
-        <Card className="mb-6 bg-gradient-to-br from-blue-50 to-indigo-50 border-blue-100">
+        <Card className="mb-6 bg-gradient-to-br from-primary-light/20 to-primary/10 border-primary-light card-rounded border-0 shadow-md">
           <CardContent className="pt-6">
             <div className="text-center mb-6">
-              <Building2 className="w-12 h-12 text-blue-600 mx-auto mb-3" />
+              <Building2 className="w-12 h-12 text-primary mx-auto mb-3" />
               <h2 className="text-xl font-bold text-slate-900">{building?.name}</h2>
+              <p className="text-sm text-slate-500 mt-1">셀프빌 이용 요금제</p>
             </div>
 
-            <div className="grid grid-cols-3 gap-4 mb-6">
-              <div className="text-center p-3 bg-white rounded-lg">
-                <Users className="w-5 h-5 text-blue-600 mx-auto mb-1" />
+            <div className="grid grid-cols-3 gap-3 mb-6">
+              <div className="text-center p-4 bg-white rounded-xl">
+                <Users className="w-5 h-5 text-primary mx-auto mb-2" />
                 <p className="text-2xl font-bold text-slate-900">{unitCount}</p>
-                <p className="text-xs text-slate-500">활성 세대</p>
+                <p className="text-xs text-slate-500 mt-1">총 세대 수</p>
               </div>
-              <div className="text-center p-3 bg-white rounded-lg">
-                <Receipt className="w-5 h-5 text-blue-600 mx-auto mb-1" />
-                <p className="text-2xl font-bold text-slate-900">{billingUnitCount * 10}</p>
-                <p className="text-xs text-slate-500">과금 단위</p>
+              <div className="text-center p-4 bg-white rounded-xl">
+                <Receipt className="w-5 h-5 text-primary mx-auto mb-2" />
+                <p className="text-2xl font-bold text-slate-900">{billingUnitCount}</p>
+                <p className="text-xs text-slate-500 mt-1">과금 단위 개수</p>
               </div>
-              <div className="text-center p-3 bg-white rounded-lg">
-                <CreditCard className="w-5 h-5 text-blue-600 mx-auto mb-1" />
-                <p className="text-2xl font-bold text-blue-600">{monthlyFee.toLocaleString()}</p>
-                <p className="text-xs text-slate-500">월 요금(원)</p>
+              <div className="text-center p-4 bg-white rounded-xl">
+                <CreditCard className="w-5 h-5 text-primary mx-auto mb-2" />
+                <p className="text-2xl font-bold text-primary">{monthlyFee.toLocaleString()}</p>
+                <p className="text-xs text-slate-500 mt-1">월 이용요금(원)</p>
               </div>
             </div>
 
-            <div className="bg-white rounded-lg p-4">
-              <h3 className="font-medium text-slate-900 mb-2">요금 계산 방식</h3>
-              <ul className="text-sm text-slate-600 space-y-1">
-                <li>• 1~10세대: 9,900원</li>
-                <li>• 11~20세대: 19,800원</li>
-                <li>• 21~30세대: 29,700원</li>
-                <li className="text-slate-400">• 10세대 단위로 9,900원씩 추가</li>
-              </ul>
+            <div className="bg-white rounded-xl p-4 mb-4">
+              <h3 className="font-semibold text-slate-900 mb-3">요금 계산 방식</h3>
+              <div className="space-y-2 text-sm text-slate-600">
+                <div className="flex justify-between">
+                  <span>• 과금 기준 단위:</span>
+                  <span className="font-medium">10세대당 9,900원</span>
+                </div>
+                <div className="flex justify-between">
+                  <span>• 과금 단위 개수:</span>
+                  <span className="font-medium">{billingUnitCount}단위 (세대 수 ÷ 10 올림)</span>
+                </div>
+                <div className="flex justify-between pt-2 border-t">
+                  <span className="font-semibold">월 이용료:</span>
+                  <span className="font-bold text-primary">{monthlyFee.toLocaleString()}원</span>
+                </div>
+              </div>
             </div>
+
+            <label className="flex items-start gap-3 p-4 bg-white rounded-xl cursor-pointer hover:bg-slate-50 transition-colors">
+              <input
+                type="checkbox"
+                checked={planConfirmed}
+                onChange={(e) => setPlanConfirmed(e.target.checked)}
+                className="w-4 h-4 mt-0.5 text-primary"
+              />
+              <div className="flex-1">
+                <div className="font-semibold text-slate-900">요금제 및 월 이용료 확인</div>
+                <div className="text-sm text-slate-500 mt-1">위 요금제 내용을 확인했으며 동의합니다</div>
+              </div>
+            </label>
           </CardContent>
         </Card>
 
@@ -135,11 +196,15 @@ export default function RepPlan() {
             </CardTitle>
           </CardHeader>
           <CardContent className="space-y-5">
+            <p className="text-sm text-slate-600 mb-4">
+              셀프빌 이용료 자동이체를 위한 계좌 정보를 등록해 주세요.
+            </p>
+
             <div className="space-y-2">
-              <Label>은행</Label>
+              <Label>은행명 *</Label>
               <Select
-                value={formData.selfbill_bank_name}
-                onValueChange={(value) => setFormData({ ...formData, selfbill_bank_name: value })}
+                value={formData.selfbill_auto_bank_name}
+                onValueChange={(value) => setFormData({ ...formData, selfbill_auto_bank_name: value })}
               >
                 <SelectTrigger>
                   <SelectValue placeholder="은행 선택" />
@@ -153,34 +218,38 @@ export default function RepPlan() {
             </div>
 
             <div className="space-y-2">
-              <Label>예금주</Label>
+              <Label>예금주 *</Label>
               <Input
-                value={formData.selfbill_account_holder}
-                onChange={(e) => setFormData({ ...formData, selfbill_account_holder: e.target.value })}
+                value={formData.selfbill_auto_bank_holder}
+                onChange={(e) => setFormData({ ...formData, selfbill_auto_bank_holder: e.target.value })}
                 placeholder="예금주명"
               />
             </div>
 
             <div className="space-y-2">
-              <Label>계좌번호</Label>
+              <Label>계좌번호 *</Label>
               <Input
-                value={formData.selfbill_account_number}
-                onChange={(e) => setFormData({ ...formData, selfbill_account_number: e.target.value })}
+                value={formData.selfbill_auto_bank_account}
+                onChange={(e) => setFormData({ ...formData, selfbill_auto_bank_account: e.target.value })}
                 placeholder="- 없이 입력"
               />
             </div>
 
-            <div className="space-y-2">
-              <Label>자동이체 시작일</Label>
-              <Input
-                type="date"
-                value={formData.selfbill_billing_start_date}
-                onChange={(e) => setFormData({ ...formData, selfbill_billing_start_date: e.target.value })}
-              />
-              <p className="text-xs text-slate-500">
-                매월 이 날짜에 셀프빌 이용료가 자동이체됩니다.
-              </p>
-            </div>
+            {formData.selfbill_auto_start_date && (
+              <div className="bg-primary-light/20 rounded-xl p-4">
+                <Label className="text-sm font-medium text-slate-700">자동이체 시작일</Label>
+                <p className="text-lg font-bold text-primary mt-1">
+                  {new Date(formData.selfbill_auto_start_date).toLocaleDateString('ko-KR', { 
+                    year: 'numeric', 
+                    month: 'long', 
+                    day: 'numeric' 
+                  })}
+                </p>
+                <p className="text-xs text-slate-500 mt-2">
+                  요금제 확인일로부터 정확히 3개월 후 자동이체가 시작됩니다.
+                </p>
+              </div>
+            )}
 
             <div className="pt-4 flex gap-3">
               <Button
@@ -192,8 +261,8 @@ export default function RepPlan() {
               </Button>
               <Button
                 onClick={handleSave}
-                disabled={isSaving}
-                className="flex-1"
+                disabled={isSaving || !planConfirmed}
+                className="flex-1 bg-primary hover:bg-primary-dark text-white rounded-full font-semibold"
               >
                 {isSaving ? (
                   <>
