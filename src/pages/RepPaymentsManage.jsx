@@ -5,11 +5,9 @@ import { createPageUrl } from '@/utils';
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
 import { Textarea } from "@/components/ui/textarea";
-import { AlertCircle, Loader2, Home, Calendar, CreditCard, CheckCircle2, Clock, XCircle } from 'lucide-react';
+import { AlertCircle, Loader2, Save, ChevronLeft, ChevronRight, Calendar } from 'lucide-react';
 import LoadingSpinner from '@/components/common/LoadingSpinner';
 import PageHeader from '@/components/common/PageHeader';
 import EmptyState from '@/components/common/EmptyState';
@@ -21,40 +19,48 @@ export default function RepPaymentsManage() {
   const navigate = useNavigate();
   
   const { isLoading, building, error } = useBuildingAuth(buildingId, "대표자");
+  const [selectedDate, setSelectedDate] = useState(new Date());
+  const [unitCharges, setUnitCharges] = useState([]);
+  const [paymentStatuses, setPaymentStatuses] = useState([]);
   const [isLoadingData, setIsLoadingData] = useState(true);
   const [isSaving, setIsSaving] = useState(false);
-  
-  const [selectedYearMonth, setSelectedYearMonth] = useState(() => {
-    const now = new Date();
-    return `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}`;
-  });
-  
-  const [units, setUnits] = useState([]);
-  const [payments, setPayments] = useState([]);
-  const [showDialog, setShowDialog] = useState(false);
-  const [editingPayment, setEditingPayment] = useState(null);
-  const [formData, setFormData] = useState({
-    status: "미납",
-    paid_amount: "",
-    memo: ""
-  });
+  const [formData, setFormData] = useState({});
 
   useEffect(() => {
     loadData();
-  }, [buildingId, selectedYearMonth]);
+  }, [selectedDate, buildingId]);
 
   const loadData = async () => {
     if (!buildingId) return;
-    setIsLoadingData(true);
     
     try {
-      const [unitsData, paymentsData] = await Promise.all([
-        base44.entities.Unit.filter({ building_id: buildingId, status: "active" }),
-        base44.entities.PaymentStatus.filter({ building_id: buildingId, year_month: selectedYearMonth })
+      const yearMonth = `${selectedDate.getFullYear()}-${String(selectedDate.getMonth() + 1).padStart(2, '0')}`;
+      
+      const [charges, statuses] = await Promise.all([
+        base44.entities.UnitCharge.filter({
+          building_id: buildingId,
+          year_month: yearMonth
+        }),
+        base44.entities.PaymentStatus.filter({
+          building_id: buildingId,
+          year_month: yearMonth
+        })
       ]);
 
-      setUnits(unitsData);
-      setPayments(paymentsData);
+      setUnitCharges(charges);
+      setPaymentStatuses(statuses);
+
+      const initialFormData = {};
+      charges.forEach(charge => {
+        const status = statuses.find(s => s.unit_charge_id === charge.id);
+        initialFormData[charge.id] = {
+          status: status?.status || "미납",
+          paid_amount: status?.paid_amount || 0,
+          paid_at: status?.paid_at || "",
+          memo: status?.memo || ""
+        };
+      });
+      setFormData(initialFormData);
       setIsLoadingData(false);
     } catch (err) {
       console.error("Error loading data:", err);
@@ -62,42 +68,56 @@ export default function RepPaymentsManage() {
     }
   };
 
-  const handleOpenDialog = (payment, unit) => {
-    setEditingPayment({ ...payment, unit });
-    setFormData({
-      status: payment.status || "미납",
-      paid_amount: payment.paid_amount || "",
-      memo: payment.memo || ""
-    });
-    setShowDialog(true);
+  const updateField = (chargeId, field, value) => {
+    setFormData(prev => ({
+      ...prev,
+      [chargeId]: {
+        ...prev[chargeId],
+        [field]: value
+      }
+    }));
   };
 
   const handleSave = async () => {
     setIsSaving(true);
     try {
-      const paidAmount = parseFloat(formData.paid_amount) || 0;
-      let status = formData.status;
+      const yearMonth = `${selectedDate.getFullYear()}-${String(selectedDate.getMonth() + 1).padStart(2, '0')}`;
       
-      // Auto-determine status based on paid amount
-      if (paidAmount >= editingPayment.charged_amount) {
-        status = "완납";
-      } else if (paidAmount > 0) {
-        status = "부분납";
+      for (const charge of unitCharges) {
+        const data = formData[charge.id];
+        const existingStatus = paymentStatuses.find(s => s.unit_charge_id === charge.id);
+
+        const statusData = {
+          unit_charge_id: charge.id,
+          building_id: buildingId,
+          unit_id: charge.unit_id,
+          year_month: yearMonth,
+          status: data.status,
+          charged_amount: charge.amount_total,
+          paid_amount: data.paid_amount ? parseFloat(data.paid_amount) : 0,
+          paid_at: data.paid_at || null,
+          memo: data.memo || ""
+        };
+
+        if (existingStatus) {
+          await base44.entities.PaymentStatus.update(existingStatus.id, statusData);
+        } else {
+          await base44.entities.PaymentStatus.create(statusData);
+        }
       }
 
-      await base44.entities.PaymentStatus.update(editingPayment.id, {
-        status,
-        paid_amount: paidAmount,
-        paid_at: paidAmount > 0 ? new Date().toISOString() : null,
-        memo: formData.memo
-      });
-
+      alert("납부 현황이 저장되었습니다.");
       await loadData();
-      setShowDialog(false);
     } catch (err) {
       console.error("Error saving:", err);
     }
     setIsSaving(false);
+  };
+
+  const changeMonth = (delta) => {
+    const newDate = new Date(selectedDate);
+    newDate.setMonth(newDate.getMonth() + delta);
+    setSelectedDate(newDate);
   };
 
   if (isLoading || isLoadingData) {
@@ -121,151 +141,114 @@ export default function RepPaymentsManage() {
     );
   }
 
-  // Generate year-month options
-  const yearMonthOptions = [];
-  const now = new Date();
-  for (let i = -6; i <= 1; i++) {
-    const d = new Date(now.getFullYear(), now.getMonth() + i, 1);
-    const ym = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}`;
-    yearMonthOptions.push(ym);
-  }
-
-  const getUnitDisplay = (unit) => {
-    return [unit.dong, unit.floor, unit.ho].filter(Boolean).join(" ") || "호수 미입력";
-  };
-
-  const getPaymentForUnit = (unitId) => {
-    return payments.find(p => p.unit_id === unitId);
-  };
-
-  const getStatusIcon = (status) => {
-    switch (status) {
-      case "완납":
-        return <CheckCircle2 className="w-5 h-5 text-green-600" />;
-      case "부분납":
-        return <Clock className="w-5 h-5 text-yellow-600" />;
-      default:
-        return <XCircle className="w-5 h-5 text-red-500" />;
-    }
-  };
-
-  const getStatusColor = (status) => {
-    switch (status) {
-      case "완납":
-        return "bg-green-100 text-green-700";
-      case "부분납":
-        return "bg-yellow-100 text-yellow-700";
-      default:
-        return "bg-red-100 text-red-700";
-    }
-  };
-
-  // Summary
-  const summary = {
-    total: payments.length,
-    paid: payments.filter(p => p.status === "완납").length,
-    partial: payments.filter(p => p.status === "부분납").length,
-    unpaid: payments.filter(p => p.status === "미납").length,
-    totalAmount: payments.reduce((sum, p) => sum + (p.charged_amount || 0), 0),
-    paidAmount: payments.reduce((sum, p) => sum + (p.paid_amount || 0), 0)
+  const formatYearMonth = (date) => {
+    return `${date.getFullYear()}년 ${date.getMonth() + 1}월`;
   };
 
   return (
     <div className="min-h-screen bg-slate-50">
-      <div className="max-w-2xl mx-auto px-4 py-6">
+      <div className="max-w-4xl mx-auto px-4 py-6">
         <PageHeader
           title="납부 현황 관리"
-          subtitle="세대별 납부 상태를 관리합니다"
+          subtitle="세대별 관리비 납부 상태를 확인하고 관리합니다"
           backUrl={createPageUrl(`RepDashboard?buildingId=${buildingId}`)}
         />
 
-        {/* Month Selector */}
-        <Card className="mb-6">
-          <CardContent className="pt-4 pb-4">
-            <div className="flex items-center gap-3">
-              <Calendar className="w-5 h-5 text-blue-600" />
-              <Select value={selectedYearMonth} onValueChange={setSelectedYearMonth}>
-                <SelectTrigger className="w-40">
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                  {yearMonthOptions.map(ym => (
-                    <SelectItem key={ym} value={ym}>{ym}</SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div>
-          </CardContent>
-        </Card>
+        <div className="flex items-center justify-between mb-6">
+          <Button
+            variant="outline"
+            size="icon"
+            onClick={() => changeMonth(-1)}
+            className="rounded-full"
+          >
+            <ChevronLeft className="w-4 h-4" />
+          </Button>
+          <div className="flex items-center gap-2">
+            <Calendar className="w-5 h-5 text-primary" />
+            <span className="text-lg font-bold text-slate-900">{formatYearMonth(selectedDate)}</span>
+          </div>
+          <Button
+            variant="outline"
+            size="icon"
+            onClick={() => changeMonth(1)}
+            className="rounded-full"
+          >
+            <ChevronRight className="w-4 h-4" />
+          </Button>
+        </div>
 
-        {payments.length === 0 ? (
+        {unitCharges.length === 0 ? (
           <EmptyState
-            icon={CreditCard}
-            title="납부 현황이 없습니다"
-            description="청구서가 발송된 후 납부 현황이 표시됩니다."
+            icon={AlertCircle}
+            title="청구 내역이 없습니다"
+            description={`${formatYearMonth(selectedDate)} 관리비 청구 내역이 없습니다.`}
           />
         ) : (
           <>
-            {/* Summary */}
-            <div className="grid grid-cols-4 gap-3 mb-6">
-              <Card className="bg-green-50 border-green-100">
-                <CardContent className="pt-3 pb-3 text-center">
-                  <p className="text-xl font-bold text-green-700">{summary.paid}</p>
-                  <p className="text-xs text-green-600">완납</p>
-                </CardContent>
-              </Card>
-              <Card className="bg-yellow-50 border-yellow-100">
-                <CardContent className="pt-3 pb-3 text-center">
-                  <p className="text-xl font-bold text-yellow-700">{summary.partial}</p>
-                  <p className="text-xs text-yellow-600">부분납</p>
-                </CardContent>
-              </Card>
-              <Card className="bg-red-50 border-red-100">
-                <CardContent className="pt-3 pb-3 text-center">
-                  <p className="text-xl font-bold text-red-700">{summary.unpaid}</p>
-                  <p className="text-xs text-red-600">미납</p>
-                </CardContent>
-              </Card>
-              <Card>
-                <CardContent className="pt-3 pb-3 text-center">
-                  <p className="text-xl font-bold text-blue-600">
-                    {Math.round((summary.paidAmount / summary.totalAmount) * 100) || 0}%
-                  </p>
-                  <p className="text-xs text-slate-500">수납률</p>
-                </CardContent>
-              </Card>
-            </div>
-
-            {/* Payment List */}
-            <div className="space-y-3">
-              {units.map((unit) => {
-                const payment = getPaymentForUnit(unit.id);
-                if (!payment) return null;
+            <div className="space-y-4 mb-6">
+              {unitCharges.map((charge) => {
+                const data = formData[charge.id] || {};
                 
                 return (
-                  <Card 
-                    key={unit.id} 
-                    className="hover:shadow-md transition-all cursor-pointer"
-                    onClick={() => handleOpenDialog(payment, unit)}
-                  >
-                    <CardContent className="p-4">
-                      <div className="flex items-center justify-between">
-                        <div className="flex items-center gap-3">
-                          {getStatusIcon(payment.status)}
+                  <Card key={charge.id} className="card-rounded">
+                    <CardContent className="p-5">
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div>
+                          <p className="font-bold text-slate-900 mb-1">{charge.unit_id}</p>
+                          <p className="text-sm text-slate-500">
+                            청구 금액: {charge.amount_total?.toLocaleString()}원
+                          </p>
+                        </div>
+                        
+                        <div className="grid grid-cols-2 gap-3">
                           <div>
-                            <p className="font-medium text-slate-900">{getUnitDisplay(unit)}</p>
-                            {unit.tenant_name && (
-                              <p className="text-sm text-slate-500">{unit.tenant_name}</p>
-                            )}
+                            <label className="text-xs text-slate-500 block mb-1">납부 상태</label>
+                            <Select
+                              value={data.status}
+                              onValueChange={(val) => updateField(charge.id, 'status', val)}
+                            >
+                              <SelectTrigger className="h-9">
+                                <SelectValue />
+                              </SelectTrigger>
+                              <SelectContent>
+                                <SelectItem value="미납">미납</SelectItem>
+                                <SelectItem value="부분납">부분납</SelectItem>
+                                <SelectItem value="완납">완납</SelectItem>
+                              </SelectContent>
+                            </Select>
+                          </div>
+                          
+                          <div>
+                            <label className="text-xs text-slate-500 block mb-1">납부 금액</label>
+                            <Input
+                              type="number"
+                              value={data.paid_amount}
+                              onChange={(e) => updateField(charge.id, 'paid_amount', e.target.value)}
+                              placeholder="0"
+                              className="h-9"
+                            />
                           </div>
                         </div>
-                        <div className="text-right">
-                          <p className="font-bold text-slate-900">
-                            {payment.paid_amount?.toLocaleString() || 0} / {payment.charged_amount?.toLocaleString()}원
-                          </p>
-                          <span className={`text-xs px-2 py-0.5 rounded-full ${getStatusColor(payment.status)}`}>
-                            {payment.status}
-                          </span>
+                        
+                        <div>
+                          <label className="text-xs text-slate-500 block mb-1">납부일</label>
+                          <Input
+                            type="date"
+                            value={data.paid_at}
+                            onChange={(e) => updateField(charge.id, 'paid_at', e.target.value)}
+                            className="h-9"
+                          />
+                        </div>
+                        
+                        <div>
+                          <label className="text-xs text-slate-500 block mb-1">메모</label>
+                          <Textarea
+                            value={data.memo}
+                            onChange={(e) => updateField(charge.id, 'memo', e.target.value)}
+                            placeholder="메모 입력"
+                            rows={1}
+                            className="resize-none"
+                          />
                         </div>
                       </div>
                     </CardContent>
@@ -273,83 +256,29 @@ export default function RepPaymentsManage() {
                 );
               })}
             </div>
-          </>
-        )}
 
-        {/* Edit Dialog */}
-        <Dialog open={showDialog} onOpenChange={setShowDialog}>
-          <DialogContent className="max-w-md">
-            <DialogHeader>
-              <DialogTitle>
-                납부 정보 수정 - {editingPayment?.unit && getUnitDisplay(editingPayment.unit)}
-              </DialogTitle>
-            </DialogHeader>
-            
-            {editingPayment && (
-              <div className="space-y-4 py-4">
-                <div className="p-3 bg-slate-50 rounded-lg">
-                  <div className="flex justify-between text-sm">
-                    <span className="text-slate-500">청구 금액</span>
-                    <span className="font-bold">{editingPayment.charged_amount?.toLocaleString()}원</span>
-                  </div>
-                </div>
-
-                <div className="space-y-2">
-                  <Label>납부 상태</Label>
-                  <Select 
-                    value={formData.status} 
-                    onValueChange={(v) => setFormData({ ...formData, status: v })}
-                  >
-                    <SelectTrigger>
-                      <SelectValue />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="미납">미납</SelectItem>
-                      <SelectItem value="부분납">부분납</SelectItem>
-                      <SelectItem value="완납">완납</SelectItem>
-                    </SelectContent>
-                  </Select>
-                </div>
-
-                <div className="space-y-2">
-                  <Label>납부 금액</Label>
-                  <Input
-                    type="number"
-                    value={formData.paid_amount}
-                    onChange={(e) => setFormData({ ...formData, paid_amount: e.target.value })}
-                    placeholder="0"
-                  />
-                </div>
-
-                <div className="space-y-2">
-                  <Label>메모</Label>
-                  <Textarea
-                    value={formData.memo}
-                    onChange={(e) => setFormData({ ...formData, memo: e.target.value })}
-                    placeholder="납부 관련 메모"
-                    rows={2}
-                  />
-                </div>
-              </div>
-            )}
-
-            <DialogFooter>
-              <Button variant="outline" onClick={() => setShowDialog(false)}>
-                취소
-              </Button>
-              <Button onClick={handleSave} disabled={isSaving}>
+            <div className="sticky bottom-6 flex justify-end">
+              <Button
+                onClick={handleSave}
+                disabled={isSaving}
+                size="lg"
+                className="bg-primary hover:bg-primary-dark text-white rounded-full font-semibold shadow-lg"
+              >
                 {isSaving ? (
                   <>
-                    <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                    <Loader2 className="w-5 h-5 mr-2 animate-spin" />
                     저장 중...
                   </>
                 ) : (
-                  "저장"
+                  <>
+                    <Save className="w-5 h-5 mr-2" />
+                    최종 저장
+                  </>
                 )}
               </Button>
-            </DialogFooter>
-          </DialogContent>
-        </Dialog>
+            </div>
+          </>
+        )}
       </div>
     </div>
   );

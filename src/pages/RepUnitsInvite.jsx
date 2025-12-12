@@ -5,7 +5,7 @@ import { createPageUrl } from '@/utils';
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { AlertCircle, Send, Home, Phone, Check, Clock, UserPlus } from 'lucide-react';
+import { AlertCircle, Send, Loader2, CheckCircle2, Clock } from 'lucide-react';
 import LoadingSpinner from '@/components/common/LoadingSpinner';
 import PageHeader from '@/components/common/PageHeader';
 import EmptyState from '@/components/common/EmptyState';
@@ -20,7 +20,7 @@ export default function RepUnitsInvite() {
   const [units, setUnits] = useState([]);
   const [invitations, setInvitations] = useState([]);
   const [isLoadingData, setIsLoadingData] = useState(true);
-  const [sendingInvite, setSendingInvite] = useState(null);
+  const [isSending, setIsSending] = useState(false);
 
   useEffect(() => {
     loadData();
@@ -33,7 +33,6 @@ export default function RepUnitsInvite() {
         base44.entities.Unit.filter({ building_id: buildingId, status: "active" }),
         base44.entities.Invitation.filter({ building_id: buildingId })
       ]);
-      
       setUnits(unitsData);
       setInvitations(invitationsData);
       setIsLoadingData(false);
@@ -43,59 +42,69 @@ export default function RepUnitsInvite() {
     }
   };
 
-  const getInvitationForUnit = (unitId) => {
-    return invitations.find(inv => inv.unit_id === unitId);
+  const getInvitationStatus = (unitId) => {
+    const invitation = invitations.find(inv => inv.unit_id === unitId);
+    return invitation?.status || "초대 전";
   };
 
-  const handleSendInvite = async (unit) => {
-    if (!unit.tenant_phone || unit.tenant_phone.includes("--")) {
-      alert("입주자 휴대폰 번호가 등록되지 않았습니다. 세대 목록에서 먼저 등록해주세요.");
+  const handleSendInvitation = async (unit) => {
+    if (!unit.tenant_name || !unit.tenant_phone) {
+      alert("입주자 이름과 연락처를 먼저 입력해 주세요.");
       return;
     }
 
-    setSendingInvite(unit.id);
-    
+    setIsSending(true);
     try {
-      const existingInvite = getInvitationForUnit(unit.id);
-      const inviteCode = Math.random().toString(36).substring(2, 10).toUpperCase();
+      const existingInvitation = invitations.find(inv => inv.unit_id === unit.id);
       
-      if (existingInvite) {
-        await base44.entities.Invitation.update(existingInvite.id, {
-          status: "초대 발송",
-          invite_code: inviteCode,
-          invited_at: new Date().toISOString()
-        });
+      const invitationData = {
+        building_id: buildingId,
+        unit_id: unit.id,
+        tenant_name: unit.tenant_name,
+        tenant_phone: unit.tenant_phone,
+        status: "초대 발송",
+        invited_at: new Date().toISOString()
+      };
+
+      let invitation;
+      if (existingInvitation) {
+        invitation = await base44.entities.Invitation.update(existingInvitation.id, invitationData);
       } else {
-        await base44.entities.Invitation.create({
-          building_id: buildingId,
-          unit_id: unit.id,
-          tenant_name: unit.tenant_name || "",
-          tenant_phone: unit.tenant_phone,
-          status: "초대 발송",
-          invite_code: inviteCode,
-          invited_at: new Date().toISOString()
-        });
+        invitation = await base44.entities.Invitation.create(invitationData);
       }
 
       // Create notification log
+      const notificationBody = `[셀프빌 입주자 초대]\n\n${building.name}\n${unit.unit_name}\n\n입주자 정보 등록을 위해 아래 링크로 접속해 주세요.\n${window.location.origin}${createPageUrl('Onboarding')}`;
+
       await base44.entities.NotificationLog.create({
         building_id: buildingId,
-        type: "입주자초대",
         to_phone: unit.tenant_phone,
-        to_name: unit.tenant_name || "",
-        message_content: `[${building?.name}] 관리비 앱 초대\n\n안녕하세요, ${unit.tenant_name || "입주자"}님.\n셀프빌 앱에 초대되었습니다.\n\n아래 링크를 통해 가입해주세요.`,
-        status: "성공",
-        reference_id: unit.id,
-        reference_type: "Unit",
+        channel: "MMS",
+        event_type: "INVITATION",
+        event_ref_id: invitation.id,
+        title: "셀프빌 입주자 초대",
+        body: notificationBody,
+        status: "발송성공",
         sent_at: new Date().toISOString()
       });
 
       await loadData();
     } catch (err) {
-      console.error("Error sending invite:", err);
+      console.error("Error sending invitation:", err);
     }
-    
-    setSendingInvite(null);
+    setIsSending(false);
+  };
+
+  const handleSendAll = async () => {
+    if (!confirm("모든 세대에 초대 MMS를 발송하시겠습니까?")) return;
+
+    setIsSending(true);
+    for (const unit of units) {
+      if (unit.tenant_name && unit.tenant_phone && getInvitationStatus(unit.id) !== "가입 완료") {
+        await handleSendInvitation(unit);
+      }
+    }
+    setIsSending(false);
   };
 
   if (isLoading || isLoadingData) {
@@ -119,102 +128,88 @@ export default function RepUnitsInvite() {
     );
   }
 
-  const getStatusBadge = (unit) => {
-    const invitation = getInvitationForUnit(unit.id);
-    
-    if (!unit.tenant_phone || unit.tenant_phone.includes("--")) {
-      return <Badge variant="outline" className="text-slate-400">번호 미등록</Badge>;
-    }
-    
-    if (!invitation || invitation.status === "초대 전") {
-      return <Badge variant="outline" className="text-slate-500">초대 전</Badge>;
-    }
-    
-    if (invitation.status === "초대 발송") {
-      return (
-        <Badge className="bg-yellow-100 text-yellow-700 hover:bg-yellow-100">
-          <Clock className="w-3 h-3 mr-1" />
-          초대 발송
-        </Badge>
-      );
-    }
-    
-    if (invitation.status === "가입 완료") {
-      return (
-        <Badge className="bg-green-100 text-green-700 hover:bg-green-100">
-          <Check className="w-3 h-3 mr-1" />
-          가입 완료
-        </Badge>
-      );
-    }
-    
-    return null;
+  const getStatusBadge = (status) => {
+    const config = {
+      "초대 전": { className: "bg-slate-100 text-slate-700", icon: Clock },
+      "초대 발송": { className: "bg-blue-100 text-blue-700", icon: Send },
+      "가입 완료": { className: "bg-green-100 text-green-700", icon: CheckCircle2 }
+    };
+    const { className, icon: Icon } = config[status] || config["초대 전"];
+    return (
+      <Badge className={className}>
+        <Icon className="w-3 h-3 mr-1" />
+        {status}
+      </Badge>
+    );
   };
 
   return (
     <div className="min-h-screen bg-slate-50">
-      <div className="max-w-2xl mx-auto px-4 py-6">
+      <div className="max-w-3xl mx-auto px-4 py-6">
         <PageHeader
           title="입주자 초대"
-          subtitle="세대별 입주자를 초대합니다"
+          subtitle="세대별로 입주자 초대 MMS를 발송합니다"
           backUrl={createPageUrl(`RepDashboard?buildingId=${buildingId}`)}
+          actions={
+            <Button 
+              onClick={handleSendAll}
+              disabled={isSending}
+              className="bg-primary hover:bg-primary-dark text-white rounded-full font-semibold"
+            >
+              <Send className="w-4 h-4 mr-2" />
+              전체 발송
+            </Button>
+          }
         />
 
         {units.length === 0 ? (
           <EmptyState
-            icon={UserPlus}
+            icon={Send}
             title="등록된 세대가 없습니다"
-            description="먼저 세대 목록에서 세대를 등록해주세요."
-            actionLabel="세대 목록으로"
+            description="세대를 먼저 등록해 주세요."
+            actionLabel="세대 관리로 이동"
             onAction={() => navigate(createPageUrl(`RepUnits?buildingId=${buildingId}`))}
           />
         ) : (
           <div className="space-y-3">
             {units.map((unit) => {
-              const invitation = getInvitationForUnit(unit.id);
-              const canInvite = unit.tenant_phone && !unit.tenant_phone.includes("--") && invitation?.status !== "가입 완료";
+              const status = getInvitationStatus(unit.id);
+              const canSend = unit.tenant_name && unit.tenant_phone && status !== "가입 완료";
               
               return (
-                <Card key={unit.id} className="hover:shadow-md transition-all">
-                  <CardContent className="p-4">
+                <Card key={unit.id} className="card-rounded hover:shadow-md transition-all">
+                  <CardContent className="p-5">
                     <div className="flex items-center justify-between">
-                      <div className="flex items-center gap-3">
-                        <div className="w-10 h-10 rounded-lg bg-blue-100 flex items-center justify-center">
-                          <Home className="w-5 h-5 text-blue-600" />
+                      <div className="flex-1">
+                        <div className="flex items-center gap-3 mb-2">
+                          <p className="font-bold text-slate-900">{unit.unit_name}</p>
+                          {getStatusBadge(status)}
                         </div>
-                        <div>
-                          <div className="flex items-center gap-2 mb-1">
-                            <p className="font-medium text-slate-900">
-                              {[unit.dong, unit.floor, unit.ho].filter(Boolean).join(" ")}
-                            </p>
-                            {getStatusBadge(unit)}
-                          </div>
-                          {unit.tenant_name && (
-                            <p className="text-sm text-slate-500">
-                              {unit.tenant_name}
-                              {unit.tenant_phone && !unit.tenant_phone.includes("--") && (
-                                <span className="ml-2 text-slate-400">{unit.tenant_phone}</span>
-                              )}
-                            </p>
-                          )}
-                        </div>
+                        {unit.tenant_name && (
+                          <p className="text-sm text-slate-600">
+                            {unit.tenant_name}
+                            {unit.tenant_phone && ` · ${unit.tenant_phone}`}
+                          </p>
+                        )}
+                        {!unit.tenant_name && (
+                          <p className="text-sm text-slate-400">입주자 정보 미입력</p>
+                        )}
                       </div>
-                      {canInvite && (
-                        <Button
-                          size="sm"
-                          onClick={() => handleSendInvite(unit)}
-                          disabled={sendingInvite === unit.id}
-                        >
-                          {sendingInvite === unit.id ? (
-                            "발송 중..."
-                          ) : (
-                            <>
-                              <Send className="w-4 h-4 mr-1" />
-                              {invitation?.status === "초대 발송" ? "재발송" : "초대 발송"}
-                            </>
-                          )}
-                        </Button>
-                      )}
+                      <Button
+                        onClick={() => handleSendInvitation(unit)}
+                        disabled={!canSend || isSending}
+                        size="sm"
+                        className="bg-primary hover:bg-primary-dark text-white rounded-full"
+                      >
+                        {isSending ? (
+                          <Loader2 className="w-4 h-4 animate-spin" />
+                        ) : (
+                          <>
+                            <Send className="w-4 h-4 mr-1" />
+                            {status === "초대 발송" ? "재발송" : "초대"}
+                          </>
+                        )}
+                      </Button>
                     </div>
                   </CardContent>
                 </Card>
