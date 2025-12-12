@@ -109,14 +109,14 @@ export default function Onboarding() {
     <div className="min-h-screen bg-gradient-to-br from-slate-50 to-blue-50 flex items-center justify-center p-4">
       <div className="w-full max-w-lg">
         {/* Logo */}
-        <div className="text-center mb-8">
-          <div className="inline-flex items-center gap-2 mb-2">
-            <div className="w-10 h-10 rounded-xl bg-blue-600 flex items-center justify-center">
-              <Building2 className="w-6 h-6 text-white" />
+        <div className="text-center mb-10">
+          <div className="inline-flex items-center gap-3 mb-3">
+            <div className="w-12 h-12 rounded-2xl bg-primary flex items-center justify-center">
+              <Building2 className="w-7 h-7 text-white" />
             </div>
-            <span className="text-2xl font-bold text-slate-900">셀프빌</span>
+            <span className="text-3xl font-bold text-slate-900">셀프빌</span>
           </div>
-          <p className="text-slate-500">공동주택 관리비 자동화 서비스</p>
+          <p className="text-slate-600">공동주택 관리비 자동화 서비스</p>
         </div>
 
         {step === "select" && (
