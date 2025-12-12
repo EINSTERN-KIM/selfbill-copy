@@ -2,7 +2,7 @@ import React from 'react';
 
 export default function Layout({ children, currentPageName }) {
   return (
-    <div className="min-h-screen bg-slate-50">
+    <div className="min-h-screen" style={{ backgroundColor: 'var(--color-background)' }}>
       <style>{`
         :root {
           --color-primary: #2F6F4F;
