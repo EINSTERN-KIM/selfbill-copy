@@ -121,48 +121,48 @@ export default function Onboarding() {
 
         {step === "select" && (
           <div className="space-y-4">
-            <h2 className="text-xl font-semibold text-center text-slate-900 mb-6">
-              어떤 역할로 시작하시겠어요?
+            <h2 className="text-2xl font-bold text-center text-slate-900 mb-8">
+              셀프빌 시작하기
             </h2>
             
             <Card 
-              className="cursor-pointer hover:shadow-lg transition-all border-2 hover:border-blue-500"
+              className="cursor-pointer hover:shadow-xl transition-all border-2 hover:border-primary card-rounded"
               onClick={() => handleRoleSelect("대표자")}
             >
               <CardContent className="p-6">
                 <div className="flex items-start gap-4">
-                  <div className="w-12 h-12 rounded-xl bg-blue-100 flex items-center justify-center flex-shrink-0">
-                    <Shield className="w-6 h-6 text-blue-600" />
+                  <div className="w-14 h-14 rounded-2xl bg-primary-light flex items-center justify-center flex-shrink-0">
+                    <Shield className="w-7 h-7 text-primary" />
                   </div>
                   <div className="flex-1">
-                    <h3 className="font-semibold text-slate-900 mb-1">대표자로 시작</h3>
-                    <p className="text-sm text-slate-500">
-                      공동주택을 새로 등록하고 관리비를 직접 관리합니다.
-                      건물 정보, 세대, 관리비 항목을 설정할 수 있습니다.
+                    <h3 className="text-lg font-bold text-slate-900 mb-2">새로운 공동주택을 등록할 대표자입니다</h3>
+                    <p className="text-sm text-slate-600 leading-relaxed">
+                      내가 관리하는 공동주택을 처음 셀프빌에 등록합니다.
+                      건물 정보, 세대, 관리비 항목을 설정하고 관리할 수 있습니다.
                     </p>
                   </div>
-                  <ArrowRight className="w-5 h-5 text-slate-400" />
+                  <ArrowRight className="w-6 h-6 text-slate-300 flex-shrink-0 mt-1" />
                 </div>
               </CardContent>
             </Card>
 
             <Card 
-              className="cursor-pointer hover:shadow-lg transition-all border-2 hover:border-green-500"
+              className="cursor-pointer hover:shadow-xl transition-all border-2 hover:border-primary card-rounded"
               onClick={() => handleRoleSelect("입주자")}
             >
               <CardContent className="p-6">
                 <div className="flex items-start gap-4">
-                  <div className="w-12 h-12 rounded-xl bg-green-100 flex items-center justify-center flex-shrink-0">
-                    <Users className="w-6 h-6 text-green-600" />
+                  <div className="w-14 h-14 rounded-2xl bg-primary-light flex items-center justify-center flex-shrink-0">
+                    <Users className="w-7 h-7 text-primary" />
                   </div>
                   <div className="flex-1">
-                    <h3 className="font-semibold text-slate-900 mb-1">입주자로 시작</h3>
-                    <p className="text-sm text-slate-500">
-                      대표자로부터 초대를 받으셨나요?
-                      초대 정보를 확인하고 입주자로 등록합니다.
+                    <h3 className="text-lg font-bold text-slate-900 mb-2">이미 대표자에게 초대받은 입주자입니다</h3>
+                    <p className="text-sm text-slate-600 leading-relaxed">
+                      대표자가 보내준 초대 정보를 통해 입주자로 연결합니다.
+                      나의 관리비 청구서와 납부 현황을 확인할 수 있습니다.
                     </p>
                   </div>
-                  <ArrowRight className="w-5 h-5 text-slate-400" />
+                  <ArrowRight className="w-6 h-6 text-slate-300 flex-shrink-0 mt-1" />
                 </div>
               </CardContent>
             </Card>
