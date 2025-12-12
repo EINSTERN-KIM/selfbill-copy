@@ -13,6 +13,10 @@ import RepUnitsInvite from './pages/RepUnitsInvite';
 import TenantMyUnit from './pages/TenantMyUnit';
 import TenantMyBills from './pages/TenantMyBills';
 import TenantMyPayments from './pages/TenantMyPayments';
+import RepBillingMonthlyEdit from './pages/RepBillingMonthlyEdit';
+import RepBillingUnitCharges from './pages/RepBillingUnitCharges';
+import RepBillingSend from './pages/RepBillingSend';
+import RepPaymentsManage from './pages/RepPaymentsManage';
 import __Layout from './Layout.jsx';
 
 
@@ -32,6 +36,10 @@ export const PAGES = {
     "TenantMyUnit": TenantMyUnit,
     "TenantMyBills": TenantMyBills,
     "TenantMyPayments": TenantMyPayments,
+    "RepBillingMonthlyEdit": RepBillingMonthlyEdit,
+    "RepBillingUnitCharges": RepBillingUnitCharges,
+    "RepBillingSend": RepBillingSend,
+    "RepPaymentsManage": RepPaymentsManage,
 }
 
 export const pagesConfig = {
