@@ -90,7 +90,7 @@ export default function BuildingCreate() {
 
         <Card>
           <CardHeader className="text-center pb-2">
-            <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-blue-500 to-blue-600 flex items-center justify-center mx-auto mb-4">
+            <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-primary to-primary-dark flex items-center justify-center mx-auto mb-4">
               <Building2 className="w-8 h-8 text-white" />
             </div>
             <CardTitle className="text-xl">새 공동주택 등록</CardTitle>
