@@ -1,0 +1,217 @@
+import React, { useState, useEffect } from 'react';
+import { base44 } from '@/api/base44Client';
+import { useNavigate } from 'react-router-dom';
+import { createPageUrl } from '@/utils';
+import { Button } from "@/components/ui/button";
+import { Card, CardContent } from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Building2, Users, Shield, ArrowRight, Check } from 'lucide-react';
+import LoadingSpinner from '@/components/common/LoadingSpinner';
+import PhoneInput from '@/components/common/PhoneInput';
+
+export default function Onboarding() {
+  const navigate = useNavigate();
+  const [user, setUser] = useState(null);
+  const [isLoading, setIsLoading] = useState(true);
+  const [step, setStep] = useState("select"); // select, invite-check
+  const [selectedRole, setSelectedRole] = useState(null);
+  const [invitePhone, setInvitePhone] = useState("010--");
+  const [checkingInvite, setCheckingInvite] = useState(false);
+  const [inviteError, setInviteError] = useState("");
+
+  useEffect(() => {
+    async function init() {
+      try {
+        const currentUser = await base44.auth.me();
+        setUser(currentUser);
+        
+        // Check if user already has memberships
+        const memberships = await base44.entities.BuildingMember.filter({
+          user_email: currentUser.email,
+          status: "활성"
+        });
+        
+        if (memberships.length > 0) {
+          navigate(createPageUrl("MyBuildings"));
+          return;
+        }
+        
+        setIsLoading(false);
+      } catch (err) {
+        base44.auth.redirectToLogin();
+      }
+    }
+    init();
+  }, [navigate]);
+
+  const handleRoleSelect = (role) => {
+    setSelectedRole(role);
+    if (role === "대표자") {
+      navigate(createPageUrl("BuildingCreate"));
+    } else {
+      setStep("invite-check");
+    }
+  };
+
+  const handleCheckInvite = async () => {
+    setCheckingInvite(true);
+    setInviteError("");
+    
+    try {
+      // Search for invitation by phone
+      const invitations = await base44.entities.Invitation.filter({
+        tenant_phone: invitePhone,
+        status: "초대 발송"
+      });
+      
+      if (invitations.length === 0) {
+        setInviteError("해당 번호로 발송된 초대장을 찾을 수 없습니다.");
+        setCheckingInvite(false);
+        return;
+      }
+      
+      const invitation = invitations[0];
+      
+      // Create BuildingMember
+      await base44.entities.BuildingMember.create({
+        building_id: invitation.building_id,
+        user_id: user.id,
+        user_email: user.email,
+        role: "입주자",
+        unit_id: invitation.unit_id,
+        status: "활성"
+      });
+      
+      // Update invitation status
+      await base44.entities.Invitation.update(invitation.id, {
+        status: "가입 완료",
+        joined_at: new Date().toISOString()
+      });
+      
+      navigate(createPageUrl("MyBuildings"));
+    } catch (err) {
+      setInviteError("초대 확인 중 오류가 발생했습니다.");
+    }
+    
+    setCheckingInvite(false);
+  };
+
+  if (isLoading) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-slate-50 to-blue-50 flex items-center justify-center">
+        <LoadingSpinner text="확인 중..." />
+      </div>
+    );
+  }
+
+  return (
+    <div className="min-h-screen bg-gradient-to-br from-slate-50 to-blue-50 flex items-center justify-center p-4">
+      <div className="w-full max-w-lg">
+        {/* Logo */}
+        <div className="text-center mb-8">
+          <div className="inline-flex items-center gap-2 mb-2">
+            <div className="w-10 h-10 rounded-xl bg-blue-600 flex items-center justify-center">
+              <Building2 className="w-6 h-6 text-white" />
+            </div>
+            <span className="text-2xl font-bold text-slate-900">셀프빌</span>
+          </div>
+          <p className="text-slate-500">공동주택 관리비 자동화 서비스</p>
+        </div>
+
+        {step === "select" && (
+          <div className="space-y-4">
+            <h2 className="text-xl font-semibold text-center text-slate-900 mb-6">
+              어떤 역할로 시작하시겠어요?
+            </h2>
+            
+            <Card 
+              className="cursor-pointer hover:shadow-lg transition-all border-2 hover:border-blue-500"
+              onClick={() => handleRoleSelect("대표자")}
+            >
+              <CardContent className="p-6">
+                <div className="flex items-start gap-4">
+                  <div className="w-12 h-12 rounded-xl bg-blue-100 flex items-center justify-center flex-shrink-0">
+                    <Shield className="w-6 h-6 text-blue-600" />
+                  </div>
+                  <div className="flex-1">
+                    <h3 className="font-semibold text-slate-900 mb-1">대표자로 시작</h3>
+                    <p className="text-sm text-slate-500">
+                      공동주택을 새로 등록하고 관리비를 직접 관리합니다.
+                      건물 정보, 세대, 관리비 항목을 설정할 수 있습니다.
+                    </p>
+                  </div>
+                  <ArrowRight className="w-5 h-5 text-slate-400" />
+                </div>
+              </CardContent>
+            </Card>
+
+            <Card 
+              className="cursor-pointer hover:shadow-lg transition-all border-2 hover:border-green-500"
+              onClick={() => handleRoleSelect("입주자")}
+            >
+              <CardContent className="p-6">
+                <div className="flex items-start gap-4">
+                  <div className="w-12 h-12 rounded-xl bg-green-100 flex items-center justify-center flex-shrink-0">
+                    <Users className="w-6 h-6 text-green-600" />
+                  </div>
+                  <div className="flex-1">
+                    <h3 className="font-semibold text-slate-900 mb-1">입주자로 시작</h3>
+                    <p className="text-sm text-slate-500">
+                      대표자로부터 초대를 받으셨나요?
+                      초대 정보를 확인하고 입주자로 등록합니다.
+                    </p>
+                  </div>
+                  <ArrowRight className="w-5 h-5 text-slate-400" />
+                </div>
+              </CardContent>
+            </Card>
+          </div>
+        )}
+
+        {step === "invite-check" && (
+          <Card>
+            <CardContent className="p-6">
+              <h2 className="text-xl font-semibold text-slate-900 mb-2">
+                초대 확인
+              </h2>
+              <p className="text-slate-500 text-sm mb-6">
+                대표자로부터 초대 문자를 받으신 휴대폰 번호를 입력해주세요.
+              </p>
+
+              <div className="space-y-4">
+                <PhoneInput
+                  value={invitePhone}
+                  onChange={setInvitePhone}
+                  label="휴대폰 번호"
+                  required
+                />
+
+                {inviteError && (
+                  <p className="text-sm text-red-500">{inviteError}</p>
+                )}
+
+                <div className="flex gap-3">
+                  <Button
+                    variant="outline"
+                    onClick={() => setStep("select")}
+                    className="flex-1"
+                  >
+                    뒤로
+                  </Button>
+                  <Button
+                    onClick={handleCheckInvite}
+                    disabled={checkingInvite || !invitePhone || invitePhone.includes("--")}
+                    className="flex-1"
+                  >
+                    {checkingInvite ? "확인 중..." : "초대 확인"}
+                  </Button>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+        )}
+      </div>
+    </div>
+  );
+}
