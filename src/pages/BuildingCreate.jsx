@@ -145,7 +145,7 @@ export default function BuildingCreate() {
                 <Button
                   type="submit"
                   disabled={!formData.name || isSaving}
-                  className="flex-1"
+                  className="flex-1 bg-primary hover:bg-primary-dark text-white rounded-full font-semibold"
                 >
                   {isSaving ? (
                     <>
