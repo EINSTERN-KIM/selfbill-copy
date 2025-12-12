@@ -5,7 +5,7 @@ import { Shield, User } from 'lucide-react';
 export default function RoleBadge({ role }) {
   if (role === "대표자") {
     return (
-      <Badge className="bg-blue-100 text-blue-700 hover:bg-blue-100 gap-1">
+      <Badge className="bg-primary-light text-primary hover:bg-primary-light gap-1 font-semibold">
         <Shield className="w-3 h-3" />
         대표자
       </Badge>
@@ -13,7 +13,7 @@ export default function RoleBadge({ role }) {
   }
   
   return (
-    <Badge variant="secondary" className="gap-1">
+    <Badge variant="secondary" className="gap-1 font-medium">
       <User className="w-3 h-3" />
       입주자
     </Badge>
