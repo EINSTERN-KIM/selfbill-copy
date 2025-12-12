@@ -17,6 +17,10 @@ import RepBillingMonthlyEdit from './pages/RepBillingMonthlyEdit';
 import RepBillingUnitCharges from './pages/RepBillingUnitCharges';
 import RepBillingSend from './pages/RepBillingSend';
 import RepPaymentsManage from './pages/RepPaymentsManage';
+import RepReportsTotalFee from './pages/RepReportsTotalFee';
+import RepReportsUnitFee from './pages/RepReportsUnitFee';
+import RepReportsUnitPayments from './pages/RepReportsUnitPayments';
+import RepRoleChange from './pages/RepRoleChange';
 import __Layout from './Layout.jsx';
 
 
@@ -40,6 +44,10 @@ export const PAGES = {
     "RepBillingUnitCharges": RepBillingUnitCharges,
     "RepBillingSend": RepBillingSend,
     "RepPaymentsManage": RepPaymentsManage,
+    "RepReportsTotalFee": RepReportsTotalFee,
+    "RepReportsUnitFee": RepReportsUnitFee,
+    "RepReportsUnitPayments": RepReportsUnitPayments,
+    "RepRoleChange": RepRoleChange,
 }
 
 export const pagesConfig = {
