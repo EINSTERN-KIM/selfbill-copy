@@ -8,6 +8,11 @@ import RepBillingSettings from './pages/RepBillingSettings';
 import RepBankAccount from './pages/RepBankAccount';
 import RepUnits from './pages/RepUnits';
 import RepPlan from './pages/RepPlan';
+import RepFeeItems from './pages/RepFeeItems';
+import RepUnitsInvite from './pages/RepUnitsInvite';
+import TenantMyUnit from './pages/TenantMyUnit';
+import TenantMyBills from './pages/TenantMyBills';
+import TenantMyPayments from './pages/TenantMyPayments';
 import __Layout from './Layout.jsx';
 
 
@@ -22,6 +27,11 @@ export const PAGES = {
     "RepBankAccount": RepBankAccount,
     "RepUnits": RepUnits,
     "RepPlan": RepPlan,
+    "RepFeeItems": RepFeeItems,
+    "RepUnitsInvite": RepUnitsInvite,
+    "TenantMyUnit": TenantMyUnit,
+    "TenantMyBills": TenantMyBills,
+    "TenantMyPayments": TenantMyPayments,
 }
 
 export const pagesConfig = {
