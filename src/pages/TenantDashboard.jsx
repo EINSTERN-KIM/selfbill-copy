@@ -184,19 +184,19 @@ export default function TenantDashboard() {
             return (
               <Card 
                 key={idx}
-                className="cursor-pointer hover:shadow-md transition-all group"
+                className="cursor-pointer hover:shadow-lg transition-all group card-rounded border-0 shadow-sm"
                 onClick={() => navigate(createPageUrl(`${item.page}?buildingId=${buildingId}`))}
               >
-                <CardContent className="p-4">
+                <CardContent className="p-5">
                   <div className="flex items-center gap-4">
-                    <div className={`w-12 h-12 rounded-xl bg-${item.color}-100 flex items-center justify-center`}>
-                      <Icon className={`w-6 h-6 text-${item.color}-600`} />
+                    <div className={`w-14 h-14 rounded-2xl bg-${item.color}-100 flex items-center justify-center`}>
+                      <Icon className={`w-7 h-7 text-${item.color}-600`} />
                     </div>
                     <div className="flex-1">
-                      <p className="font-semibold text-slate-900">{item.label}</p>
-                      <p className="text-sm text-slate-500">{item.description}</p>
+                      <p className="font-bold text-slate-900">{item.label}</p>
+                      <p className="text-sm text-slate-600 mt-0.5">{item.description}</p>
                     </div>
-                    <ChevronRight className="w-5 h-5 text-slate-300 group-hover:text-slate-500" />
+                    <ChevronRight className="w-5 h-5 text-slate-300 group-hover:text-primary transition-colors" />
                   </div>
                 </CardContent>
               </Card>
