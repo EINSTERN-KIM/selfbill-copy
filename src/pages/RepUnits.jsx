@@ -26,13 +26,11 @@ export default function RepUnits() {
   const [editingUnit, setEditingUnit] = useState(null);
   const [isSaving, setIsSaving] = useState(false);
   const [formData, setFormData] = useState({
-    dong: "",
+    unit_name: "",
     floor: "",
-    ho: "",
-    area_sqm: "",
-    payment_ratio: 100,
     tenant_name: "",
-    tenant_phone: "010--"
+    tenant_phone: "010--",
+    share_ratio: ""
   });
 
   useEffect(() => {
@@ -73,37 +71,65 @@ export default function RepUnits() {
     if (unit) {
       setEditingUnit(unit);
       setFormData({
-        dong: unit.dong || "",
+        unit_name: unit.unit_name || "",
         floor: unit.floor || "",
-        ho: unit.ho || "",
-        area_sqm: unit.area_sqm || "",
-        payment_ratio: unit.payment_ratio || 100,
         tenant_name: unit.tenant_name || "",
-        tenant_phone: unit.tenant_phone || "010--"
+        tenant_phone: unit.tenant_phone || "010--",
+        share_ratio: unit.share_ratio || ""
       });
     } else {
       setEditingUnit(null);
       setFormData({
-        dong: "",
+        unit_name: "",
         floor: "",
-        ho: "",
-        area_sqm: "",
-        payment_ratio: 100,
         tenant_name: "",
-        tenant_phone: "010--"
+        tenant_phone: "010--",
+        share_ratio: ""
       });
     }
     setShowDialog(true);
   };
 
+  const validateShareRatio = async () => {
+    if (building?.billing_method !== "by_share_ratio") return true;
+    
+    const allUnits = await base44.entities.Unit.filter({
+      building_id: buildingId,
+      status: "active"
+    });
+    
+    let total = 0;
+    for (const unit of allUnits) {
+      if (editingUnit && unit.id === editingUnit.id) {
+        total += parseFloat(formData.share_ratio) || 0;
+      } else {
+        total += unit.share_ratio || 0;
+      }
+    }
+    
+    if (!editingUnit) {
+      total += parseFloat(formData.share_ratio) || 0;
+    }
+    
+    if (Math.abs(total - 100) > 0.1) {
+      alert("지분율 부과 방식을 선택한 경우, 모든 세대의 관리비 배분 비율의 합이 100%가 되도록 입력해 주세요.\n\n현재 합계: " + total.toFixed(1) + "%");
+      return false;
+    }
+    
+    return true;
+  };
+
   const handleSave = async () => {
+    if (!await validateShareRatio()) {
+      return;
+    }
+    
     setIsSaving(true);
     try {
       const saveData = {
         ...formData,
         building_id: buildingId,
-        area_sqm: formData.area_sqm ? parseFloat(formData.area_sqm) : null,
-        payment_ratio: parseFloat(formData.payment_ratio) || 100,
+        share_ratio: formData.share_ratio ? parseFloat(formData.share_ratio) : null,
         status: "active"
       };
 
@@ -190,7 +216,7 @@ export default function RepUnits() {
                       </div>
                       <div>
                         <p className="font-medium text-slate-900">
-                          {[unit.dong, unit.floor, unit.ho].filter(Boolean).join(" ") || "호수 미입력"}
+                          {unit.unit_name || "호수 미입력"}
                         </p>
                         {unit.tenant_name && (
                           <p className="text-sm text-slate-500">
@@ -198,8 +224,11 @@ export default function RepUnits() {
                             {unit.tenant_phone && ` · ${unit.tenant_phone}`}
                           </p>
                         )}
-                        {unit.area_sqm && (
-                          <p className="text-xs text-slate-400">{unit.area_sqm}㎡</p>
+                        {unit.floor && (
+                          <p className="text-xs text-slate-400">{unit.floor}</p>
+                        )}
+                        {building?.billing_method === "by_share_ratio" && unit.share_ratio && (
+                          <p className="text-xs text-primary font-semibold">배분 비율: {unit.share_ratio}%</p>
                         )}
                       </div>
                     </div>
@@ -233,14 +262,15 @@ export default function RepUnits() {
             </DialogHeader>
             
             <div className="space-y-4 py-4">
-              <div className="grid grid-cols-3 gap-3">
+              <div className="grid grid-cols-2 gap-3">
                 <div className="space-y-2">
-                  <Label>동</Label>
+                  <Label>동/호수 표시 *</Label>
                   <Input
-                    value={formData.dong}
-                    onChange={(e) => setFormData({ ...formData, dong: e.target.value })}
-                    placeholder="A동"
+                    value={formData.unit_name}
+                    onChange={(e) => setFormData({ ...formData, unit_name: e.target.value })}
+                    placeholder="101동 302호 또는 302호"
                   />
+                  <p className="text-xs text-slate-500">예: 101동 302호, 302호</p>
                 </div>
                 <div className="space-y-2">
                   <Label>층</Label>
@@ -250,36 +280,23 @@ export default function RepUnits() {
                     placeholder="3층"
                   />
                 </div>
-                <div className="space-y-2">
-                  <Label>호수 *</Label>
-                  <Input
-                    value={formData.ho}
-                    onChange={(e) => setFormData({ ...formData, ho: e.target.value })}
-                    placeholder="301호"
-                  />
-                </div>
               </div>
 
-              <div className="grid grid-cols-2 gap-3">
+              {building?.billing_method === "by_share_ratio" && (
                 <div className="space-y-2">
-                  <Label>전용면적 (㎡)</Label>
+                  <Label>관리비 배분 비율 (%) *</Label>
                   <Input
                     type="number"
-                    value={formData.area_sqm}
-                    onChange={(e) => setFormData({ ...formData, area_sqm: e.target.value })}
-                    placeholder="59.8"
+                    step="0.1"
+                    value={formData.share_ratio}
+                    onChange={(e) => setFormData({ ...formData, share_ratio: e.target.value })}
+                    placeholder="예: 10.5"
                   />
+                  <p className="text-xs text-slate-500">
+                    모든 세대의 배분 비율 합계가 100%가 되어야 합니다
+                  </p>
                 </div>
-                <div className="space-y-2">
-                  <Label>납부 비율 (%)</Label>
-                  <Input
-                    type="number"
-                    value={formData.payment_ratio}
-                    onChange={(e) => setFormData({ ...formData, payment_ratio: e.target.value })}
-                    placeholder="100"
-                  />
-                </div>
-              </div>
+              )}
 
               <div className="border-t pt-4">
                 <p className="text-sm font-medium text-slate-700 mb-3">입주자 정보</p>
@@ -305,7 +322,7 @@ export default function RepUnits() {
               <Button variant="outline" onClick={() => setShowDialog(false)}>
                 취소
               </Button>
-              <Button onClick={handleSave} disabled={!formData.ho || isSaving}>
+              <Button onClick={handleSave} disabled={!formData.unit_name || isSaving}>
                 {isSaving ? (
                   <>
                     <Loader2 className="w-4 h-4 mr-2 animate-spin" />

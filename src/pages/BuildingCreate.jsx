@@ -60,8 +60,8 @@ export default function BuildingCreate() {
         status: "활성"
       });
 
-      // Navigate to rep dashboard
-      navigate(createPageUrl(`RepDashboard?buildingId=${building.id}`));
+      // Navigate to building setup flow
+      navigate(createPageUrl(`RepBuildingSetup?buildingId=${building.id}`));
     } catch (err) {
       console.error("Error creating building:", err);
       setIsSaving(false);
