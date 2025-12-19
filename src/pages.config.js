@@ -22,6 +22,7 @@ import RepReportsUnitFee from './pages/RepReportsUnitFee';
 import RepReportsUnitPayments from './pages/RepReportsUnitPayments';
 import RepRoleChange from './pages/RepRoleChange';
 import RepUnitsReview from './pages/RepUnitsReview';
+import BuildingSetupWizard from './pages/BuildingSetupWizard';
 import __Layout from './Layout.jsx';
 
 
@@ -50,6 +51,7 @@ export const PAGES = {
     "RepReportsUnitPayments": RepReportsUnitPayments,
     "RepRoleChange": RepRoleChange,
     "RepUnitsReview": RepUnitsReview,
+    "BuildingSetupWizard": BuildingSetupWizard,
 }
 
 export const pagesConfig = {
