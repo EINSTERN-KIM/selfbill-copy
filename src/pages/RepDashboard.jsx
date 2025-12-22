@@ -116,61 +116,31 @@ export default function RepDashboard() {
   ];
 
   return (
-    <div className="min-h-screen bg-slate-50 flex">
-      {/* Sidebar */}
-      <div className={`fixed inset-y-0 left-0 z-50 w-64 bg-white border-r transform transition-transform duration-300 ${sidebarOpen ? 'translate-x-0' : '-translate-x-full'} lg:translate-x-0 lg:static`}>
-        <div className="p-4 border-b flex items-center justify-between">
-          <div className="flex items-center gap-2">
-            <div className="w-8 h-8 rounded-lg bg-primary flex items-center justify-center">
-              <Building2 className="w-5 h-5 text-white" />
-            </div>
-            <span className="font-bold text-slate-900">설정 메뉴</span>
-          </div>
-          <button onClick={() => setSidebarOpen(false)} className="lg:hidden">
-            <X className="w-5 h-5" />
-          </button>
-        </div>
-        <nav className="p-3 space-y-1">
-          {sideMenuItems.map((item, idx) => {
-            const Icon = item.icon;
-            return (
-              <button
-                key={idx}
-                onClick={() => {
-                  navigate(createPageUrl(`${item.page}?buildingId=${buildingId}`));
-                  setSidebarOpen(false);
-                }}
-                className="w-full flex items-center gap-3 px-3 py-2 rounded-lg hover:bg-slate-100 transition-colors text-left"
-              >
-                <Icon className="w-4 h-4 text-slate-600" />
-                <span className="text-sm text-slate-700">{item.label}</span>
-              </button>
-            );
-          })}
-        </nav>
+    <RepLayout buildingId={buildingId} building={building} currentPage="RepDashboard">
+      <div className="max-w-4xl mx-auto px-4 py-6">
         {/* Header */}
         <div className="mb-8">
-            <button
-              onClick={() => navigate(createPageUrl("MyBuildings"))}
-              className="text-sm text-slate-600 hover:text-primary mb-3 flex items-center gap-1"
-            >
-              ← 내 건물 목록
-            </button>
-            <div className="flex items-center justify-between">
-              <div className="flex items-center gap-4">
-                <div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-primary to-primary-dark flex items-center justify-center">
-                  <Building2 className="w-7 h-7 text-white" />
-                </div>
-                <div>
-                  <h1 className="text-2xl font-bold text-slate-900">{building?.name}</h1>
-                  <p className="text-sm text-slate-600">대표자님 환영합니다</p>
-                </div>
+          <button
+            onClick={() => navigate(createPageUrl("MyBuildings"))}
+            className="text-sm text-slate-600 hover:text-primary mb-3 flex items-center gap-1"
+          >
+            ← 내 건물 목록
+          </button>
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-4">
+              <div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-primary to-primary-dark flex items-center justify-center">
+                <Building2 className="w-7 h-7 text-white" />
+              </div>
+              <div>
+                <h1 className="text-2xl font-bold text-slate-900">{building?.name}</h1>
+                <p className="text-sm text-slate-600">대표자님 환영합니다</p>
               </div>
             </div>
           </div>
+        </div>
 
-          {/* Stats Cards */}
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
+        {/* Stats Cards */}
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
             <Card className="card-rounded border-0 shadow-sm">
               <CardContent className="pt-5 pb-5">
                 <div className="flex items-center gap-3">
@@ -230,33 +200,33 @@ export default function RepDashboard() {
             </Card>
           </div>
 
-          {/* Quick Actions */}
-          <div>
-            <h2 className="text-sm font-semibold text-slate-500 mb-3 px-1">
-              빠른 작업
-            </h2>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-              {quickActions.map((item, idx) => {
-                const Icon = item.icon;
-                return (
-                  <Card 
-                    key={idx}
-                    className="cursor-pointer hover:shadow-lg transition-all group card-rounded border-0 shadow-sm"
-                    onClick={() => navigate(createPageUrl(`${item.page}?buildingId=${buildingId}`))}
-                  >
-                    <CardContent className="p-4">
-                      <div className="flex items-center gap-3">
-                        <div className={`w-11 h-11 rounded-2xl bg-${item.color}-100 flex items-center justify-center`}>
-                          <Icon className={`w-5 h-5 text-${item.color}-600`} />
-                        </div>
-                        <span className="font-semibold text-slate-800 flex-1 text-sm">{item.label}</span>
-                        <ChevronRight className="w-4 h-4 text-slate-300 group-hover:text-primary transition-colors" />
+        {/* Quick Actions */}
+        <div>
+          <h2 className="text-sm font-semibold text-slate-500 mb-3 px-1">
+            빠른 작업
+          </h2>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+            {quickActions.map((item, idx) => {
+              const Icon = item.icon;
+              return (
+                <Card 
+                  key={idx}
+                  className="cursor-pointer hover:shadow-lg transition-all group card-rounded border-0 shadow-sm"
+                  onClick={() => navigate(createPageUrl(`${item.page}?buildingId=${buildingId}`))}
+                >
+                  <CardContent className="p-4">
+                    <div className="flex items-center gap-3">
+                      <div className={`w-11 h-11 rounded-2xl bg-${item.color}-100 flex items-center justify-center`}>
+                        <Icon className={`w-5 h-5 text-${item.color}-600`} />
                       </div>
-                    </CardContent>
-                  </Card>
-                );
-              })}
-            </div>
+                      <span className="font-semibold text-slate-800 flex-1 text-sm">{item.label}</span>
+                      <ChevronRight className="w-4 h-4 text-slate-300 group-hover:text-primary transition-colors" />
+                    </div>
+                  </CardContent>
+                </Card>
+              );
+            })}
+          </div>
         </div>
       </div>
     </RepLayout>
