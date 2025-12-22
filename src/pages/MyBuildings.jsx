@@ -4,7 +4,8 @@ import { useNavigate, Link } from 'react-router-dom';
 import { createPageUrl } from '@/utils';
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
-import { Building2, Plus, MapPin, Users, ChevronRight } from 'lucide-react';
+import { Building2, Plus, MapPin, Users, ChevronRight, AlertCircle } from 'lucide-react';
+import { Badge } from "@/components/ui/badge";
 import LoadingSpinner from '@/components/common/LoadingSpinner';
 import EmptyState from '@/components/common/EmptyState';
 import RoleBadge from '@/components/common/RoleBadge';
@@ -58,6 +59,13 @@ export default function MyBuildings() {
 
   const handleBuildingClick = (item) => {
     const { building, role } = item;
+    
+    // Check if building setup is incomplete
+    if (role === "대표자" && (building.status === "draft" || building.setup_step < 5)) {
+      navigate(createPageUrl(`BuildingSetupWizard?buildingId=${building.id}`));
+      return;
+    }
+    
     if (role === "대표자") {
       navigate(createPageUrl(`RepDashboard?buildingId=${building.id}`));
     } else {
@@ -114,11 +122,17 @@ export default function MyBuildings() {
                       <Building2 className="w-7 h-7 text-white" />
                     </div>
                     <div className="flex-1 min-w-0">
-                      <div className="flex items-center gap-2 mb-1">
+                      <div className="flex items-center gap-2 mb-1 flex-wrap">
                         <h3 className="font-semibold text-slate-900 truncate">
                           {item.building?.name || "이름 없음"}
                         </h3>
                         <RoleBadge role={item.role} />
+                        {item.role === "대표자" && (item.building?.status === "draft" || item.building?.setup_step < 5) && (
+                          <Badge className="bg-yellow-100 text-yellow-700 text-xs">
+                            <AlertCircle className="w-3 h-3 mr-1" />
+                            초기 설정 미완료
+                          </Badge>
+                        )}
                       </div>
                       {item.building?.address && (
                         <div className="flex items-center gap-1 text-sm text-slate-500 mb-2">

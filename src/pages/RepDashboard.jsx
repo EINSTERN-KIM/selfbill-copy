@@ -29,7 +29,13 @@ export default function RepDashboard() {
 
   useEffect(() => {
     async function loadStats() {
-      if (!buildingId || isLoading) return;
+      if (!buildingId || isLoading || !building) return;
+      
+      // Check if building setup is complete
+      if (building.status === "draft" || building.setup_step < 5) {
+        navigate(createPageUrl(`BuildingSetupWizard?buildingId=${buildingId}`));
+        return;
+      }
       
       try {
         // Load units
@@ -70,7 +76,7 @@ export default function RepDashboard() {
       }
     }
     loadStats();
-  }, [buildingId, isLoading]);
+  }, [buildingId, isLoading, building, navigate]);
 
   if (isLoading) {
     return (
