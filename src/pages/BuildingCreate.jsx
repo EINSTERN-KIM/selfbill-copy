@@ -42,12 +42,9 @@ export default function BuildingCreate() {
       // Create building with initial values
       const building = await base44.entities.Building.create({
         ...formData,
-        status: "active",
+        status: "draft",
         building_units_count: 0,
-        billing_unit_count: 0,
-        billing_amount_per_unit: 990,
-        billing_monthly_fee_krw: 0,
-        plan_type: "basic"
+        setup_step: 0
       });
 
       // Create BuildingMember for current user as representative
@@ -60,8 +57,8 @@ export default function BuildingCreate() {
         status: "활성"
       });
 
-      // Navigate to building setup flow
-      navigate(createPageUrl(`RepBuildingSetup?buildingId=${building.id}`));
+      // Navigate to building setup wizard
+      navigate(createPageUrl(`BuildingSetupWizard?buildingId=${building.id}`));
     } catch (err) {
       console.error("Error creating building:", err);
       setIsSaving(false);
