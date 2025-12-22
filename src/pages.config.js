@@ -1,4 +1,3 @@
-import BuildingCreate from './pages/BuildingCreate';
 import BuildingSetupWizard from './pages/BuildingSetupWizard';
 import Home from './pages/Home';
 import MyBuildings from './pages/MyBuildings';
@@ -28,7 +27,6 @@ import __Layout from './Layout.jsx';
 
 
 export const PAGES = {
-    "BuildingCreate": BuildingCreate,
     "BuildingSetupWizard": BuildingSetupWizard,
     "Home": Home,
     "MyBuildings": MyBuildings,

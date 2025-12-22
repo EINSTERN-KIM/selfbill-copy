@@ -48,7 +48,7 @@ export default function Onboarding() {
   const handleRoleSelect = (role) => {
     setSelectedRole(role);
     if (role === "대표자") {
-      navigate(createPageUrl("BuildingCreate"));
+      navigate(createPageUrl("BuildingSetupWizard"));
     } else {
       setStep("invite-check");
     }

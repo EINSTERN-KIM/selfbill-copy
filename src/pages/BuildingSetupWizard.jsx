@@ -44,6 +44,8 @@ export default function BuildingSetupWizard() {
   // Step 2: 관리비 설정
   const [step2Data, setStep2Data] = useState({
     billing_method: "",
+    billing_period_start: 1,
+    billing_period_end: 31,
     billing_due_day: 10,
     late_fee_rate_percent: 2.0,
     bank_name: "",
@@ -96,6 +98,8 @@ export default function BuildingSetupWizard() {
           if (bldg.setup_step >= 2) {
             setStep2Data({
               billing_method: bldg.billing_method || "",
+              billing_period_start: bldg.billing_period_start || 1,
+              billing_period_end: bldg.billing_period_end || 31,
               billing_due_day: bldg.billing_due_day || 10,
               late_fee_rate_percent: bldg.late_fee_rate_percent || 2.0,
               bank_name: bldg.bank_name || "",
@@ -198,18 +202,28 @@ export default function BuildingSetupWizard() {
       return;
     }
 
+    // 전화번호 형식 검증
+    const phone1 = unitForm.phone1.trim();
+    const phone2 = unitForm.phone2.trim();
+    const phone3 = unitForm.phone3.trim();
+    
+    if (phone1.length < 3 || phone2.length < 3 || phone2.length > 4 || phone3.length !== 4) {
+      alert("올바른 전화번호 형식을 입력해 주세요. (예: 010-1234-5678)");
+      return;
+    }
+
     if (step2Data.billing_method === "지분율에 의거 부과" && !unitForm.share_ratio) {
       alert("지분율을 입력해 주세요.");
       return;
     }
 
     const tenant_phone = `${unitForm.phone1}-${unitForm.phone2}-${unitForm.phone3}`;
-    const unit_name = [unitForm.dong && `${unitForm.dong}동`, unitForm.ho && `${unitForm.ho}호`].filter(Boolean).join(" ");
+    const unit_name = [step1Data.name && `${step1Data.name}동`, unitForm.ho && `${unitForm.ho}호`].filter(Boolean).join(" ");
 
     try {
       if (editingUnit) {
         await base44.entities.Unit.update(editingUnit.id, {
-          dong: unitForm.dong,
+          dong: step1Data.name,
           ho: unitForm.ho,
           floor: unitForm.floor,
           unit_name,
@@ -221,7 +235,7 @@ export default function BuildingSetupWizard() {
         });
       } else {
         await base44.entities.Unit.create({
-          dong: unitForm.dong,
+          dong: step1Data.name,
           ho: unitForm.ho,
           floor: unitForm.floor,
           unit_name,
@@ -577,6 +591,42 @@ export default function BuildingSetupWizard() {
 
               <Separator />
 
+              <div className="space-y-4">
+                <Label className="text-base font-semibold">관리비 부과 기간 설정</Label>
+                <div className="grid grid-cols-2 gap-4">
+                  <div className="space-y-2">
+                    <Label>부과 기간 시작일</Label>
+                    <div className="flex items-center gap-2">
+                      <Input
+                        type="number"
+                        min="1"
+                        max="31"
+                        value={step2Data.billing_period_start}
+                        onChange={(e) => setStep2Data({...step2Data, billing_period_start: parseInt(e.target.value)})}
+                        className="w-24"
+                      />
+                      <span className="text-slate-500">일</span>
+                    </div>
+                  </div>
+                  <div className="space-y-2">
+                    <Label>부과 기간 종료일</Label>
+                    <div className="flex items-center gap-2">
+                      <Input
+                        type="number"
+                        min="1"
+                        max="31"
+                        value={step2Data.billing_period_end}
+                        onChange={(e) => setStep2Data({...step2Data, billing_period_end: parseInt(e.target.value)})}
+                        className="w-24"
+                      />
+                      <span className="text-slate-500">일</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <Separator />
+
               <div className="grid grid-cols-2 gap-4">
                 <div className="space-y-2">
                   <Label>납입 기일 (매월)</Label>
@@ -677,14 +727,12 @@ export default function BuildingSetupWizard() {
               <div className="p-4 bg-slate-50 rounded-lg space-y-4">
                 <div className="grid grid-cols-3 gap-3">
                   <div>
-                    <Label className="text-xs">동</Label>
+                    <Label className="text-xs">동 (고정)</Label>
                     <div className="flex items-center gap-1">
                       <Input
-                        type="number"
-                        value={unitForm.dong}
-                        onChange={(e) => setUnitForm({...unitForm, dong: e.target.value})}
-                        placeholder="101"
-                        className="flex-1"
+                        value={step1Data.name}
+                        disabled
+                        className="flex-1 bg-slate-100"
                       />
                       <span className="text-sm text-slate-600">동</span>
                     </div>
@@ -790,7 +838,7 @@ export default function BuildingSetupWizard() {
                       />
                       <div>
                         <div className="font-semibold text-slate-900">
-                          {[unit.dong && `${unit.dong}동`, unit.ho && `${unit.ho}호`, unit.floor && `${unit.floor}층`].filter(Boolean).join(" ")}
+                          {unit.unit_name || [unit.dong && `${unit.dong}동`, unit.ho && `${unit.ho}호`, unit.floor && `${unit.floor}층`].filter(Boolean).join(" ")}
                         </div>
                         <div className="text-sm text-slate-500">
                           {unit.tenant_name} · {unit.tenant_phone}
