@@ -10,6 +10,7 @@ import LoadingSpinner from '@/components/common/LoadingSpinner';
 import PageHeader from '@/components/common/PageHeader';
 import EmptyState from '@/components/common/EmptyState';
 import { useBuildingAuth } from '@/components/common/useBuildingAuth';
+import RepLayout from '@/components/common/RepLayout';
 
 export default function RepReportsUnitPayments() {
   const urlParams = new URLSearchParams(window.location.search);
@@ -47,22 +48,26 @@ export default function RepReportsUnitPayments() {
 
   if (isLoading || isLoadingData) {
     return (
-      <div className="min-h-screen bg-slate-50 flex items-center justify-center">
-        <LoadingSpinner />
-      </div>
+      <RepLayout buildingId={buildingId} building={building} currentPage="RepReportsUnitPayments">
+        <div className="flex items-center justify-center py-12">
+          <LoadingSpinner />
+        </div>
+      </RepLayout>
     );
   }
 
   if (error) {
     return (
-      <div className="min-h-screen bg-slate-50 flex items-center justify-center p-4">
-        <Card className="max-w-md w-full">
-          <CardContent className="pt-6 text-center">
-            <AlertCircle className="w-12 h-12 text-red-500 mx-auto mb-4" />
-            <p className="text-slate-500">{error}</p>
-          </CardContent>
-        </Card>
-      </div>
+      <RepLayout buildingId={buildingId} building={building} currentPage="RepReportsUnitPayments">
+        <div className="flex items-center justify-center p-4">
+          <Card className="max-w-md w-full">
+            <CardContent className="pt-6 text-center">
+              <AlertCircle className="w-12 h-12 text-red-500 mx-auto mb-4" />
+              <p className="text-slate-500">{error}</p>
+            </CardContent>
+          </Card>
+        </div>
+      </RepLayout>
     );
   }
 
@@ -99,7 +104,7 @@ export default function RepReportsUnitPayments() {
   };
 
   return (
-    <div className="min-h-screen bg-slate-50">
+    <RepLayout buildingId={buildingId} building={building} currentPage="RepReportsUnitPayments">
       <div className="max-w-6xl mx-auto px-4 py-6">
         <PageHeader
           title="세대별 납부 현황"
@@ -207,6 +212,6 @@ export default function RepReportsUnitPayments() {
           </Card>
         )}
       </div>
-    </div>
+    </RepLayout>
   );
 }

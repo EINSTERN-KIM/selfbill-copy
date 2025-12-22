@@ -128,7 +128,7 @@ export default function RepPaymentsManage() {
 
   if (isLoading || isLoadingData) {
     return (
-      <RepLayout buildingId={buildingId} building={building}>
+      <RepLayout buildingId={buildingId} building={building} currentPage="RepPaymentsManage">
         <div className="min-h-screen bg-slate-50 flex items-center justify-center">
           <LoadingSpinner />
         </div>
@@ -138,7 +138,7 @@ export default function RepPaymentsManage() {
 
   if (error) {
     return (
-      <RepLayout buildingId={buildingId} building={building}>
+      <RepLayout buildingId={buildingId} building={building} currentPage="RepPaymentsManage">
         <div className="min-h-screen bg-slate-50 flex items-center justify-center p-4">
           <Card className="max-w-md w-full">
             <CardContent className="pt-6 text-center">
@@ -168,7 +168,7 @@ export default function RepPaymentsManage() {
   const unpaidCharges = unitCharges.filter(charge => formData[charge.id]?.status !== "완납");
 
   return (
-    <RepLayout buildingId={buildingId} building={building}>
+    <RepLayout buildingId={buildingId} building={building} currentPage="RepPaymentsManage">
       <div className="max-w-4xl mx-auto px-4 py-6">
         <div className="mb-6">
           <h1 className="text-2xl font-bold text-slate-900 mb-2">납부 현황 관리</h1>

@@ -11,6 +11,7 @@ import { AlertCircle, Loader2, Save, CreditCard } from 'lucide-react';
 import LoadingSpinner from '@/components/common/LoadingSpinner';
 import PageHeader from '@/components/common/PageHeader';
 import { useBuildingAuth } from '@/components/common/useBuildingAuth';
+import RepLayout from '@/components/common/RepLayout';
 
 const BANKS = [
   "국민은행", "신한은행", "우리은행", "하나은행", "농협은행",
@@ -54,27 +55,31 @@ export default function RepBankAccount() {
 
   if (isLoading) {
     return (
-      <div className="min-h-screen bg-slate-50 flex items-center justify-center">
-        <LoadingSpinner />
-      </div>
+      <RepLayout buildingId={buildingId} building={building} currentPage="RepBankAccount">
+        <div className="flex items-center justify-center py-12">
+          <LoadingSpinner />
+        </div>
+      </RepLayout>
     );
   }
 
   if (error) {
     return (
-      <div className="min-h-screen bg-slate-50 flex items-center justify-center p-4">
-        <Card className="max-w-md w-full">
-          <CardContent className="pt-6 text-center">
-            <AlertCircle className="w-12 h-12 text-red-500 mx-auto mb-4" />
-            <p className="text-slate-500">{error}</p>
-          </CardContent>
-        </Card>
-      </div>
+      <RepLayout buildingId={buildingId} building={building} currentPage="RepBankAccount">
+        <div className="flex items-center justify-center p-4">
+          <Card className="max-w-md w-full">
+            <CardContent className="pt-6 text-center">
+              <AlertCircle className="w-12 h-12 text-red-500 mx-auto mb-4" />
+              <p className="text-slate-500">{error}</p>
+            </CardContent>
+          </Card>
+        </div>
+      </RepLayout>
     );
   }
 
   return (
-    <div className="min-h-screen bg-slate-50">
+    <RepLayout buildingId={buildingId} building={building} currentPage="RepBankAccount">
       <div className="max-w-lg mx-auto px-4 py-6">
         <PageHeader
           title="입금 계좌"
@@ -158,6 +163,6 @@ export default function RepBankAccount() {
           </CardContent>
         </Card>
       </div>
-    </div>
+    </RepLayout>
   );
 }
