@@ -413,7 +413,7 @@ export default function BuildingSetupWizard() {
       const unitCount = units.length;
       let monthlyFee = 19900;
       if (unitCount > 10) {
-        monthlyFee = 19900 + (unitCount - 10) * 2000;
+        monthlyFee = 19900 + (unitCount - 10) * 2900;
       }
 
       await base44.entities.Building.update(buildingId, {
@@ -942,7 +942,7 @@ export default function BuildingSetupWizard() {
                   <div className="text-5xl font-bold text-slate-900">
                     {units.length <= 10 
                       ? '19,900'
-                      : (19900 + (units.length - 10) * 2000).toLocaleString()
+                      : (19900 + (units.length - 10) * 2900).toLocaleString()
                     }<span className="text-2xl text-slate-600">원/월</span>
                   </div>
                 </div>
@@ -956,7 +956,7 @@ export default function BuildingSetupWizard() {
                     {units.length > 10 && (
                       <div className="flex justify-between">
                         <span className="text-slate-600">추가 {units.length - 10}세대</span>
-                        <span className="font-medium">+ {((units.length - 10) * 2000).toLocaleString()}원</span>
+                        <span className="font-medium">+ {((units.length - 10) * 2900).toLocaleString()}원</span>
                       </div>
                     )}
                     <Separator />
@@ -965,7 +965,7 @@ export default function BuildingSetupWizard() {
                       <span className="text-primary">
                         {units.length <= 10 
                           ? '19,900'
-                          : (19900 + (units.length - 10) * 2000).toLocaleString()
+                          : (19900 + (units.length - 10) * 2900).toLocaleString()
                         }원/월
                       </span>
                     </div>
