@@ -3,11 +3,12 @@ import { base44 } from '@/api/base44Client';
 import { useNavigate } from 'react-router-dom';
 import { createPageUrl } from '@/utils';
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { AlertCircle, Loader2, Save, Calendar, Plus, Trash2 } from 'lucide-react';
+import { Checkbox } from "@/components/ui/checkbox";
+import { AlertCircle, Loader2, Save, Calendar, Trash2 } from 'lucide-react';
 import LoadingSpinner from '@/components/common/LoadingSpinner';
 import PageHeader from '@/components/common/PageHeader';
 import { useBuildingAuth } from '@/components/common/useBuildingAuth';
@@ -29,6 +30,7 @@ export default function RepBillingMonthlyEdit() {
   const [billCycle, setBillCycle] = useState(null);
   const [billItems, setBillItems] = useState([]);
   const [templates, setTemplates] = useState([]);
+  const [units, setUnits] = useState([]);
 
   useEffect(() => {
     loadData();
@@ -39,14 +41,14 @@ export default function RepBillingMonthlyEdit() {
     setIsLoadingData(true);
     
     try {
-      // Load templates
-      const templatesData = await base44.entities.BillItemTemplate.filter({
-        building_id: buildingId,
-        is_active: true
-      });
+      const [templatesData, unitsData] = await Promise.all([
+        base44.entities.BillItemTemplate.filter({ building_id: buildingId }),
+        base44.entities.Unit.filter({ building_id: buildingId, status: "active" })
+      ]);
+      
       setTemplates(templatesData);
+      setUnits(unitsData);
 
-      // Load or create bill cycle
       const cycles = await base44.entities.BillCycle.filter({
         building_id: buildingId,
         year_month: selectedYearMonth
@@ -56,15 +58,11 @@ export default function RepBillingMonthlyEdit() {
       
       if (!cycle) {
         const [year, month] = selectedYearMonth.split('-').map(Number);
-        const dueDay = building?.due_day || 25;
-        const dueDate = new Date(year, month - 1, dueDay);
-        
         cycle = await base44.entities.BillCycle.create({
           building_id: buildingId,
           year: year,
           month: month,
           year_month: selectedYearMonth,
-          due_date: dueDate.toISOString().split('T')[0],
           status: "draft",
           is_locked: false,
           total_amount: 0
@@ -73,13 +71,11 @@ export default function RepBillingMonthlyEdit() {
       
       setBillCycle(cycle);
 
-      // Load bill items for this cycle
       const items = await base44.entities.BillItem.filter({
         bill_cycle_id: cycle.id
       });
 
       if (items.length === 0 && templatesData.length > 0) {
-        // Auto-create items from templates
         const newItems = [];
         for (const template of templatesData) {
           const item = await base44.entities.BillItem.create({
@@ -88,9 +84,9 @@ export default function RepBillingMonthlyEdit() {
             template_id: template.id,
             name: template.name,
             category: template.category,
-            amount_total: template.default_amount || 0,
-            allocation_method: building?.billing_method || "균등분배",
-            type: template.default_type
+            amount_total: template.amount_type === "고정" ? (template.default_amount || 0) : 0,
+            type: template.default_type || "공용",
+            target_unit_ids: []
           });
           newItems.push(item);
         }
@@ -112,24 +108,22 @@ export default function RepBillingMonthlyEdit() {
     ));
   };
 
-  const handleAddItem = async () => {
-    try {
-      const newItem = await base44.entities.BillItem.create({
-        bill_cycle_id: billCycle.id,
-        building_id: buildingId,
-        name: "새 항목",
-        category: "일반관리비",
-        amount_total: 0,
-        allocation_method: building?.billing_method || "균등분배",
-        type: "공용"
-      });
-      setBillItems(prev => [...prev, newItem]);
-    } catch (err) {
-      console.error("Error adding item:", err);
-    }
+  const toggleUnitSelection = (itemId, unitId) => {
+    setBillItems(prev => prev.map(item => {
+      if (item.id !== itemId) return item;
+      const targetIds = item.target_unit_ids || [];
+      const hasUnit = targetIds.includes(unitId);
+      return {
+        ...item,
+        target_unit_ids: hasUnit 
+          ? targetIds.filter(id => id !== unitId)
+          : [...targetIds, unitId]
+      };
+    }));
   };
 
   const handleDeleteItem = async (itemId) => {
+    if (!confirm("정말 삭제하시겠습니까?")) return;
     try {
       await base44.entities.BillItem.delete(itemId);
       setBillItems(prev => prev.filter(item => item.id !== itemId));
@@ -141,18 +135,16 @@ export default function RepBillingMonthlyEdit() {
   const handleSave = async () => {
     setIsSaving(true);
     try {
-      // Update all items
       for (const item of billItems) {
         await base44.entities.BillItem.update(item.id, {
           name: item.name,
           category: item.category,
           amount_total: parseFloat(item.amount_total) || 0,
-          allocation_method: item.allocation_method,
-          type: item.type
+          type: item.type,
+          target_unit_ids: item.target_unit_ids || []
         });
       }
 
-      // Update cycle total
       const total = billItems.reduce((sum, item) => sum + (parseFloat(item.amount_total) || 0), 0);
       await base44.entities.BillCycle.update(billCycle.id, {
         total_amount: total
@@ -188,7 +180,6 @@ export default function RepBillingMonthlyEdit() {
 
   const totalAmount = billItems.reduce((sum, item) => sum + (parseFloat(item.amount_total) || 0), 0);
 
-  // Generate year-month options
   const yearMonthOptions = [];
   const now = new Date();
   for (let i = -3; i <= 3; i++) {
@@ -196,6 +187,13 @@ export default function RepBillingMonthlyEdit() {
     const ym = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}`;
     yearMonthOptions.push(ym);
   }
+
+  const getTemplateType = (itemId) => {
+    const item = billItems.find(i => i.id === itemId);
+    if (!item?.template_id) return null;
+    const template = templates.find(t => t.id === item.template_id);
+    return template?.amount_type;
+  };
 
   return (
     <div className="min-h-screen bg-slate-50">
@@ -206,11 +204,10 @@ export default function RepBillingMonthlyEdit() {
           backUrl={createPageUrl(`RepDashboard?buildingId=${buildingId}`)}
         />
 
-        {/* Month Selector */}
         <Card className="mb-6">
           <CardContent className="pt-4 pb-4">
             <div className="flex items-center gap-3">
-              <Calendar className="w-5 h-5 text-blue-600" />
+              <Calendar className="w-5 h-5 text-primary" />
               <Select value={selectedYearMonth} onValueChange={setSelectedYearMonth}>
                 <SelectTrigger className="w-40">
                   <SelectValue />
@@ -221,114 +218,83 @@ export default function RepBillingMonthlyEdit() {
                   ))}
                 </SelectContent>
               </Select>
-              {billCycle?.status === "sent" && (
-                <span className="text-xs bg-green-100 text-green-700 px-2 py-1 rounded">발송완료</span>
-              )}
             </div>
           </CardContent>
         </Card>
 
-        {/* Bill Items */}
         <div className="space-y-3 mb-6">
-          {billItems.map((item) => (
-            <Card key={item.id}>
-              <CardContent className="p-4">
-                <div className="flex items-start gap-4">
-                  <div className="flex-1 space-y-3">
-                    <div className="grid grid-cols-2 gap-3">
-                      <div>
-                        <Label className="text-xs">항목명</Label>
-                        <Input
-                          value={item.name}
-                          onChange={(e) => handleItemChange(item.id, 'name', e.target.value)}
-                          className="mt-1"
-                        />
+          {billItems.map((item) => {
+            const templateType = getTemplateType(item.id);
+            const isFixed = templateType === "고정";
+            const isVariable = templateType === "변동";
+            
+            return (
+              <Card key={item.id}>
+                <CardContent className="p-4">
+                  <div className="flex items-start gap-4">
+                    <div className="flex-1 space-y-3">
+                      <div className="grid grid-cols-2 gap-3">
+                        <div>
+                          <Label className="text-xs">항목명</Label>
+                          <Input
+                            value={item.name}
+                            disabled
+                            className="mt-1 bg-slate-50"
+                          />
+                        </div>
+                        <div>
+                          <Label className="text-xs">
+                            금액 (원) {isFixed && <span className="text-slate-500">(고정)</span>}
+                          </Label>
+                          <Input
+                            type="number"
+                            value={item.amount_total}
+                            onChange={(e) => handleItemChange(item.id, 'amount_total', e.target.value)}
+                            disabled={isFixed}
+                            className={`mt-1 ${isFixed ? 'bg-slate-50' : ''}`}
+                          />
+                        </div>
                       </div>
-                      <div>
-                        <Label className="text-xs">금액 (원)</Label>
-                        <Input
-                          type="number"
-                          value={item.amount_total}
-                          onChange={(e) => handleItemChange(item.id, 'amount_total', e.target.value)}
-                          className="mt-1"
-                        />
-                      </div>
-                    </div>
-                    <div className="grid grid-cols-3 gap-3">
-                      <div>
-                        <Label className="text-xs">분류</Label>
-                        <Select 
-                          value={item.category} 
-                          onValueChange={(v) => handleItemChange(item.id, 'category', v)}
-                        >
-                          <SelectTrigger className="mt-1">
-                            <SelectValue />
-                          </SelectTrigger>
-                          <SelectContent>
-                            <SelectItem value="일반관리비">일반관리비</SelectItem>
-                            <SelectItem value="수선충당금">수선충당금</SelectItem>
-                            <SelectItem value="기타">기타</SelectItem>
-                          </SelectContent>
-                        </Select>
-                      </div>
-                      <div>
-                        <Label className="text-xs">부과 유형</Label>
-                        <Select 
-                          value={item.type} 
-                          onValueChange={(v) => handleItemChange(item.id, 'type', v)}
-                        >
-                          <SelectTrigger className="mt-1">
-                            <SelectValue />
-                          </SelectTrigger>
-                          <SelectContent>
-                            <SelectItem value="공용">공용</SelectItem>
-                            <SelectItem value="세대별">세대별</SelectItem>
-                          </SelectContent>
-                        </Select>
-                      </div>
-                      <div>
-                        <Label className="text-xs">분배 방식</Label>
-                        <Select 
-                          value={item.allocation_method} 
-                          onValueChange={(v) => handleItemChange(item.id, 'allocation_method', v)}
-                        >
-                          <SelectTrigger className="mt-1">
-                            <SelectValue />
-                          </SelectTrigger>
-                          <SelectContent>
-                            <SelectItem value="균등분배">균등분배</SelectItem>
-                            <SelectItem value="면적비례">면적비례</SelectItem>
-                            <SelectItem value="세대별차등">세대별차등</SelectItem>
-                          </SelectContent>
-                        </Select>
-                      </div>
-                    </div>
-                  </div>
-                  <Button
-                    variant="ghost"
-                    size="icon"
-                    onClick={() => handleDeleteItem(item.id)}
-                    className="text-red-500 hover:text-red-600"
-                  >
-                    <Trash2 className="w-4 h-4" />
-                  </Button>
-                </div>
-              </CardContent>
-            </Card>
-          ))}
 
-          <Button variant="outline" onClick={handleAddItem} className="w-full">
-            <Plus className="w-4 h-4 mr-2" />
-            항목 추가
-          </Button>
+                      {isVariable && item.type === "세대별" && (
+                        <div className="mt-3 p-3 bg-slate-50 rounded-lg">
+                          <Label className="text-xs mb-2 block">대상 세대 선택</Label>
+                          <div className="space-y-2">
+                            {units.map(unit => (
+                              <label key={unit.id} className="flex items-center gap-2 cursor-pointer">
+                                <Checkbox
+                                  checked={(item.target_unit_ids || []).includes(unit.id)}
+                                  onCheckedChange={() => toggleUnitSelection(item.id, unit.id)}
+                                />
+                                <span className="text-sm">{unit.unit_name}</span>
+                              </label>
+                            ))}
+                          </div>
+                        </div>
+                      )}
+                    </div>
+                    {!isFixed && (
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        onClick={() => handleDeleteItem(item.id)}
+                        className="text-red-500 hover:text-red-600"
+                      >
+                        <Trash2 className="w-4 h-4" />
+                      </Button>
+                    )}
+                  </div>
+                </CardContent>
+              </Card>
+            );
+          })}
         </div>
 
-        {/* Total & Actions */}
         <Card className="sticky bottom-4">
           <CardContent className="p-4">
             <div className="flex items-center justify-between mb-4">
               <span className="text-slate-600">총 관리비</span>
-              <span className="text-2xl font-bold text-blue-600">
+              <span className="text-2xl font-bold text-primary">
                 {totalAmount.toLocaleString()}원
               </span>
             </div>
@@ -343,7 +309,7 @@ export default function RepBillingMonthlyEdit() {
               <Button
                 onClick={handleSave}
                 disabled={isSaving}
-                className="flex-1"
+                className="flex-1 bg-primary hover:bg-primary-dark text-white"
               >
                 {isSaving ? (
                   <>
