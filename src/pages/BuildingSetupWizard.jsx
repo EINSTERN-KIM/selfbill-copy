@@ -317,6 +317,12 @@ export default function BuildingSetupWizard() {
       return;
     }
 
+    const plannedCount = parseInt(step1Data.planned_units_count) || 0;
+    if (units.length < plannedCount) {
+      alert(`1단계에서 입력한 ${plannedCount}세대를 모두 등록해야 합니다. 현재: ${units.length}세대`);
+      return;
+    }
+
     if (step2Data.billing_method === "지분율에 의거 부과") {
       const totalShare = units.reduce((sum, u) => sum + (u.share_ratio || 0), 0);
       if (Math.abs(totalShare - 100) > 0.1) {
@@ -725,18 +731,7 @@ export default function BuildingSetupWizard() {
             <CardContent className="space-y-6">
               {/* 세대 입력 폼 */}
               <div className="p-4 bg-slate-50 rounded-lg space-y-4">
-                <div className="grid grid-cols-3 gap-3">
-                  <div>
-                    <Label className="text-xs">동 (고정)</Label>
-                    <div className="flex items-center gap-1">
-                      <Input
-                        value={step1Data.name}
-                        disabled
-                        className="flex-1 bg-slate-100"
-                      />
-                      <span className="text-sm text-slate-600">동</span>
-                    </div>
-                  </div>
+                <div className="grid grid-cols-2 gap-3">
                   <div>
                     <Label className="text-xs">호수 *</Label>
                     <div className="flex items-center gap-1">
