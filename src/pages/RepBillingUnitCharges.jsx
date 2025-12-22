@@ -83,39 +83,51 @@ export default function RepBillingUnitCharges() {
       }
 
       const newCharges = [];
-      const totalArea = units.reduce((sum, u) => sum + (u.area_sqm || 0), 0);
-      const totalRatio = units.reduce((sum, u) => sum + (u.payment_ratio || 100), 0);
+
+      // 공용 항목별로 정확한 분배를 위한 계산
+      const commonItems = billItems.filter(item => item.type === "공용");
+      const itemAllocations = {};
+
+      for (const item of commonItems) {
+        const itemTotal = parseFloat(item.amount_total) || 0;
+        const perUnit = Math.floor(itemTotal / units.length);
+        const remainder = itemTotal - (perUnit * units.length);
+        
+        itemAllocations[item.id] = units.map((unit, idx) => ({
+          unitId: unit.id,
+          amount: perUnit + (idx < remainder ? 1 : 0)
+        }));
+      }
+
+      // 세대별 항목 처리
+      const unitSpecificItems = billItems.filter(item => item.type === "세대별");
 
       for (const unit of units) {
         const breakdown = [];
         let unitTotal = 0;
 
-        for (const item of billItems) {
-          let amount = 0;
-          
-          if (item.type === "공용") {
-            const itemTotal = parseFloat(item.amount_total) || 0;
-            
-            if (item.allocation_method === "균등분배") {
-              amount = itemTotal / units.length;
-            } else if (item.allocation_method === "면적비례" && totalArea > 0) {
-              amount = itemTotal * ((unit.area_sqm || 0) / totalArea);
-            } else if (item.allocation_method === "세대별차등" && totalRatio > 0) {
-              amount = itemTotal * ((unit.payment_ratio || 100) / totalRatio);
-            } else {
-              amount = itemTotal / units.length;
-            }
-          }
-          
-          amount = Math.round(amount);
-          if (amount > 0) {
-            breakdown.push({ name: item.name, amount });
-            unitTotal += amount;
+        // 공용 항목 적용
+        for (const item of commonItems) {
+          const allocation = itemAllocations[item.id]?.find(a => a.unitId === unit.id);
+          if (allocation && allocation.amount > 0) {
+            breakdown.push({ name: item.name, amount: allocation.amount });
+            unitTotal += allocation.amount;
           }
         }
 
-        // Calculate late fee
-        const lateFeeRate = building?.late_fee_rate || 0;
+        // 세대별 항목 적용
+        for (const item of unitSpecificItems) {
+          const targetIds = item.target_unit_ids || [];
+          if (targetIds.includes(unit.id)) {
+            const amount = parseFloat(item.amount_total) || 0;
+            if (amount > 0) {
+              breakdown.push({ name: item.name, amount });
+              unitTotal += amount;
+            }
+          }
+        }
+
+        const lateFeeRate = building?.late_fee_rate_percent || 0;
         const lateFeeAmount = Math.round(unitTotal * (lateFeeRate / 100));
 
         const charge = await base44.entities.UnitCharge.create({

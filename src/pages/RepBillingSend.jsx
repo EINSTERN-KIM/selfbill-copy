@@ -99,59 +99,73 @@ export default function RepBillingSend() {
 
   const handleSend = async () => {
     setIsSending(true);
+    let successCount = 0;
+    let failCount = 0;
     
     try {
       for (const unitId of selectedUnits) {
         const unit = units.find(u => u.id === unitId);
         const charge = unitCharges.find(c => c.unit_id === unitId);
         
-        if (!unit || !charge) continue;
+        if (!unit || !charge) {
+          failCount++;
+          continue;
+        }
 
-        // Update charge as sent
-        await base44.entities.UnitCharge.update(charge.id, {
-          is_sent: true,
-          sent_at: new Date().toISOString()
-        });
-
-        // Create notification log
-        await base44.entities.NotificationLog.create({
-          building_id: buildingId,
-          type: "관리비청구서",
-          to_phone: unit.tenant_phone,
-          to_name: unit.tenant_name || "",
-          message_content: `[${building?.name}] ${selectedYearMonth} 관리비 청구서\n\n${unit.tenant_name || "입주자"}님의 관리비\n청구액: ${charge.amount_total?.toLocaleString()}원\n납기일: 매월 ${building?.due_day || 25}일\n\n입금계좌: ${building?.bank_name} ${building?.bank_account_number}\n예금주: ${building?.bank_account_holder}`,
-          status: "성공",
-          reference_id: charge.id,
-          reference_type: "UnitCharge",
-          sent_at: new Date().toISOString()
-        });
-
-        // Create payment status record
-        const existingPayment = await base44.entities.PaymentStatus.filter({
-          unit_charge_id: charge.id
-        });
-        
-        if (existingPayment.length === 0) {
-          await base44.entities.PaymentStatus.create({
-            unit_charge_id: charge.id,
-            building_id: buildingId,
-            unit_id: unitId,
-            year_month: selectedYearMonth,
-            status: "미납",
-            charged_amount: charge.amount_total,
-            paid_amount: 0
+        try {
+          await base44.entities.UnitCharge.update(charge.id, {
+            is_sent: true,
+            sent_at: new Date().toISOString()
           });
+
+          await base44.entities.NotificationLog.create({
+            building_id: buildingId,
+            event_type: "BILL_NOTICE",
+            to_phone: unit.tenant_phone,
+            title: `[${building?.name}] ${selectedYearMonth} 관리비 청구서`,
+            body: `${unit.tenant_name || "입주자"}님의 관리비\n청구액: ${charge.amount_total?.toLocaleString()}원\n납기일: 매월 ${building?.billing_due_day || 25}일\n\n입금계좌: ${building?.bank_name} ${building?.bank_account}\n예금주: ${building?.bank_holder}`,
+            status: "발송성공",
+            event_ref_id: charge.id,
+            sent_at: new Date().toISOString()
+          });
+
+          const existingPayment = await base44.entities.PaymentStatus.filter({
+            unit_charge_id: charge.id
+          });
+          
+          if (existingPayment.length === 0) {
+            await base44.entities.PaymentStatus.create({
+              unit_charge_id: charge.id,
+              building_id: buildingId,
+              unit_id: unitId,
+              year_month: selectedYearMonth,
+              status: "미납",
+              charged_amount: charge.amount_total,
+              paid_amount: 0
+            });
+          }
+          
+          successCount++;
+        } catch (unitErr) {
+          console.error("Error sending to unit:", unitErr);
+          failCount++;
         }
       }
 
-      // Update bill cycle status
       await base44.entities.BillCycle.update(billCycle.id, {
         status: "sent"
       });
 
+      if (failCount === 0) {
+        alert(`✅ 청구서 발송 완료!\n${successCount}세대에 청구서가 성공적으로 발송되었습니다.`);
+      } else {
+        alert(`⚠️ 청구서 발송 완료\n성공: ${successCount}세대\n실패: ${failCount}세대`);
+      }
+
       navigate(createPageUrl(`RepDashboard?buildingId=${buildingId}`));
     } catch (err) {
       console.error("Error sending:", err);
+      alert("❌ 청구서 발송 중 오류가 발생했습니다.");
     }
     
     setIsSending(false);
