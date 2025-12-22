@@ -12,6 +12,7 @@ import { AlertCircle, Loader2, Save, Calendar, Trash2 } from 'lucide-react';
 import LoadingSpinner from '@/components/common/LoadingSpinner';
 import PageHeader from '@/components/common/PageHeader';
 import { useBuildingAuth } from '@/components/common/useBuildingAuth';
+import RepLayout from '@/components/common/RepLayout';
 
 export default function RepBillingMonthlyEdit() {
   const urlParams = new URLSearchParams(window.location.search);
@@ -31,6 +32,7 @@ export default function RepBillingMonthlyEdit() {
   const [billItems, setBillItems] = useState([]);
   const [templates, setTemplates] = useState([]);
   const [units, setUnits] = useState([]);
+  const [unitAmounts, setUnitAmounts] = useState({}); // itemId -> { unitId: amount }
 
   useEffect(() => {
     loadData();
@@ -136,13 +138,21 @@ export default function RepBillingMonthlyEdit() {
     setIsSaving(true);
     try {
       for (const item of billItems) {
-        await base44.entities.BillItem.update(item.id, {
+        const updateData = {
           name: item.name,
           category: item.category,
           amount_total: parseFloat(item.amount_total) || 0,
           type: item.type,
           target_unit_ids: item.target_unit_ids || []
-        });
+        };
+        
+        // 변동항목인 경우 세대별 금액 저장
+        const templateType = getTemplateType(item.id);
+        if (templateType === "변동" && unitAmounts[item.id]) {
+          updateData.unit_amounts = JSON.stringify(unitAmounts[item.id]);
+        }
+        
+        await base44.entities.BillItem.update(item.id, updateData);
       }
 
       const total = billItems.reduce((sum, item) => sum + (parseFloat(item.amount_total) || 0), 0);
@@ -159,22 +169,26 @@ export default function RepBillingMonthlyEdit() {
 
   if (isLoading || isLoadingData) {
     return (
-      <div className="min-h-screen bg-slate-50 flex items-center justify-center">
-        <LoadingSpinner />
-      </div>
+      <RepLayout buildingId={buildingId} building={building} currentPage="RepBillingMonthlyEdit">
+        <div className="min-h-screen bg-slate-50 flex items-center justify-center">
+          <LoadingSpinner />
+        </div>
+      </RepLayout>
     );
   }
 
   if (error) {
     return (
-      <div className="min-h-screen bg-slate-50 flex items-center justify-center p-4">
-        <Card className="max-w-md w-full">
-          <CardContent className="pt-6 text-center">
-            <AlertCircle className="w-12 h-12 text-red-500 mx-auto mb-4" />
-            <p className="text-slate-500">{error}</p>
-          </CardContent>
-        </Card>
-      </div>
+      <RepLayout buildingId={buildingId} building={building} currentPage="RepBillingMonthlyEdit">
+        <div className="min-h-screen bg-slate-50 flex items-center justify-center p-4">
+          <Card className="max-w-md w-full">
+            <CardContent className="pt-6 text-center">
+              <AlertCircle className="w-12 h-12 text-red-500 mx-auto mb-4" />
+              <p className="text-slate-500">{error}</p>
+            </CardContent>
+          </Card>
+        </div>
+      </RepLayout>
     );
   }
 
@@ -196,13 +210,12 @@ export default function RepBillingMonthlyEdit() {
   };
 
   return (
-    <div className="min-h-screen bg-slate-50">
+    <RepLayout buildingId={buildingId} building={building} currentPage="RepBillingMonthlyEdit">
       <div className="max-w-2xl mx-auto px-4 py-6">
-        <PageHeader
-          title="월별 관리비 입력"
-          subtitle="관리비 항목별 금액을 입력합니다"
-          backUrl={createPageUrl(`RepDashboard?buildingId=${buildingId}`)}
-        />
+        <div className="mb-6">
+          <h1 className="text-2xl font-bold text-slate-900 mb-2">월별 관리비 입력</h1>
+          <p className="text-slate-500">관리비 항목별 금액을 입력합니다</p>
+        </div>
 
         <Card className="mb-6">
           <CardContent className="pt-4 pb-4">
@@ -256,18 +269,29 @@ export default function RepBillingMonthlyEdit() {
                         </div>
                       </div>
 
-                      {isVariable && item.type === "세대별" && (
+                      {isVariable && (
                         <div className="mt-3 p-3 bg-slate-50 rounded-lg">
-                          <Label className="text-xs mb-2 block">대상 세대 선택</Label>
-                          <div className="space-y-2">
+                          <Label className="text-xs mb-2 block">세대별 금액 입력</Label>
+                          <div className="space-y-2 max-h-60 overflow-y-auto">
                             {units.map(unit => (
-                              <label key={unit.id} className="flex items-center gap-2 cursor-pointer">
-                                <Checkbox
-                                  checked={(item.target_unit_ids || []).includes(unit.id)}
-                                  onCheckedChange={() => toggleUnitSelection(item.id, unit.id)}
+                              <div key={unit.id} className="flex items-center gap-2">
+                                <span className="text-sm w-32">{unit.unit_name}</span>
+                                <Input
+                                  type="number"
+                                  placeholder="0"
+                                  value={unitAmounts[item.id]?.[unit.id] || 0}
+                                  onChange={(e) => {
+                                    setUnitAmounts(prev => ({
+                                      ...prev,
+                                      [item.id]: {
+                                        ...prev[item.id],
+                                        [unit.id]: parseInt(e.target.value) || 0
+                                      }
+                                    }));
+                                  }}
+                                  className="h-8 flex-1"
                                 />
-                                <span className="text-sm">{unit.unit_name}</span>
-                              </label>
+                              </div>
                             ))}
                           </div>
                         </div>
@@ -327,6 +351,6 @@ export default function RepBillingMonthlyEdit() {
           </CardContent>
         </Card>
       </div>
-    </div>
+    </RepLayout>
   );
 }

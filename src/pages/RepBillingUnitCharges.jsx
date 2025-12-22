@@ -99,8 +99,8 @@ export default function RepBillingUnitCharges() {
         }));
       }
 
-      // 세대별 항목 처리
-      const unitSpecificItems = billItems.filter(item => item.type === "세대별");
+      // 변동항목 (세대별 금액 있는 경우)
+      const variableItems = billItems.filter(item => item.unit_amounts);
 
       for (const unit of units) {
         const breakdown = [];
@@ -115,15 +115,17 @@ export default function RepBillingUnitCharges() {
           }
         }
 
-        // 세대별 항목 적용
-        for (const item of unitSpecificItems) {
-          const targetIds = item.target_unit_ids || [];
-          if (targetIds.includes(unit.id)) {
-            const amount = parseFloat(item.amount_total) || 0;
+        // 변동항목 적용 (세대별 금액)
+        for (const item of variableItems) {
+          try {
+            const unitAmounts = JSON.parse(item.unit_amounts);
+            const amount = unitAmounts[unit.id] || 0;
             if (amount > 0) {
               breakdown.push({ name: item.name, amount });
               unitTotal += amount;
             }
+          } catch (e) {
+            console.error("Error parsing unit_amounts:", e);
           }
         }
 

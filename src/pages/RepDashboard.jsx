@@ -11,6 +11,7 @@ import {
 } from 'lucide-react';
 import LoadingSpinner from '@/components/common/LoadingSpinner';
 import { useBuildingAuth } from '@/components/common/useBuildingAuth';
+import RepLayout from '@/components/common/RepLayout';
 
 export default function RepDashboard() {
   const urlParams = new URLSearchParams(window.location.search);
@@ -24,7 +25,6 @@ export default function RepDashboard() {
     unpaidCount: 0,
     currentMonthTotal: 0
   });
-  const [sidebarOpen, setSidebarOpen] = useState(false);
 
   useEffect(() => {
     async function loadStats() {
@@ -148,13 +148,8 @@ export default function RepDashboard() {
             );
           })}
         </nav>
-      </div>
-
-      {/* Main Content */}
-      <div className="flex-1 overflow-auto">
-        <div className="max-w-4xl mx-auto px-4 py-6">
-          {/* Header */}
-          <div className="mb-8">
+        {/* Header */}
+        <div className="mb-8">
             <button
               onClick={() => navigate(createPageUrl("MyBuildings"))}
               className="text-sm text-slate-600 hover:text-primary mb-3 flex items-center gap-1"
@@ -163,9 +158,6 @@ export default function RepDashboard() {
             </button>
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-4">
-                <button onClick={() => setSidebarOpen(true)} className="lg:hidden">
-                  <Menu className="w-6 h-6 text-slate-600" />
-                </button>
                 <div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-primary to-primary-dark flex items-center justify-center">
                   <Building2 className="w-7 h-7 text-white" />
                 </div>
@@ -265,9 +257,8 @@ export default function RepDashboard() {
                 );
               })}
             </div>
-          </div>
         </div>
       </div>
-    </div>
+    </RepLayout>
   );
 }

@@ -8,7 +8,7 @@ import {
   PlusCircle, Send, BarChart3
 } from 'lucide-react';
 
-export default function RepLayout({ children, buildingId, building }) {
+export default function RepLayout({ children, buildingId, building, currentPage }) {
   const navigate = useNavigate();
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [expandedSections, setExpandedSections] = useState({
@@ -17,6 +17,8 @@ export default function RepLayout({ children, buildingId, building }) {
     billing: true,
     reports: true
   });
+
+  const isCurrentPage = (page) => currentPage === page;
 
   const toggleSection = (section) => {
     setExpandedSections(prev => ({
@@ -109,6 +111,7 @@ export default function RepLayout({ children, buildingId, building }) {
             if (section.id === 'main') {
               return section.items.map((item, idx) => {
                 const Icon = item.icon;
+                const isCurrent = isCurrentPage(item.page);
                 return (
                   <button
                     key={idx}
@@ -116,7 +119,11 @@ export default function RepLayout({ children, buildingId, building }) {
                       navigate(createPageUrl(`${item.page}?buildingId=${buildingId}`));
                       setSidebarOpen(false);
                     }}
-                    className="w-full flex items-center gap-3 px-3 py-2 rounded-lg hover:bg-primary-light hover:text-primary transition-colors text-left"
+                    className={`w-full flex items-center gap-3 px-3 py-2 rounded-lg transition-colors text-left ${
+                      isCurrent 
+                        ? 'bg-primary text-white font-semibold' 
+                        : 'hover:bg-primary-light hover:text-primary'
+                    }`}
                   >
                     <Icon className="w-4 h-4" />
                     <span className="text-sm font-semibold">{item.label}</span>
@@ -143,6 +150,7 @@ export default function RepLayout({ children, buildingId, building }) {
                   <div className="ml-2 space-y-0.5">
                     {section.items.map((item, idx) => {
                       const Icon = item.icon;
+                      const isCurrent = isCurrentPage(item.page);
                       return (
                         <button
                           key={idx}
@@ -150,10 +158,14 @@ export default function RepLayout({ children, buildingId, building }) {
                             navigate(createPageUrl(`${item.page}?buildingId=${buildingId}`));
                             setSidebarOpen(false);
                           }}
-                          className="w-full flex items-center gap-2 px-3 py-1.5 rounded-lg hover:bg-slate-100 transition-colors text-left"
+                          className={`w-full flex items-center gap-2 px-3 py-1.5 rounded-lg transition-colors text-left ${
+                            isCurrent 
+                              ? 'bg-primary text-white font-semibold' 
+                              : 'hover:bg-slate-100'
+                          }`}
                         >
-                          <Icon className="w-3.5 h-3.5 text-slate-500" />
-                          <span className="text-sm text-slate-700">{item.label}</span>
+                          <Icon className={`w-3.5 h-3.5 ${isCurrent ? 'text-white' : 'text-slate-500'}`} />
+                          <span className={`text-sm ${isCurrent ? 'text-white' : 'text-slate-700'}`}>{item.label}</span>
                         </button>
                       );
                     })}
