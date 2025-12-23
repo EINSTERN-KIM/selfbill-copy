@@ -224,7 +224,10 @@ export default function RepBillingUnitCharges() {
                   </SelectContent>
                 </Select>
               </div>
-              <Button onClick={handleCalculate} disabled={!billCycle || isCalculating}>
+              <Button 
+                onClick={handleCalculate} 
+                disabled={!billCycle || isCalculating || (building?.billing_method === "지분율에 의거 부과" && Math.abs(units.reduce((sum, u) => sum + (u.share_ratio || 0), 0) - 100) > 0.1)}
+              >
                 {isCalculating ? (
                   <Loader2 className="w-4 h-4 mr-2 animate-spin" />
                 ) : (
@@ -235,6 +238,25 @@ export default function RepBillingUnitCharges() {
             </div>
           </CardContent>
         </Card>
+
+        {building?.billing_method === "지분율에 의거 부과" && Math.abs(units.reduce((sum, u) => sum + (u.share_ratio || 0), 0) - 100) > 0.1 && (
+          <Card className="mb-6 bg-red-50 border-red-200">
+            <CardContent className="pt-4 pb-4">
+              <div className="flex items-center gap-3">
+                <AlertCircle className="w-5 h-5 text-red-600 flex-shrink-0" />
+                <div>
+                  <p className="text-sm font-semibold text-red-900">지분율 합계가 100%가 아닙니다</p>
+                  <p className="text-xs text-red-700 mt-1">
+                    현재 지분율 합계: {units.reduce((sum, u) => sum + (u.share_ratio || 0), 0).toFixed(1)}%
+                  </p>
+                  <p className="text-xs text-red-700 mt-1">
+                    세대 목록에서 지분율을 수정하여 합계를 100%로 맞춰주세요.
+                  </p>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+        )}
 
         {!billCycle ? (
           <EmptyState
@@ -330,6 +352,7 @@ export default function RepBillingUnitCharges() {
                 <Button
                   onClick={() => navigate(createPageUrl(`RepBillingSend?buildingId=${buildingId}&yearMonth=${selectedYearMonth}`))}
                   className="flex-1"
+                  disabled={building?.billing_method === "지분율에 의거 부과" && Math.abs(units.reduce((sum, u) => sum + (u.share_ratio || 0), 0) - 100) > 0.1}
                 >
                   청구서 발송
                   <ChevronRight className="w-4 h-4 ml-2" />
