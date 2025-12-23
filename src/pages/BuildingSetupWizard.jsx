@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { base44 } from '@/api/base44Client';
 import { useNavigate } from 'react-router-dom';
 import { createPageUrl } from '@/utils';
+import DaumPostcode from 'react-daum-postcode';
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -32,6 +33,7 @@ export default function BuildingSetupWizard() {
   const [currentStep, setCurrentStep] = useState(1);
   const [isLoading, setIsLoading] = useState(true);
   const [isSaving, setIsSaving] = useState(false);
+  const [showAddressSearch, setShowAddressSearch] = useState(false);
 
   // Step 1: 건물정보
   const [step1Data, setStep1Data] = useState({
@@ -519,11 +521,48 @@ export default function BuildingSetupWizard() {
               </div>
               <div className="space-y-2">
                 <Label>주소</Label>
-                <Input
-                  value={step1Data.address}
-                  onChange={(e) => setStep1Data({...step1Data, address: e.target.value})}
-                  placeholder="예: 서울시 강남구 테헤란로 123"
-                />
+                <div className="flex gap-2">
+                  <Input
+                    value={step1Data.address}
+                    onChange={(e) => setStep1Data({...step1Data, address: e.target.value})}
+                    placeholder="주소 검색 버튼을 눌러주세요"
+                    readOnly
+                  />
+                  <Button 
+                    type="button" 
+                    variant="outline"
+                    onClick={() => setShowAddressSearch(true)}
+                  >
+                    주소 검색
+                  </Button>
+                </div>
+                {showAddressSearch && (
+                  <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
+                    <div className="bg-white rounded-lg p-4 max-w-lg w-full mx-4">
+                      <div className="flex justify-between items-center mb-4">
+                        <h3 className="text-lg font-semibold">주소 검색</h3>
+                        <Button 
+                          variant="ghost" 
+                          size="icon"
+                          onClick={() => setShowAddressSearch(false)}
+                        >
+                          ✕
+                        </Button>
+                      </div>
+                      <DaumPostcode
+                        onComplete={(data) => {
+                          setStep1Data({
+                            ...step1Data,
+                            address: data.address
+                          });
+                          setShowAddressSearch(false);
+                        }}
+                        autoClose={false}
+                        style={{ height: '400px' }}
+                      />
+                    </div>
+                  </div>
+                )}
               </div>
               <div className="space-y-2">
                 <Label>상세 주소</Label>

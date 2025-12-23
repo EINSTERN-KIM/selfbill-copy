@@ -11,6 +11,7 @@ import { AlertCircle, Loader2, Save } from 'lucide-react';
 import LoadingSpinner from '@/components/common/LoadingSpinner';
 import PageHeader from '@/components/common/PageHeader';
 import { useBuildingAuth } from '@/components/common/useBuildingAuth';
+import RepLayout from '@/components/common/RepLayout';
 
 export default function RepBillingSettings() {
   const urlParams = new URLSearchParams(window.location.search);
@@ -54,27 +55,31 @@ export default function RepBillingSettings() {
 
   if (isLoading) {
     return (
-      <div className="min-h-screen bg-slate-50 flex items-center justify-center">
-        <LoadingSpinner />
-      </div>
+      <RepLayout buildingId={buildingId} building={building} currentPage="RepBillingSettings">
+        <div className="flex items-center justify-center py-12">
+          <LoadingSpinner />
+        </div>
+      </RepLayout>
     );
   }
 
   if (error) {
     return (
-      <div className="min-h-screen bg-slate-50 flex items-center justify-center p-4">
-        <Card className="max-w-md w-full">
-          <CardContent className="pt-6 text-center">
-            <AlertCircle className="w-12 h-12 text-red-500 mx-auto mb-4" />
-            <p className="text-slate-500">{error}</p>
-          </CardContent>
-        </Card>
-      </div>
+      <RepLayout buildingId={buildingId} building={building} currentPage="RepBillingSettings">
+        <div className="flex items-center justify-center p-4">
+          <Card className="max-w-md w-full">
+            <CardContent className="pt-6 text-center">
+              <AlertCircle className="w-12 h-12 text-red-500 mx-auto mb-4" />
+              <p className="text-slate-500">{error}</p>
+            </CardContent>
+          </Card>
+        </div>
+      </RepLayout>
     );
   }
 
   return (
-    <div className="min-h-screen bg-slate-50">
+    <RepLayout buildingId={buildingId} building={building} currentPage="RepBillingSettings">
       <div className="max-w-lg mx-auto px-4 py-6">
         <PageHeader
           title="관리비 설정"
@@ -216,6 +221,6 @@ export default function RepBillingSettings() {
           </CardContent>
         </Card>
       </div>
-    </div>
+    </RepLayout>
   );
 }
