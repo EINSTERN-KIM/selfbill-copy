@@ -5,7 +5,7 @@ import { Button } from "@/components/ui/button";
 import { 
   Building2, Users, Receipt, CreditCard, Settings, 
   ChevronRight, ChevronDown, Menu, X, Home, FileText,
-  PlusCircle, Send, BarChart3
+  PlusCircle, Send, BarChart3, LogOut
 } from 'lucide-react';
 
 export default function RepLayout({ children, buildingId, building, currentPage }) {
@@ -17,6 +17,12 @@ export default function RepLayout({ children, buildingId, building, currentPage 
     billing: true,
     reports: true
   });
+
+  const handleLogout = async () => {
+    if (confirm('로그아웃 하시겠습니까?')) {
+      await base44.auth.logout();
+    }
+  };
 
   const isCurrentPage = (page) => currentPage === page;
 
@@ -175,6 +181,17 @@ export default function RepLayout({ children, buildingId, building, currentPage 
             );
           })}
         </nav>
+        
+        {/* Logout Button */}
+        <div className="p-3 border-t mt-auto sticky bottom-0 bg-white">
+          <button
+            onClick={handleLogout}
+            className="w-full flex items-center gap-3 px-3 py-2 rounded-lg text-red-600 hover:bg-red-50 transition-colors"
+          >
+            <LogOut className="w-4 h-4" />
+            <span className="text-sm font-medium">로그아웃</span>
+          </button>
+        </div>
       </div>
 
       {/* Main Content */}

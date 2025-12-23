@@ -6,6 +6,7 @@ import {
   ChevronDown, ChevronUp, LogOut
 } from 'lucide-react';
 import { Button } from "@/components/ui/button";
+import { base44 } from '@/api/base44Client';
 
 export default function TenantLayout({ buildingId, building, currentPage, children }) {
   const [sidebarOpen, setSidebarOpen] = useState(false);

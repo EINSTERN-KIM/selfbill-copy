@@ -70,7 +70,8 @@ export default function BuildingSetupWizard() {
   const [templates, setTemplates] = useState([]);
   const [templateForm, setTemplateForm] = useState({
     name: "", category: "일반", amount_type: "고정",
-    default_amount: "", default_months: [1,2,3,4,5,6,7,8,9,10,11,12]
+    default_amount: "", default_months: [1,2,3,4,5,6,7,8,9,10,11,12],
+    target_unit_id: ""
   });
 
   useEffect(() => {
@@ -379,7 +380,8 @@ export default function BuildingSetupWizard() {
         amount_type: templateForm.amount_type,
         default_amount: templateForm.default_amount ? parseFloat(templateForm.default_amount) : 0,
         default_months: templateForm.default_months,
-        default_type: "공용"
+        default_type: templateForm.category === "기타" ? "세대별" : "공용",
+        default_target_unit_ids: templateForm.target_unit_id ? [templateForm.target_unit_id] : []
       });
 
       const templatesData = await base44.entities.BillItemTemplate.filter({
@@ -389,7 +391,8 @@ export default function BuildingSetupWizard() {
 
       setTemplateForm({
         name: "", category: "일반", amount_type: "고정",
-        default_amount: "", default_months: [1,2,3,4,5,6,7,8,9,10,11,12]
+        default_amount: "", default_months: [1,2,3,4,5,6,7,8,9,10,11,12],
+        target_unit_id: ""
       });
     } catch (err) {
       console.error("Error adding template:", err);
@@ -433,10 +436,7 @@ export default function BuildingSetupWizard() {
     setIsSaving(true);
     try {
       const unitCount = units.length;
-      let monthlyFee = 19900;
-      if (unitCount > 10) {
-        monthlyFee = 19900 + (unitCount - 10) * 2900;
-      }
+      const monthlyFee = unitCount * 2900;
 
       await base44.entities.Building.update(buildingId, {
         billing_monthly_fee_krw: monthlyFee,
@@ -756,6 +756,9 @@ export default function BuildingSetupWizard() {
           <Card>
             <CardHeader>
               <CardTitle>3단계: 세대별 정보 입력</CardTitle>
+              <p className="text-sm text-slate-600 mt-2">
+                세대를 등록한 후, 대표자님의 세대를 선택해주세요.
+              </p>
               <div className="text-sm text-slate-500 mt-2">
                 세대 등록 진행상황: <span className="font-bold text-primary">{units.length}세대</span> / {step1Data.planned_units_count}세대
               </div>
@@ -826,28 +829,35 @@ export default function BuildingSetupWizard() {
                   <Label className="text-xs">전화번호 *</Label>
                   <div className="flex items-center gap-2">
                     <Input
-                      type="number"
+                      type="text"
                       value={unitForm.phone1}
-                      onChange={(e) => setUnitForm({...unitForm, phone1: e.target.value})}
+                      onChange={(e) => {
+                        const val = e.target.value.replace(/\D/g, '').slice(0, 3);
+                        setUnitForm({...unitForm, phone1: val});
+                      }}
                       className="w-20"
-                      maxLength={3}
+                      placeholder="010"
                     />
                     <span>-</span>
                     <Input
-                      type="number"
+                      type="text"
                       value={unitForm.phone2}
-                      onChange={(e) => setUnitForm({...unitForm, phone2: e.target.value})}
+                      onChange={(e) => {
+                        const val = e.target.value.replace(/\D/g, '').slice(0, 4);
+                        setUnitForm({...unitForm, phone2: val});
+                      }}
                       className="w-24"
-                      maxLength={4}
                       placeholder="1234"
                     />
                     <span>-</span>
                     <Input
-                      type="number"
+                      type="text"
                       value={unitForm.phone3}
-                      onChange={(e) => setUnitForm({...unitForm, phone3: e.target.value})}
+                      onChange={(e) => {
+                        const val = e.target.value.replace(/\D/g, '').slice(0, 4);
+                        setUnitForm({...unitForm, phone3: val});
+                      }}
                       className="w-24"
-                      maxLength={4}
                       placeholder="5678"
                     />
                   </div>
@@ -888,9 +898,12 @@ export default function BuildingSetupWizard() {
               </div>
 
               {selectedRepUnit && (
-                <div className="p-3 bg-blue-50 rounded-lg">
+                <div className="p-3 bg-blue-50 rounded-lg flex items-center gap-2">
+                  <div className="w-5 h-5 rounded-full bg-blue-600 flex items-center justify-center flex-shrink-0">
+                    <div className="w-2 h-2 rounded-full bg-white" />
+                  </div>
                   <p className="text-sm text-blue-900">
-                    ✓ 선택된 세대가 대표자의 세대로 등록됩니다
+                    선택된 세대가 대표자의 세대로 등록됩니다
                   </p>
                 </div>
               )}
@@ -967,6 +980,46 @@ export default function BuildingSetupWizard() {
                   )}
                 </div>
 
+                <div>
+                  <Label className="text-xs">부과 월 선택</Label>
+                  <div className="grid grid-cols-6 gap-2 mt-2">
+                    {[1,2,3,4,5,6,7,8,9,10,11,12].map(month => (
+                      <label key={month} className="flex items-center gap-1 cursor-pointer">
+                        <Checkbox
+                          checked={templateForm.default_months?.includes(month)}
+                          onCheckedChange={() => {
+                            const months = templateForm.default_months || [];
+                            const newMonths = months.includes(month)
+                              ? months.filter(m => m !== month)
+                              : [...months, month].sort((a, b) => a - b);
+                            setTemplateForm({...templateForm, default_months: newMonths});
+                          }}
+                        />
+                        <span className="text-xs">{month}월</span>
+                      </label>
+                    ))}
+                  </div>
+                </div>
+
+                {templateForm.category === "기타" && (
+                  <div>
+                    <Label className="text-xs">부과 대상 세대</Label>
+                    <Select 
+                      value={templateForm.target_unit_id || ""} 
+                      onValueChange={(val) => setTemplateForm({...templateForm, target_unit_id: val})}
+                    >
+                      <SelectTrigger>
+                        <SelectValue placeholder="세대 선택" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {units.map(unit => (
+                          <SelectItem key={unit.id} value={unit.id}>{unit.unit_name}</SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </div>
+                )}
+
                 <Button onClick={addTemplate} className="w-full">
                   항목 추가
                 </Button>
@@ -1022,34 +1075,40 @@ export default function BuildingSetupWizard() {
                 <div className="text-center mb-4">
                   <p className="text-sm text-slate-600 mb-2">이 건물의 셀프빌 요금</p>
                   <div className="text-5xl font-bold text-slate-900">
-                    {units.length <= 10 
-                      ? '19,900'
-                      : (19900 + (units.length - 10) * 2900).toLocaleString()
-                    }<span className="text-2xl text-slate-600">원/월</span>
+                    {(units.length * 2900).toLocaleString()}<span className="text-2xl text-slate-600">원/월</span>
                   </div>
                 </div>
 
                 <div className="bg-white rounded-lg p-4 mt-4">
                   <div className="text-sm space-y-2">
                     <div className="flex justify-between">
-                      <span className="text-slate-600">1~10세대</span>
-                      <span className="font-medium">19,900원</span>
+                      <span className="text-slate-600">{units.length}세대 × 2,900원</span>
+                      <span className="font-medium">{(units.length * 2900).toLocaleString()}원</span>
                     </div>
-                    {units.length > 10 && (
-                      <div className="flex justify-between">
-                        <span className="text-slate-600">추가 {units.length - 10}세대</span>
-                        <span className="font-medium">+ {((units.length - 10) * 2900).toLocaleString()}원</span>
-                      </div>
-                    )}
                     <Separator />
                     <div className="flex justify-between font-bold">
                       <span>합계</span>
                       <span className="text-primary">
-                        {units.length <= 10 
-                          ? '19,900'
-                          : (19900 + (units.length - 10) * 2900).toLocaleString()
-                        }원/월
+                        {(units.length * 2900).toLocaleString()}원/월
                       </span>
+                    </div>
+                  </div>
+                </div>
+
+                <div className="bg-white rounded-lg p-4 mt-4 border border-slate-200">
+                  <p className="text-xs font-semibold text-slate-700 mb-3">셀프빌 입금 계좌</p>
+                  <div className="space-y-1 text-sm">
+                    <div className="flex justify-between">
+                      <span className="text-slate-500">은행</span>
+                      <span className="font-medium">신한은행</span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span className="text-slate-500">예금주</span>
+                      <span className="font-medium">(주)셀프빌</span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span className="text-slate-500">계좌번호</span>
+                      <span className="font-medium">110-123-456789</span>
                     </div>
                   </div>
                 </div>
