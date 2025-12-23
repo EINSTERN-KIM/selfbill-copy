@@ -61,12 +61,7 @@ export default function RepPlan() {
 
   const handleSave = async () => {
     if (!planConfirmed) {
-      alert("요금제 및 월 이용료 확인에 동의해 주세요.");
-      return;
-    }
-    
-    if (!formData.selfbill_auto_bank_name || !formData.selfbill_auto_bank_holder || !formData.selfbill_auto_bank_account) {
-      alert("셀프빌 자동이체 계좌 정보를 모두 입력해 주세요.");
+      alert("요금제를 확인하고 체크박스를 선택해주세요.");
       return;
     }
     
@@ -74,22 +69,15 @@ export default function RepPlan() {
     try {
       const updateData = {
         ...formData,
-        billing_amount_per_unit: 9900,
-        billing_unit_count: billingUnitCount,
-        billing_monthly_fee_krw: monthlyFee
+        selfbill_plan_confirmed_at: building?.selfbill_plan_confirmed_at || new Date().toISOString()
       };
       
-      // If this is the first time confirming the plan
-      if (!building.selfbill_plan_confirmed_at) {
-        const today = new Date().toISOString().split('T')[0];
-        updateData.selfbill_plan_confirmed_at = today;
-        updateData.selfbill_auto_start_date = calculateAutoStartDate();
-      }
-      
       await base44.entities.Building.update(buildingId, updateData);
+      alert("저장되었습니다.");
       navigate(createPageUrl(`RepDashboard?buildingId=${buildingId}`));
     } catch (err) {
       console.error("Error saving:", err);
+      alert("저장 중 오류가 발생했습니다.");
     }
     setIsSaving(false);
   };
@@ -120,8 +108,7 @@ export default function RepPlan() {
   }
 
   const unitCount = building?.building_units_count || 0;
-  const billingUnitCount = Math.ceil(unitCount / 10) || 0;
-  const monthlyFee = billingUnitCount * 9900;
+  const monthlyFee = unitCount * 2900;
 
   return (
     <RepLayout buildingId={buildingId} building={building} currentPage="RepPlan">
@@ -141,16 +128,11 @@ export default function RepPlan() {
               <p className="text-sm text-slate-500 mt-1">셀프빌 이용 요금제</p>
             </div>
 
-            <div className="grid grid-cols-3 gap-3 mb-6">
+            <div className="grid grid-cols-2 gap-3 mb-6">
               <div className="text-center p-4 bg-white rounded-xl">
                 <Users className="w-5 h-5 text-primary mx-auto mb-2" />
                 <p className="text-2xl font-bold text-slate-900">{unitCount}</p>
                 <p className="text-xs text-slate-500 mt-1">총 세대 수</p>
-              </div>
-              <div className="text-center p-4 bg-white rounded-xl">
-                <Receipt className="w-5 h-5 text-primary mx-auto mb-2" />
-                <p className="text-2xl font-bold text-slate-900">{billingUnitCount}</p>
-                <p className="text-xs text-slate-500 mt-1">과금 단위 개수</p>
               </div>
               <div className="text-center p-4 bg-white rounded-xl">
                 <CreditCard className="w-5 h-5 text-primary mx-auto mb-2" />
@@ -163,16 +145,34 @@ export default function RepPlan() {
               <h3 className="font-semibold text-slate-900 mb-3">요금 계산 방식</h3>
               <div className="space-y-2 text-sm text-slate-600">
                 <div className="flex justify-between">
-                  <span>• 과금 기준 단위:</span>
-                  <span className="font-medium">10세대당 9,900원</span>
+                  <span>• 세대당 요금:</span>
+                  <span className="font-medium">2,900원</span>
                 </div>
                 <div className="flex justify-between">
-                  <span>• 과금 단위 개수:</span>
-                  <span className="font-medium">{billingUnitCount}단위 (세대 수 ÷ 10 올림)</span>
+                  <span>• 총 세대 수:</span>
+                  <span className="font-medium">{unitCount}세대</span>
                 </div>
                 <div className="flex justify-between pt-2 border-t">
                   <span className="font-semibold">월 이용료:</span>
                   <span className="font-bold text-primary">{monthlyFee.toLocaleString()}원</span>
+                </div>
+              </div>
+            </div>
+
+            <div className="bg-white rounded-xl p-4 mb-4 border border-slate-200">
+              <p className="text-xs font-semibold text-slate-700 mb-3">셀프빌 입금 계좌</p>
+              <div className="space-y-1 text-sm">
+                <div className="flex justify-between">
+                  <span className="text-slate-500">은행</span>
+                  <span className="font-medium">신한은행</span>
+                </div>
+                <div className="flex justify-between">
+                  <span className="text-slate-500">예금주</span>
+                  <span className="font-medium">(주)셀프빌</span>
+                </div>
+                <div className="flex justify-between">
+                  <span className="text-slate-500">계좌번호</span>
+                  <span className="font-medium">110-123-456789</span>
                 </div>
               </div>
             </div>
@@ -240,21 +240,14 @@ export default function RepPlan() {
               />
             </div>
 
-            {formData.selfbill_auto_start_date && (
-              <div className="bg-primary-light/20 rounded-xl p-4">
-                <Label className="text-sm font-medium text-slate-700">자동이체 시작일</Label>
-                <p className="text-lg font-bold text-primary mt-1">
-                  {new Date(formData.selfbill_auto_start_date).toLocaleDateString('ko-KR', { 
-                    year: 'numeric', 
-                    month: 'long', 
-                    day: 'numeric' 
-                  })}
-                </p>
-                <p className="text-xs text-slate-500 mt-2">
-                  요금제 확인일로부터 정확히 3개월 후 자동이체가 시작됩니다.
-                </p>
-              </div>
-            )}
+            <div className="space-y-2">
+              <Label>자동이체 시작일</Label>
+              <Input
+                type="date"
+                value={formData.selfbill_auto_start_date}
+                onChange={(e) => setFormData({ ...formData, selfbill_auto_start_date: e.target.value })}
+              />
+            </div>
 
             <div className="pt-4 flex gap-3">
               <Button
@@ -266,7 +259,7 @@ export default function RepPlan() {
               </Button>
               <Button
                 onClick={handleSave}
-                disabled={isSaving || !planConfirmed}
+                disabled={isSaving}
                 className="flex-1 bg-primary hover:bg-primary-dark text-white rounded-full font-semibold"
               >
                 {isSaving ? (
