@@ -55,6 +55,21 @@ export default function Onboarding() {
   };
 
   const handleCheckInvite = async () => {
+    // Validate phone format
+    if (!invitePhone || invitePhone.includes("--")) {
+      alert("올바른 전화번호 형식으로 입력해주세요. (예: 010-1234-5678)");
+      return;
+    }
+    
+    const phoneParts = invitePhone.split('-');
+    if (phoneParts.length !== 3 || 
+        phoneParts[0].length < 3 || 
+        phoneParts[1].length < 3 || phoneParts[1].length > 4 || 
+        phoneParts[2].length !== 4) {
+      alert("올바른 전화번호 형식으로 입력해주세요. (예: 010-1234-5678)");
+      return;
+    }
+    
     setCheckingInvite(true);
     setInviteError("");
     

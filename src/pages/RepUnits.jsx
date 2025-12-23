@@ -27,16 +27,21 @@ export default function RepUnits() {
   const [editingUnit, setEditingUnit] = useState(null);
   const [isSaving, setIsSaving] = useState(false);
   const [formData, setFormData] = useState({
-    unit_name: "",
+    dong: "",
+    ho: "",
     floor: "",
     tenant_name: "",
-    tenant_phone: "010--",
+    phone1: "010",
+    phone2: "",
+    phone3: "",
     share_ratio: ""
   });
 
   useEffect(() => {
     loadUnits();
   }, [buildingId]);
+
+  const totalShareRatio = units.reduce((sum, u) => sum + (u.share_ratio || 0), 0);
 
   const loadUnits = async () => {
     if (!buildingId) return;
@@ -71,20 +76,27 @@ export default function RepUnits() {
   const handleOpenDialog = (unit = null) => {
     if (unit) {
       setEditingUnit(unit);
+      const phoneParts = (unit.tenant_phone || "010--").split('-');
       setFormData({
-        unit_name: unit.unit_name || "",
+        dong: unit.dong || "",
+        ho: unit.ho || "",
         floor: unit.floor || "",
         tenant_name: unit.tenant_name || "",
-        tenant_phone: unit.tenant_phone || "010--",
+        phone1: phoneParts[0] || "010",
+        phone2: phoneParts[1] || "",
+        phone3: phoneParts[2] || "",
         share_ratio: unit.share_ratio || ""
       });
     } else {
       setEditingUnit(null);
       setFormData({
-        unit_name: "",
+        dong: "",
+        ho: "",
         floor: "",
         tenant_name: "",
-        tenant_phone: "010--",
+        phone1: "010",
+        phone2: "",
+        phone3: "",
         share_ratio: ""
       });
     }
@@ -121,14 +133,31 @@ export default function RepUnits() {
   };
 
   const handleSave = async () => {
+    // Validate phone format
+    if (!formData.phone2 || !formData.phone3 || 
+        formData.phone1.length < 3 || 
+        formData.phone2.length < 3 || formData.phone2.length > 4 || 
+        formData.phone3.length !== 4) {
+      alert("올바른 전화번호 형식으로 입력해주세요. (예: 010-1234-5678)");
+      return;
+    }
+    
     if (!await validateShareRatio()) {
       return;
     }
     
     setIsSaving(true);
     try {
+      const tenant_phone = `${formData.phone1}-${formData.phone2}-${formData.phone3}`;
+      const unit_name = [formData.dong && `${formData.dong}동`, formData.ho && `${formData.ho}호`].filter(Boolean).join(" ");
+      
       const saveData = {
-        ...formData,
+        dong: formData.dong,
+        ho: formData.ho,
+        floor: formData.floor,
+        unit_name: unit_name || formData.ho,
+        tenant_name: formData.tenant_name,
+        tenant_phone,
         building_id: buildingId,
         share_ratio: formData.share_ratio ? parseFloat(formData.share_ratio) : null,
         status: "active"
@@ -210,7 +239,20 @@ export default function RepUnits() {
             onAction={() => handleOpenDialog()}
           />
         ) : (
-          <div className="space-y-3">
+          <>
+            {building?.billing_method === "by_share_ratio" && (
+              <Card className="mb-4 bg-blue-50 border-blue-200">
+                <CardContent className="pt-4 pb-4">
+                  <div className="flex items-center justify-between">
+                    <span className="text-sm font-medium text-blue-900">지분율 진행현황</span>
+                    <span className={`text-lg font-bold ${Math.abs(totalShareRatio - 100) < 0.1 ? 'text-green-600' : 'text-red-600'}`}>
+                      {totalShareRatio.toFixed(1)}% / 100%
+                    </span>
+                  </div>
+                </CardContent>
+              </Card>
+            )}
+            <div className="space-y-3">
             {units.map((unit) => (
               <Card key={unit.id} className="hover:shadow-md transition-all">
                 <CardContent className="p-4">
@@ -267,22 +309,29 @@ export default function RepUnits() {
             </DialogHeader>
             
             <div className="space-y-4 py-4">
-              <div className="grid grid-cols-2 gap-3">
+              <div className="grid grid-cols-3 gap-3">
                 <div className="space-y-2">
-                  <Label>동/호수 표시 *</Label>
+                  <Label>동</Label>
                   <Input
-                    value={formData.unit_name}
-                    onChange={(e) => setFormData({ ...formData, unit_name: e.target.value })}
-                    placeholder="101동 302호 또는 302호"
+                    value={formData.dong}
+                    onChange={(e) => setFormData({ ...formData, dong: e.target.value })}
+                    placeholder="101"
                   />
-                  <p className="text-xs text-slate-500">예: 101동 302호, 302호</p>
+                </div>
+                <div className="space-y-2">
+                  <Label>호수 *</Label>
+                  <Input
+                    value={formData.ho}
+                    onChange={(e) => setFormData({ ...formData, ho: e.target.value })}
+                    placeholder="302"
+                  />
                 </div>
                 <div className="space-y-2">
                   <Label>층</Label>
                   <Input
                     value={formData.floor}
                     onChange={(e) => setFormData({ ...formData, floor: e.target.value })}
-                    placeholder="3층"
+                    placeholder="3"
                   />
                 </div>
               </div>
@@ -307,18 +356,50 @@ export default function RepUnits() {
                 <p className="text-sm font-medium text-slate-700 mb-3">입주자 정보</p>
                 <div className="space-y-3">
                   <div className="space-y-2">
-                    <Label>입주자 이름</Label>
+                    <Label>입주자 이름 *</Label>
                     <Input
                       value={formData.tenant_name}
                       onChange={(e) => setFormData({ ...formData, tenant_name: e.target.value })}
                       placeholder="홍길동"
                     />
                   </div>
-                  <PhoneInput
-                    value={formData.tenant_phone}
-                    onChange={(val) => setFormData({ ...formData, tenant_phone: val })}
-                    label="입주자 휴대폰"
-                  />
+                  <div className="space-y-2">
+                    <Label>전화번호 *</Label>
+                    <div className="flex items-center gap-2">
+                      <Input
+                        type="text"
+                        value={formData.phone1}
+                        onChange={(e) => {
+                          const val = e.target.value.replace(/\D/g, '').slice(0, 3);
+                          setFormData({ ...formData, phone1: val });
+                        }}
+                        className="w-20"
+                        placeholder="010"
+                      />
+                      <span>-</span>
+                      <Input
+                        type="text"
+                        value={formData.phone2}
+                        onChange={(e) => {
+                          const val = e.target.value.replace(/\D/g, '').slice(0, 4);
+                          setFormData({ ...formData, phone2: val });
+                        }}
+                        className="w-24"
+                        placeholder="1234"
+                      />
+                      <span>-</span>
+                      <Input
+                        type="text"
+                        value={formData.phone3}
+                        onChange={(e) => {
+                          const val = e.target.value.replace(/\D/g, '').slice(0, 4);
+                          setFormData({ ...formData, phone3: val });
+                        }}
+                        className="w-24"
+                        placeholder="5678"
+                      />
+                    </div>
+                  </div>
                 </div>
               </div>
             </div>
@@ -327,7 +408,7 @@ export default function RepUnits() {
               <Button variant="outline" onClick={() => setShowDialog(false)}>
                 취소
               </Button>
-              <Button onClick={handleSave} disabled={!formData.unit_name || isSaving}>
+              <Button onClick={handleSave} disabled={!formData.ho || !formData.tenant_name || isSaving}>
                 {isSaving ? (
                   <>
                     <Loader2 className="w-4 h-4 mr-2 animate-spin" />
