@@ -299,7 +299,8 @@ export default function RepUnits() {
                 </CardContent>
               </Card>
             ))}
-          </div>
+            </div>
+          </>
         )}
 
         <Dialog open={showDialog} onOpenChange={setShowDialog}>
