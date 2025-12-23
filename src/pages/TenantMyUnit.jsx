@@ -13,6 +13,7 @@ import { AlertCircle, Loader2, Save, Home, AlertTriangle } from 'lucide-react';
 import LoadingSpinner from '@/components/common/LoadingSpinner';
 import PageHeader from '@/components/common/PageHeader';
 import { useBuildingAuth } from '@/components/common/useBuildingAuth';
+import TenantLayout from '@/components/common/TenantLayout';
 
 export default function TenantMyUnit() {
   const urlParams = new URLSearchParams(window.location.search);
@@ -93,42 +94,48 @@ export default function TenantMyUnit() {
 
   if (isLoading || isLoadingUnit) {
     return (
-      <div className="min-h-screen bg-slate-50 flex items-center justify-center">
-        <LoadingSpinner />
-      </div>
+      <TenantLayout buildingId={buildingId} building={building} currentPage="TenantMyUnit">
+        <div className="flex items-center justify-center py-12">
+          <LoadingSpinner />
+        </div>
+      </TenantLayout>
     );
   }
 
   if (error) {
     return (
-      <div className="min-h-screen bg-slate-50 flex items-center justify-center p-4">
-        <Card className="max-w-md w-full">
-          <CardContent className="pt-6 text-center">
-            <AlertCircle className="w-12 h-12 text-red-500 mx-auto mb-4" />
-            <h2 className="text-lg font-semibold text-slate-900 mb-2">접근 오류</h2>
-            <p className="text-slate-500">{error}</p>
-          </CardContent>
-        </Card>
-      </div>
+      <TenantLayout buildingId={buildingId} building={building} currentPage="TenantMyUnit">
+        <div className="flex items-center justify-center p-4">
+          <Card className="max-w-md w-full">
+            <CardContent className="pt-6 text-center">
+              <AlertCircle className="w-12 h-12 text-red-500 mx-auto mb-4" />
+              <h2 className="text-lg font-semibold text-slate-900 mb-2">접근 오류</h2>
+              <p className="text-slate-500">{error}</p>
+            </CardContent>
+          </Card>
+        </div>
+      </TenantLayout>
     );
   }
 
   if (!unit) {
     return (
-      <div className="min-h-screen bg-slate-50 flex items-center justify-center p-4">
-        <Card className="max-w-md w-full">
-          <CardContent className="pt-6 text-center">
-            <AlertCircle className="w-12 h-12 text-yellow-500 mx-auto mb-4" />
-            <h2 className="text-lg font-semibold text-slate-900 mb-2">세대 정보 없음</h2>
-            <p className="text-slate-500">연결된 세대 정보를 찾을 수 없습니다.</p>
-          </CardContent>
-        </Card>
-      </div>
+      <TenantLayout buildingId={buildingId} building={building} currentPage="TenantMyUnit">
+        <div className="flex items-center justify-center p-4">
+          <Card className="max-w-md w-full">
+            <CardContent className="pt-6 text-center">
+              <AlertCircle className="w-12 h-12 text-yellow-500 mx-auto mb-4" />
+              <h2 className="text-lg font-semibold text-slate-900 mb-2">세대 정보 없음</h2>
+              <p className="text-slate-500">연결된 세대 정보를 찾을 수 없습니다.</p>
+            </CardContent>
+          </Card>
+        </div>
+      </TenantLayout>
     );
   }
 
   return (
-    <div className="min-h-screen bg-slate-50">
+    <TenantLayout buildingId={buildingId} building={building} currentPage="TenantMyUnit">
       <div className="max-w-2xl mx-auto px-4 py-6">
         <PageHeader
           title="나의 입주 현황"
@@ -301,6 +308,6 @@ export default function TenantMyUnit() {
           </CardContent>
         </Card>
       </div>
-    </div>
+    </TenantLayout>
   );
 }

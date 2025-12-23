@@ -10,6 +10,7 @@ import LoadingSpinner from '@/components/common/LoadingSpinner';
 import PageHeader from '@/components/common/PageHeader';
 import EmptyState from '@/components/common/EmptyState';
 import { useBuildingAuth } from '@/components/common/useBuildingAuth';
+import TenantLayout from '@/components/common/TenantLayout';
 
 export default function TenantMyPayments() {
   const urlParams = new URLSearchParams(window.location.search);
@@ -47,27 +48,6 @@ export default function TenantMyPayments() {
     }
   };
 
-  if (isLoading || isLoadingData) {
-    return (
-      <div className="min-h-screen bg-slate-50 flex items-center justify-center">
-        <LoadingSpinner />
-      </div>
-    );
-  }
-
-  if (error) {
-    return (
-      <div className="min-h-screen bg-slate-50 flex items-center justify-center p-4">
-        <Card className="max-w-md w-full">
-          <CardContent className="pt-6 text-center">
-            <AlertCircle className="w-12 h-12 text-red-500 mx-auto mb-4" />
-            <p className="text-slate-500">{error}</p>
-          </CardContent>
-        </Card>
-      </div>
-    );
-  }
-
   const getStatusBadge = (status) => {
     const config = {
       "미납": { className: "bg-red-100 text-red-700", icon: XCircle },
@@ -85,8 +65,33 @@ export default function TenantMyPayments() {
 
   const years = Array.from({ length: 5 }, (_, i) => new Date().getFullYear() - i);
 
+  if (isLoading || isLoadingData) {
+    return (
+      <TenantLayout buildingId={buildingId} building={building} currentPage="TenantMyPayments">
+        <div className="flex items-center justify-center py-12">
+          <LoadingSpinner />
+        </div>
+      </TenantLayout>
+    );
+  }
+
+  if (error) {
+    return (
+      <TenantLayout buildingId={buildingId} building={building} currentPage="TenantMyPayments">
+        <div className="flex items-center justify-center p-4">
+          <Card className="max-w-md w-full">
+            <CardContent className="pt-6 text-center">
+              <AlertCircle className="w-12 h-12 text-red-500 mx-auto mb-4" />
+              <p className="text-slate-500">{error}</p>
+            </CardContent>
+          </Card>
+        </div>
+      </TenantLayout>
+    );
+  }
+
   return (
-    <div className="min-h-screen bg-slate-50">
+    <TenantLayout buildingId={buildingId} building={building} currentPage="TenantMyPayments">
       <div className="max-w-2xl mx-auto px-4 py-6">
         <PageHeader
           title="나의 납부 현황"
@@ -156,6 +161,6 @@ export default function TenantMyPayments() {
           </div>
         )}
       </div>
-    </div>
+    </TenantLayout>
   );
 }

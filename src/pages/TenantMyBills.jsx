@@ -10,6 +10,7 @@ import LoadingSpinner from '@/components/common/LoadingSpinner';
 import PageHeader from '@/components/common/PageHeader';
 import EmptyState from '@/components/common/EmptyState';
 import { useBuildingAuth } from '@/components/common/useBuildingAuth';
+import TenantLayout from '@/components/common/TenantLayout';
 
 export default function TenantMyBills() {
   const urlParams = new URLSearchParams(window.location.search);
@@ -67,33 +68,37 @@ export default function TenantMyBills() {
     setSelectedDate(newDate);
   };
 
+  const formatYearMonth = (date) => {
+    return `${date.getFullYear()}년 ${date.getMonth() + 1}월`;
+  };
+
   if (isLoading || isLoadingData) {
     return (
-      <div className="min-h-screen bg-slate-50 flex items-center justify-center">
-        <LoadingSpinner />
-      </div>
+      <TenantLayout buildingId={buildingId} building={building} currentPage="TenantMyBills">
+        <div className="flex items-center justify-center py-12">
+          <LoadingSpinner />
+        </div>
+      </TenantLayout>
     );
   }
 
   if (error) {
     return (
-      <div className="min-h-screen bg-slate-50 flex items-center justify-center p-4">
-        <Card className="max-w-md w-full">
-          <CardContent className="pt-6 text-center">
-            <AlertCircle className="w-12 h-12 text-red-500 mx-auto mb-4" />
-            <p className="text-slate-500">{error}</p>
-          </CardContent>
-        </Card>
-      </div>
+      <TenantLayout buildingId={buildingId} building={building} currentPage="TenantMyBills">
+        <div className="flex items-center justify-center p-4">
+          <Card className="max-w-md w-full">
+            <CardContent className="pt-6 text-center">
+              <AlertCircle className="w-12 h-12 text-red-500 mx-auto mb-4" />
+              <p className="text-slate-500">{error}</p>
+            </CardContent>
+          </Card>
+        </div>
+      </TenantLayout>
     );
   }
 
-  const formatYearMonth = (date) => {
-    return `${date.getFullYear()}년 ${date.getMonth() + 1}월`;
-  };
-
   return (
-    <div className="min-h-screen bg-slate-50">
+    <TenantLayout buildingId={buildingId} building={building} currentPage="TenantMyBills">
       <div className="max-w-2xl mx-auto px-4 py-6">
         <PageHeader
           title="나의 관리비 청구서"
@@ -229,6 +234,6 @@ export default function TenantMyBills() {
           </>
         )}
       </div>
-    </div>
+    </TenantLayout>
   );
 }
