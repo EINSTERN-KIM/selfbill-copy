@@ -11,6 +11,7 @@ import {
 } from 'lucide-react';
 import LoadingSpinner from '@/components/common/LoadingSpinner';
 import { useBuildingAuth } from '@/components/common/useBuildingAuth';
+import TenantLayout from '@/components/common/TenantLayout';
 
 export default function TenantDashboard() {
   const urlParams = new URLSearchParams(window.location.search);
@@ -56,31 +57,6 @@ export default function TenantDashboard() {
     loadData();
   }, [membership, isLoading]);
 
-  if (isLoading) {
-    return (
-      <div className="min-h-screen bg-slate-50 flex items-center justify-center">
-        <LoadingSpinner />
-      </div>
-    );
-  }
-
-  if (error) {
-    return (
-      <div className="min-h-screen bg-slate-50 flex items-center justify-center p-4">
-        <Card className="max-w-md w-full">
-          <CardContent className="pt-6 text-center">
-            <AlertCircle className="w-12 h-12 text-red-500 mx-auto mb-4" />
-            <h2 className="text-lg font-semibold text-slate-900 mb-2">접근 오류</h2>
-            <p className="text-slate-500 mb-4">{error}</p>
-            <Button onClick={() => navigate(createPageUrl("MyBuildings"))}>
-              내 건물 목록으로
-            </Button>
-          </CardContent>
-        </Card>
-      </div>
-    );
-  }
-
   const getUnitDisplay = () => {
     if (!unit) return "-";
     const parts = [];
@@ -114,8 +90,37 @@ export default function TenantDashboard() {
     },
   ];
 
+  if (isLoading) {
+    return (
+      <TenantLayout buildingId={buildingId} building={building} currentPage="TenantDashboard">
+        <div className="flex items-center justify-center py-12">
+          <LoadingSpinner />
+        </div>
+      </TenantLayout>
+    );
+  }
+
+  if (error) {
+    return (
+      <TenantLayout buildingId={buildingId} building={building} currentPage="TenantDashboard">
+        <div className="flex items-center justify-center p-4">
+          <Card className="max-w-md w-full">
+            <CardContent className="pt-6 text-center">
+              <AlertCircle className="w-12 h-12 text-red-500 mx-auto mb-4" />
+              <h2 className="text-lg font-semibold text-slate-900 mb-2">접근 오류</h2>
+              <p className="text-slate-500 mb-4">{error}</p>
+              <Button onClick={() => navigate(createPageUrl("MyBuildings"))}>
+                내 건물 목록으로
+              </Button>
+            </CardContent>
+          </Card>
+        </div>
+      </TenantLayout>
+    );
+  }
+
   return (
-    <div className="min-h-screen bg-slate-50">
+    <TenantLayout buildingId={buildingId} building={building} currentPage="TenantDashboard">
       <div className="max-w-lg mx-auto px-4 py-6">
         {/* Header */}
         <div className="mb-8">
@@ -221,6 +226,6 @@ export default function TenantDashboard() {
           </Card>
         )}
       </div>
-    </div>
+    </TenantLayout>
   );
 }
