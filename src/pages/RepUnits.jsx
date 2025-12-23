@@ -102,7 +102,7 @@ export default function RepUnits() {
   };
 
   const validateShareRatio = async () => {
-    if (building?.billing_method !== "by_share_ratio") return true;
+    if (building?.billing_method !== "지분율에 의거 부과") return true;
     
     const allUnits = await base44.entities.Unit.filter({
       building_id: buildingId,
@@ -238,7 +238,7 @@ export default function RepUnits() {
           />
         ) : (
           <>
-            {building?.billing_method === "by_share_ratio" && (
+            {building?.billing_method === "지분율에 의거 부과" && (
               <Card className="mb-4 bg-blue-50 border-blue-200">
                 <CardContent className="pt-4 pb-4">
                   <div className="flex items-center justify-between">
@@ -247,6 +247,11 @@ export default function RepUnits() {
                       {totalShareRatio.toFixed(1)}% / 100%
                     </span>
                   </div>
+                  {Math.abs(totalShareRatio - 100) > 0.1 && (
+                    <p className="text-xs text-red-600 mt-2">
+                      ⚠️ 지분율 합계가 100%가 되어야 청구서를 발행할 수 있습니다.
+                    </p>
+                  )}
                 </CardContent>
               </Card>
             )}
@@ -272,7 +277,7 @@ export default function RepUnits() {
                         {unit.floor && (
                           <p className="text-xs text-slate-400">{unit.floor}</p>
                         )}
-                        {building?.billing_method === "by_share_ratio" && unit.share_ratio && (
+                        {building?.billing_method === "지분율에 의거 부과" && unit.share_ratio && (
                           <p className="text-xs text-primary font-semibold">배분 비율: {unit.share_ratio}%</p>
                         )}
                       </div>
@@ -335,7 +340,7 @@ export default function RepUnits() {
                 </div>
               </div>
 
-              {building?.billing_method === "by_share_ratio" && (
+              {building?.billing_method === "지분율에 의거 부과" && (
                 <div className="space-y-2">
                   <Label>관리비 배분 비율 (%) *</Label>
                   <Input

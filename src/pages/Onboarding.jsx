@@ -16,7 +16,7 @@ export default function Onboarding() {
   const [isLoading, setIsLoading] = useState(true);
   const [step, setStep] = useState("select"); // select, invite-check
   const [selectedRole, setSelectedRole] = useState(null);
-  const [invitePhone, setInvitePhone] = useState("010--");
+  const [invitePhone, setInvitePhone] = useState("");
   const [checkingInvite, setCheckingInvite] = useState(false);
   const [inviteError, setInviteError] = useState("");
 
@@ -56,13 +56,14 @@ export default function Onboarding() {
 
   const handleCheckInvite = async () => {
     // Validate phone format
-    if (!invitePhone || invitePhone.includes("--")) {
-      alert("올바른 전화번호 형식으로 입력해주세요. (예: 010-1234-5678)");
+    if (!invitePhone || !invitePhone.trim()) {
+      alert("전화번호를 입력해주세요.");
       return;
     }
     
     const phoneParts = invitePhone.split('-');
     if (phoneParts.length !== 3 || 
+        !phoneParts[0] || !phoneParts[1] || !phoneParts[2] ||
         phoneParts[0].length < 3 || 
         phoneParts[1].length < 3 || phoneParts[1].length > 4 || 
         phoneParts[2].length !== 4) {
@@ -216,7 +217,7 @@ export default function Onboarding() {
                   </Button>
                   <Button
                     onClick={handleCheckInvite}
-                    disabled={checkingInvite || !invitePhone || invitePhone.includes("--")}
+                    disabled={checkingInvite || !invitePhone}
                     className="flex-1"
                   >
                     {checkingInvite ? "확인 중..." : "초대 확인"}

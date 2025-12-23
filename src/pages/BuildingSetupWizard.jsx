@@ -868,6 +868,13 @@ export default function BuildingSetupWizard() {
                 </Button>
               </div>
 
+              {/* 대표자 선택 안내 */}
+              <div className="p-3 bg-amber-50 rounded-lg border border-amber-200">
+                <p className="text-sm font-medium text-amber-900">
+                  ⚠️ 세대 추가 후 라디오 버튼을 클릭하여 대표자의 세대를 선택해 주세요.
+                </p>
+              </div>
+
               {/* 세대 목록 */}
               <div className="space-y-2">
                 {units.map(unit => (
@@ -1119,6 +1126,50 @@ export default function BuildingSetupWizard() {
                   ✓ 위 요금으로 셀프빌 서비스를 이용하실 수 있습니다.<br/>
                   ✓ 건물 등록을 완료하면 대표자 대시보드로 이동합니다.
                 </p>
+              </div>
+
+              <Separator className="my-6" />
+
+              {/* 자동이체 계좌 등록 */}
+              <div className="space-y-4">
+                <h3 className="text-lg font-semibold text-slate-900">자동이체 계좌 등록 (선택사항)</h3>
+                <p className="text-sm text-slate-600">
+                  셀프빌 이용료 자동이체를 위한 계좌 정보를 등록하실 수 있습니다.
+                </p>
+                
+                <div className="space-y-3 p-4 bg-slate-50 rounded-lg">
+                  <div className="space-y-2">
+                    <Label>은행명</Label>
+                    <Select value={step2Data.bank_name} onValueChange={(val) => setStep2Data({...step2Data, bank_name: val})}>
+                      <SelectTrigger>
+                        <SelectValue placeholder="은행 선택" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {BANKS.map(bank => (
+                          <SelectItem key={bank} value={bank}>{bank}</SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </div>
+                  
+                  <div className="space-y-2">
+                    <Label>예금주</Label>
+                    <Input
+                      value={step2Data.bank_holder}
+                      onChange={(e) => setStep2Data({...step2Data, bank_holder: e.target.value})}
+                      placeholder="예금주명"
+                    />
+                  </div>
+                  
+                  <div className="space-y-2">
+                    <Label>계좌번호</Label>
+                    <Input
+                      value={step2Data.bank_account}
+                      onChange={(e) => setStep2Data({...step2Data, bank_account: e.target.value})}
+                      placeholder="- 없이 입력"
+                    />
+                  </div>
+                </div>
               </div>
 
               <div className="pt-4 flex gap-3">
