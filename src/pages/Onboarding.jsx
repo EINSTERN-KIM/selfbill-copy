@@ -16,7 +16,9 @@ export default function Onboarding() {
   const [isLoading, setIsLoading] = useState(true);
   const [step, setStep] = useState("select"); // select, invite-check
   const [selectedRole, setSelectedRole] = useState(null);
-  const [invitePhone, setInvitePhone] = useState("");
+  const [phone1, setPhone1] = useState("010");
+  const [phone2, setPhone2] = useState("");
+  const [phone3, setPhone3] = useState("");
   const [checkingInvite, setCheckingInvite] = useState(false);
   const [inviteError, setInviteError] = useState("");
 
@@ -56,20 +58,17 @@ export default function Onboarding() {
 
   const handleCheckInvite = async () => {
     // Validate phone format
-    if (!invitePhone || !invitePhone.trim()) {
-      alert("전화번호를 입력해주세요.");
+    if (!phone1 || !phone2 || !phone3) {
+      alert("전화번호를 모두 입력해주세요.");
       return;
     }
     
-    const phoneParts = invitePhone.split('-');
-    if (phoneParts.length !== 3 || 
-        !phoneParts[0] || !phoneParts[1] || !phoneParts[2] ||
-        phoneParts[0].length < 3 || 
-        phoneParts[1].length < 3 || phoneParts[1].length > 4 || 
-        phoneParts[2].length !== 4) {
+    if (phone1.length < 3 || phone2.length !== 4 || phone3.length !== 4) {
       alert("올바른 전화번호 형식으로 입력해주세요. (예: 010-1234-5678)");
       return;
     }
+    
+    const invitePhone = `${phone1}-${phone2}-${phone3}`;
     
     setCheckingInvite(true);
     setInviteError("");
@@ -196,12 +195,43 @@ export default function Onboarding() {
               </p>
 
               <div className="space-y-4">
-                <PhoneInput
-                  value={invitePhone}
-                  onChange={setInvitePhone}
-                  label="휴대폰 번호"
-                  required
-                />
+                <div className="space-y-2">
+                  <Label>휴대폰 번호 *</Label>
+                  <div className="flex items-center gap-2">
+                    <Input
+                      type="text"
+                      value={phone1}
+                      onChange={(e) => {
+                        const val = e.target.value.replace(/\D/g, '').slice(0, 3);
+                        setPhone1(val);
+                      }}
+                      className="w-20"
+                      placeholder="010"
+                    />
+                    <span>-</span>
+                    <Input
+                      type="text"
+                      value={phone2}
+                      onChange={(e) => {
+                        const val = e.target.value.replace(/\D/g, '').slice(0, 4);
+                        setPhone2(val);
+                      }}
+                      className="w-24"
+                      placeholder="1234"
+                    />
+                    <span>-</span>
+                    <Input
+                      type="text"
+                      value={phone3}
+                      onChange={(e) => {
+                        const val = e.target.value.replace(/\D/g, '').slice(0, 4);
+                        setPhone3(val);
+                      }}
+                      className="w-24"
+                      placeholder="5678"
+                    />
+                  </div>
+                </div>
 
                 {inviteError && (
                   <p className="text-sm text-red-500">{inviteError}</p>
@@ -217,7 +247,7 @@ export default function Onboarding() {
                   </Button>
                   <Button
                     onClick={handleCheckInvite}
-                    disabled={checkingInvite || !invitePhone}
+                    disabled={checkingInvite || !phone1 || !phone2 || !phone3}
                     className="flex-1"
                   >
                     {checkingInvite ? "확인 중..." : "초대 확인"}
