@@ -36,8 +36,8 @@ export default function RepBankAccount() {
     if (building) {
       setFormData({
         bank_name: building.bank_name || "",
-        bank_account_holder: building.bank_account_holder || "",
-        bank_account_number: building.bank_account_number || ""
+        bank_account_holder: building.bank_holder || "",
+        bank_account_number: building.bank_account || ""
       });
     }
   }, [building]);
@@ -45,10 +45,16 @@ export default function RepBankAccount() {
   const handleSave = async () => {
     setIsSaving(true);
     try {
-      await base44.entities.Building.update(buildingId, formData);
+      await base44.entities.Building.update(buildingId, {
+        bank_name: formData.bank_name,
+        bank_holder: formData.bank_account_holder,
+        bank_account: formData.bank_account_number
+      });
+      alert("입금 계좌 정보가 저장되었습니다.");
       navigate(createPageUrl(`RepDashboard?buildingId=${buildingId}`));
     } catch (err) {
       console.error("Error saving:", err);
+      alert("저장 중 오류가 발생했습니다.");
     }
     setIsSaving(false);
   };

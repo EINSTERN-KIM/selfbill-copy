@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { createPageUrl } from '@/utils';
 import { Button } from "@/components/ui/button";
+import { base44 } from '@/api/base44Client';
 import { 
   Building2, Users, Receipt, CreditCard, Settings, 
   ChevronRight, ChevronDown, Menu, X, Home, FileText,
