@@ -126,6 +126,19 @@ export default function RepBillingMonthlyEdit() {
         }
       }
       
+      // 변동 항목의 세대별 금액 로드
+      const loadedUnitAmounts = {};
+      for (const item of items) {
+        if (item.unit_amounts) {
+          try {
+            loadedUnitAmounts[item.id] = JSON.parse(item.unit_amounts);
+          } catch (e) {
+            console.error("Error parsing unit_amounts:", e);
+          }
+        }
+      }
+      setUnitAmounts(loadedUnitAmounts);
+      
       setBillItems(items);
       
       setIsLoadingData(false);
