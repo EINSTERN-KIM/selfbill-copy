@@ -217,10 +217,10 @@ export default function TenantDashboard() {
             </CardHeader>
             <CardContent>
               <p className="font-medium text-slate-900">
-                {building.bank_name} {building.bank_account_number}
+                {building.bank_name} {building.bank_account}
               </p>
               <p className="text-sm text-slate-500">
-                예금주: {building.bank_account_holder}
+                예금주: {building.bank_holder}
               </p>
             </CardContent>
           </Card>
