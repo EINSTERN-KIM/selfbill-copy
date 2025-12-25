@@ -20,7 +20,7 @@ export default function RepLayout({ children, buildingId, building, currentPage 
 
   const handleLogout = async () => {
     if (confirm('로그아웃 하시겠습니까?')) {
-      await base44.auth.logout();
+      await base44.auth.logout(createPageUrl("Onboarding"));
     }
   };
 
