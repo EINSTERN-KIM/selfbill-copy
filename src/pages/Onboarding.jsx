@@ -6,7 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Building2, Users, Shield, ArrowRight, Check } from 'lucide-react';
+import { Building2, Users, Shield, ArrowRight, Check, LogOut } from 'lucide-react';
 import LoadingSpinner from '@/components/common/LoadingSpinner';
 import PhoneInput from '@/components/common/PhoneInput';
 
@@ -120,9 +120,28 @@ export default function Onboarding() {
     );
   }
 
+  const handleLogout = () => {
+    if (confirm("로그아웃 하시겠습니까?")) {
+      base44.auth.logout(createPageUrl("Onboarding"));
+    }
+  };
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 to-green-50 flex items-center justify-center p-4">
       <div className="w-full max-w-lg">
+        {/* Logout Button */}
+        <div className="flex justify-end mb-4">
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={handleLogout}
+            className="text-slate-600 hover:text-slate-900"
+          >
+            <LogOut className="w-4 h-4 mr-2" />
+            로그아웃
+          </Button>
+        </div>
+
         {/* Logo */}
         <div className="text-center mb-10">
           <div className="inline-flex items-center gap-3 mb-3">
