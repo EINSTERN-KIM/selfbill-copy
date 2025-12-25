@@ -23,6 +23,7 @@ import TenantDashboard from './pages/TenantDashboard';
 import TenantMyBills from './pages/TenantMyBills';
 import TenantMyPayments from './pages/TenantMyPayments';
 import TenantMyUnit from './pages/TenantMyUnit';
+import AcceptInvite from './pages/AcceptInvite';
 import __Layout from './Layout.jsx';
 
 
@@ -52,6 +53,7 @@ export const PAGES = {
     "TenantMyBills": TenantMyBills,
     "TenantMyPayments": TenantMyPayments,
     "TenantMyUnit": TenantMyUnit,
+    "AcceptInvite": AcceptInvite,
 }
 
 export const pagesConfig = {

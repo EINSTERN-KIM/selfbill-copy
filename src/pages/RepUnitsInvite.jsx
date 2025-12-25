@@ -75,7 +75,8 @@ export default function RepUnitsInvite() {
       }
 
       // Create notification log
-      const notificationBody = `[셀프빌 입주자 초대]\n\n${building.name}\n${unit.unit_name}\n\n입주자 정보 등록을 위해 아래 링크로 접속해 주세요.\n${window.location.origin}${createPageUrl('Onboarding')}`;
+      const inviteUrl = `${window.location.origin}${createPageUrl(`AcceptInvite?inviteId=${invitation.id}`)}`;
+      const notificationBody = `[셀프빌 입주자 초대]\n\n${building.name}\n${unit.unit_name}\n\n${unit.tenant_name}님을 입주자로 초대합니다.\n\n아래 링크를 클릭하여 초대를 수락해 주세요.\n\n${inviteUrl}`;
 
       await base44.entities.NotificationLog.create({
         building_id: buildingId,
