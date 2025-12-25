@@ -123,8 +123,8 @@ export default function RepUnits() {
     }
     
     if (Math.abs(total - 100) > 0.1) {
-      alert("지분율 부과 방식을 선택한 경우, 모든 세대의 관리비 배분 비율의 합이 100%가 되도록 입력해 주세요.\n\n현재 합계: " + total.toFixed(1) + "%");
-      return false;
+      const proceed = confirm("지분율 합계가 100%가 아닙니다.\n\n현재 합계: " + total.toFixed(1) + "%\n\n그래도 저장하시겠습니까?\n(청구서 발송은 100%가 되어야 가능합니다)");
+      return proceed;
     }
     
     return true;
