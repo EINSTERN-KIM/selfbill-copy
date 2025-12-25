@@ -272,33 +272,54 @@ export default function RepBillingMonthlyEdit() {
             const isFixed = templateType === "고정";
             const isVariable = templateType === "변동";
             
+            // 변동 항목의 경우 세대별 금액 합계 계산
+            const variableTotal = isVariable && unitAmounts[item.id]
+              ? Object.values(unitAmounts[item.id]).reduce((sum, amt) => sum + (parseInt(amt) || 0), 0)
+              : 0;
+            
             return (
               <Card key={item.id}>
                 <CardContent className="p-4">
                   <div className="flex items-start gap-4">
                     <div className="flex-1 space-y-3">
-                      <div className="grid grid-cols-2 gap-3">
+                      {!isVariable ? (
+                        <div className="grid grid-cols-2 gap-3">
+                          <div>
+                            <Label className="text-xs">항목명</Label>
+                            <Input
+                              value={item.name}
+                              disabled
+                              className="mt-1 bg-slate-50"
+                            />
+                          </div>
+                          <div>
+                            <Label className="text-xs">
+                              금액 (원) {isFixed && <span className="text-slate-500">(고정)</span>}
+                            </Label>
+                            <Input
+                              type="number"
+                              value={item.amount_total}
+                              onChange={(e) => handleItemChange(item.id, 'amount_total', e.target.value)}
+                              disabled={isFixed}
+                              className={`mt-1 ${isFixed ? 'bg-slate-50' : ''}`}
+                            />
+                          </div>
+                        </div>
+                      ) : (
                         <div>
-                          <Label className="text-xs">항목명</Label>
+                          <div className="flex items-center justify-between mb-2">
+                            <Label className="text-xs">항목명</Label>
+                            <span className="text-sm font-semibold text-primary">
+                              합계: {variableTotal.toLocaleString()}원
+                            </span>
+                          </div>
                           <Input
                             value={item.name}
                             disabled
-                            className="mt-1 bg-slate-50"
+                            className="bg-slate-50"
                           />
                         </div>
-                        <div>
-                          <Label className="text-xs">
-                            금액 (원) {isFixed && <span className="text-slate-500">(고정)</span>}
-                          </Label>
-                          <Input
-                            type="number"
-                            value={item.amount_total}
-                            onChange={(e) => handleItemChange(item.id, 'amount_total', e.target.value)}
-                            disabled={isFixed}
-                            className={`mt-1 ${isFixed ? 'bg-slate-50' : ''}`}
-                          />
-                        </div>
-                      </div>
+                      )}
 
                       {isVariable && (
                         <div className="mt-3 p-3 bg-slate-50 rounded-lg">
@@ -312,13 +333,22 @@ export default function RepBillingMonthlyEdit() {
                                   placeholder="0"
                                   value={unitAmounts[item.id]?.[unit.id] || 0}
                                   onChange={(e) => {
+                                    const newAmount = parseInt(e.target.value) || 0;
                                     setUnitAmounts(prev => ({
                                       ...prev,
                                       [item.id]: {
                                         ...prev[item.id],
-                                        [unit.id]: parseInt(e.target.value) || 0
+                                        [unit.id]: newAmount
                                       }
                                     }));
+                                    
+                                    // 세대별 금액 합계를 amount_total에 반영
+                                    const updatedAmounts = {
+                                      ...unitAmounts[item.id],
+                                      [unit.id]: newAmount
+                                    };
+                                    const total = Object.values(updatedAmounts).reduce((sum, amt) => sum + (parseInt(amt) || 0), 0);
+                                    handleItemChange(item.id, 'amount_total', total);
                                   }}
                                   className="h-8 flex-1"
                                 />
