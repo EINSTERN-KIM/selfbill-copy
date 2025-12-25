@@ -34,6 +34,7 @@ export default function RepFeeItems() {
   const [formData, setFormData] = useState({
     name: "",
     category: "일반",
+    amount_type: "고정",
     default_amount: "",
     default_type: "공용",
     default_months: [1,2,3,4,5,6,7,8,9,10,11,12],
@@ -66,6 +67,7 @@ export default function RepFeeItems() {
       setFormData({
         name: template.name || "",
         category: template.category || "일반",
+        amount_type: template.amount_type || "고정",
         default_amount: template.default_amount || "",
         default_type: template.default_type || "공용",
         default_months: template.default_months || [1,2,3,4,5,6,7,8,9,10,11,12],
@@ -77,6 +79,7 @@ export default function RepFeeItems() {
       setFormData({
         name: "",
         category: category,
+        amount_type: "고정",
         default_amount: "",
         default_type: defaultType,
         default_months: [1,2,3,4,5,6,7,8,9,10,11,12],
@@ -197,9 +200,12 @@ export default function RepFeeItems() {
                     <Badge className={template.default_type === "공용" ? "bg-purple-100 text-purple-700" : "bg-green-100 text-green-700"}>
                       {template.default_type}
                     </Badge>
+                    <Badge className={template.amount_type === "고정" ? "bg-blue-100 text-blue-700" : "bg-orange-100 text-orange-700"}>
+                      {template.amount_type}
+                    </Badge>
                   </div>
                   <p className="text-sm text-slate-500 mb-2">
-                    기본 금액: {template.default_amount?.toLocaleString() || 0}원
+                    {template.amount_type === "고정" ? `기본 금액: ${template.default_amount?.toLocaleString() || 0}원` : "매달 금액 입력"}
                   </p>
                   {template.default_months && template.default_months.length < 12 && (
                     <p className="text-xs text-slate-400">
@@ -296,14 +302,29 @@ export default function RepFeeItems() {
               </div>
 
               <div className="space-y-2">
-                <Label>기본 금액 (원)</Label>
-                <Input
-                  type="number"
-                  value={formData.default_amount}
-                  onChange={(e) => setFormData({ ...formData, default_amount: e.target.value })}
-                  placeholder="0"
-                />
+                <Label>금액 유형</Label>
+                <Select value={formData.amount_type} onValueChange={(val) => setFormData({ ...formData, amount_type: val })}>
+                  <SelectTrigger>
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="고정">고정 (변동 없음)</SelectItem>
+                    <SelectItem value="변동">변동 (매달 입력)</SelectItem>
+                  </SelectContent>
+                </Select>
               </div>
+
+              {formData.amount_type === "고정" && (
+                <div className="space-y-2">
+                  <Label>기본 금액 (원)</Label>
+                  <Input
+                    type="number"
+                    value={formData.default_amount}
+                    onChange={(e) => setFormData({ ...formData, default_amount: e.target.value })}
+                    placeholder="0"
+                  />
+                </div>
+              )}
 
               <div className="space-y-2">
                 <Label>부과 월 선택</Label>
