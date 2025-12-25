@@ -85,23 +85,34 @@ export default function RepBillingUnitCharges() {
 
       const newCharges = [];
 
-      // 공용 항목별로 정확한 분배를 위한 계산
+      // 항목 분류
       const commonItems = billItems.filter(item => item.type === "공용");
+      const unitSpecificItems = billItems.filter(item => item.type === "세대별");
+
+      // 공용 항목별로 정확한 분배를 위한 계산
       const itemAllocations = {};
+      const billingMethod = building?.billing_method || "균등 배분";
 
       for (const item of commonItems) {
         const itemTotal = parseFloat(item.amount_total) || 0;
-        const perUnit = Math.floor(itemTotal / units.length);
-        const remainder = itemTotal - (perUnit * units.length);
         
-        itemAllocations[item.id] = units.map((unit, idx) => ({
-          unitId: unit.id,
-          amount: perUnit + (idx < remainder ? 1 : 0)
-        }));
+        if (billingMethod === "지분율에 의거 부과") {
+          // 지분율 기준 분배
+          itemAllocations[item.id] = units.map(unit => ({
+            unitId: unit.id,
+            amount: Math.round(itemTotal * ((unit.share_ratio || 0) / 100))
+          }));
+        } else {
+          // 균등 분배
+          const perUnit = Math.floor(itemTotal / units.length);
+          const remainder = itemTotal - (perUnit * units.length);
+          
+          itemAllocations[item.id] = units.map((unit, idx) => ({
+            unitId: unit.id,
+            amount: perUnit + (idx < remainder ? 1 : 0)
+          }));
+        }
       }
-
-      // 변동항목 (세대별 금액 있는 경우)
-      const variableItems = billItems.filter(item => item.unit_amounts);
 
       for (const unit of units) {
         const breakdown = [];
@@ -116,17 +127,31 @@ export default function RepBillingUnitCharges() {
           }
         }
 
-        // 변동항목 적용 (세대별 금액)
-        for (const item of variableItems) {
-          try {
-            const unitAmounts = JSON.parse(item.unit_amounts);
-            const amount = unitAmounts[unit.id] || 0;
+        // 세대별 항목 적용
+        for (const item of unitSpecificItems) {
+          const targetUnitIds = item.target_unit_ids || [];
+          if (targetUnitIds.includes(unit.id)) {
+            let amount = 0;
+            
+            // 변동 항목인 경우 unit_amounts에서 금액 가져오기
+            if (item.unit_amounts) {
+              try {
+                const unitAmounts = JSON.parse(item.unit_amounts);
+                amount = parseInt(unitAmounts[unit.id]) || 0;
+              } catch (e) {
+                console.error("Error parsing unit_amounts:", e);
+              }
+            } else {
+              // 고정 항목인 경우 대상 세대 수로 균등 분배
+              const itemTotal = parseFloat(item.amount_total) || 0;
+              const targetCount = targetUnitIds.length;
+              amount = targetCount > 0 ? Math.round(itemTotal / targetCount) : 0;
+            }
+            
             if (amount > 0) {
               breakdown.push({ name: item.name, amount });
               unitTotal += amount;
             }
-          } catch (e) {
-            console.error("Error parsing unit_amounts:", e);
           }
         }
 
