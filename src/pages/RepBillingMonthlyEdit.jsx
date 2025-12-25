@@ -73,29 +73,60 @@ export default function RepBillingMonthlyEdit() {
       
       setBillCycle(cycle);
 
-      const items = await base44.entities.BillItem.filter({
+      let items = await base44.entities.BillItem.filter({
         bill_cycle_id: cycle.id
       });
 
+      // 기존 항목이 없으면 템플릿에서 생성
       if (items.length === 0 && templatesData.length > 0) {
         const newItems = [];
         for (const template of templatesData) {
-          const item = await base44.entities.BillItem.create({
-            bill_cycle_id: cycle.id,
-            building_id: buildingId,
-            template_id: template.id,
-            name: template.name,
-            category: template.category,
-            amount_total: template.amount_type === "고정" ? (template.default_amount || 0) : 0,
-            type: template.default_type || "공용",
-            target_unit_ids: []
-          });
-          newItems.push(item);
+          const [year, month] = selectedYearMonth.split('-').map(Number);
+          const shouldInclude = !template.default_months || template.default_months.includes(month);
+          
+          if (shouldInclude) {
+            const item = await base44.entities.BillItem.create({
+              bill_cycle_id: cycle.id,
+              building_id: buildingId,
+              template_id: template.id,
+              name: template.name,
+              category: template.category,
+              amount_total: template.amount_type === "고정" ? (template.default_amount || 0) : 0,
+              type: template.default_type || "공용",
+              target_unit_ids: template.default_target_unit_ids || []
+            });
+            newItems.push(item);
+          }
         }
-        setBillItems(newItems);
+        items = newItems;
       } else {
-        setBillItems(items);
+        // 기존 항목이 있어도 새로운 템플릿이 추가되었는지 확인
+        const existingTemplateIds = items.map(item => item.template_id).filter(Boolean);
+        const newTemplates = templatesData.filter(t => !existingTemplateIds.includes(t.id));
+        
+        if (newTemplates.length > 0) {
+          const [year, month] = selectedYearMonth.split('-').map(Number);
+          for (const template of newTemplates) {
+            const shouldInclude = !template.default_months || template.default_months.includes(month);
+            
+            if (shouldInclude) {
+              const newItem = await base44.entities.BillItem.create({
+                bill_cycle_id: cycle.id,
+                building_id: buildingId,
+                template_id: template.id,
+                name: template.name,
+                category: template.category,
+                amount_total: template.amount_type === "고정" ? (template.default_amount || 0) : 0,
+                type: template.default_type || "공용",
+                target_unit_ids: template.default_target_unit_ids || []
+              });
+              items.push(newItem);
+            }
+          }
+        }
       }
+      
+      setBillItems(items);
       
       setIsLoadingData(false);
     } catch (err) {
