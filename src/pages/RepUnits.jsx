@@ -7,6 +7,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
+import { Badge } from "@/components/ui/badge";
 import { AlertCircle, Plus, Loader2, Home, Phone, Trash2, Edit2 } from 'lucide-react';
 import LoadingSpinner from '@/components/common/LoadingSpinner';
 import PageHeader from '@/components/common/PageHeader';
@@ -188,6 +189,17 @@ export default function RepUnits() {
     }
   };
 
+  const handleReviewConfirm = async (unitId) => {
+    try {
+      await base44.entities.Unit.update(unitId, {
+        needs_review: false
+      });
+      await loadUnits();
+    } catch (err) {
+      console.error("Error confirming review:", err);
+    }
+  };
+
   if (isLoading || isLoadingUnits) {
     return (
       <RepLayout buildingId={buildingId} building={building} currentPage="RepUnits">
@@ -257,46 +269,84 @@ export default function RepUnits() {
             )}
             <div className="space-y-3">
             {units.map((unit) => (
-              <Card key={unit.id} className="hover:shadow-md transition-all">
+              <Card key={unit.id} className={`hover:shadow-md transition-all ${unit.needs_review ? 'border-2 border-yellow-400 bg-yellow-50' : ''}`}>
                 <CardContent className="p-4">
-                  <div className="flex items-center justify-between">
-                    <div className="flex items-center gap-3">
-                      <div className="w-10 h-10 rounded-lg bg-blue-100 flex items-center justify-center">
+                  <div className="flex items-start justify-between gap-3">
+                    <div className="flex items-start gap-3 flex-1">
+                      <div className="w-10 h-10 rounded-lg bg-blue-100 flex items-center justify-center flex-shrink-0">
                         <Home className="w-5 h-5 text-blue-600" />
                       </div>
-                      <div>
-                        <p className="font-medium text-slate-900">
-                          {unit.unit_name || "호수 미입력"}
-                        </p>
+                      <div className="flex-1 min-w-0">
+                        <div className="flex items-center gap-2 mb-1">
+                          <p className="font-medium text-slate-900">
+                            {unit.unit_name || "호수 미입력"}
+                          </p>
+                          {unit.needs_review && (
+                            <span className="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-yellow-100 text-yellow-800">
+                              확인 필요
+                            </span>
+                          )}
+                        </div>
                         {unit.tenant_name && (
                           <p className="text-sm text-slate-500">
                             {unit.tenant_name}
                             {unit.tenant_phone && ` · ${unit.tenant_phone}`}
                           </p>
                         )}
-                        {unit.floor && (
-                          <p className="text-xs text-slate-400">{unit.floor}</p>
+                        {unit.tenant_email && (
+                          <p className="text-xs text-slate-400">{unit.tenant_email}</p>
                         )}
-                        {building?.billing_method === "지분율에 의거 부과" && unit.share_ratio && (
-                          <p className="text-xs text-primary font-semibold">배분 비율: {unit.share_ratio}%</p>
+                        {unit.floor && (
+                          <p className="text-xs text-slate-400">층: {unit.floor}</p>
+                        )}
+                        {building?.billing_method === "지분율에 의거 부과" && unit.share_ratio !== undefined && (
+                          <p className="text-xs text-primary font-semibold">지분율: {unit.share_ratio}%</p>
+                        )}
+                        {unit.residents_count && (
+                          <p className="text-xs text-slate-500">거주 인원: {unit.residents_count}명</p>
+                        )}
+                        {unit.move_in_date && (
+                          <p className="text-xs text-slate-500">입주일: {unit.move_in_date}</p>
+                        )}
+                        {unit.move_out_date && (
+                          <p className="text-xs text-slate-500">퇴거 예정일: {unit.move_out_date}</p>
+                        )}
+                        {unit.car_count > 0 && (
+                          <p className="text-xs text-slate-500">차량: {unit.car_count}대</p>
+                        )}
+                        {unit.car_numbers && unit.car_numbers.length > 0 && (
+                          <p className="text-xs text-slate-500">차량번호: {unit.car_numbers.join(", ")}</p>
                         )}
                       </div>
                     </div>
-                    <div className="flex items-center gap-2">
-                      <Button
-                        variant="ghost"
-                        size="icon"
-                        onClick={() => handleOpenDialog(unit)}
-                      >
-                        <Edit2 className="w-4 h-4 text-slate-500" />
-                      </Button>
-                      <Button
-                        variant="ghost"
-                        size="icon"
-                        onClick={() => handleDelete(unit.id)}
-                      >
-                        <Trash2 className="w-4 h-4 text-red-500" />
-                      </Button>
+                    <div className="flex flex-col gap-2 flex-shrink-0">
+                      {unit.needs_review && (
+                        <Button
+                          size="sm"
+                          onClick={() => handleReviewConfirm(unit.id)}
+                          className="bg-yellow-500 hover:bg-yellow-600 text-white text-xs h-8"
+                        >
+                          대표자 확인
+                        </Button>
+                      )}
+                      <div className="flex gap-1">
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          className="h-8 w-8"
+                          onClick={() => handleOpenDialog(unit)}
+                        >
+                          <Edit2 className="w-4 h-4 text-slate-500" />
+                        </Button>
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          className="h-8 w-8"
+                          onClick={() => handleDelete(unit.id)}
+                        >
+                          <Trash2 className="w-4 h-4 text-red-500" />
+                        </Button>
+                      </div>
                     </div>
                   </div>
                 </CardContent>
