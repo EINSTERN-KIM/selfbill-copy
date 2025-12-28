@@ -91,7 +91,7 @@ export default function RepBillingMonthlyEdit() {
               template_id: template.id,
               name: template.name,
               category: template.category,
-              amount_total: template.amount_type === "고정" ? (template.default_amount || 0) : 0,
+              amount_total: template.default_amount || 0,
               type: template.default_type || "공용",
               target_unit_ids: template.default_target_unit_ids || []
             });
@@ -116,7 +116,7 @@ export default function RepBillingMonthlyEdit() {
                 template_id: template.id,
                 name: template.name,
                 category: template.category,
-                amount_total: template.amount_type === "고정" ? (template.default_amount || 0) : 0,
+                amount_total: template.default_amount || 0,
                 type: template.default_type || "공용",
                 target_unit_ids: template.default_target_unit_ids || []
               });
@@ -126,10 +126,10 @@ export default function RepBillingMonthlyEdit() {
         }
       }
       
-      // 변동 항목의 세대별 금액 로드
+      // 세대별 항목의 세대별 금액 로드
       const loadedUnitAmounts = {};
       for (const item of items) {
-        if (item.unit_amounts) {
+        if (item.type === "세대별" && item.unit_amounts) {
           try {
             loadedUnitAmounts[item.id] = JSON.parse(item.unit_amounts);
           } catch (e) {
@@ -190,9 +190,8 @@ export default function RepBillingMonthlyEdit() {
           target_unit_ids: item.target_unit_ids || []
         };
         
-        // 변동항목인 경우 세대별 금액 저장
-        const templateType = getTemplateType(item.id);
-        if (templateType === "변동" && unitAmounts[item.id]) {
+        // 세대별 항목인 경우 세대별 금액 저장
+        if (item.type === "세대별" && unitAmounts[item.id]) {
           updateData.unit_amounts = JSON.stringify(unitAmounts[item.id]);
         }
         
@@ -246,12 +245,9 @@ export default function RepBillingMonthlyEdit() {
     yearMonthOptions.push(ym);
   }
 
-  const getTemplateType = (itemId) => {
-    const item = billItems.find(i => i.id === itemId);
-    if (!item?.template_id) return null;
-    const template = templates.find(t => t.id === item.template_id);
-    return template?.amount_type;
-  };
+  const generalItems = billItems.filter(item => item.category === "일반");
+  const repairItems = billItems.filter(item => item.category === "수선");
+  const otherItems = billItems.filter(item => item.category === "기타");
 
   return (
     <RepLayout buildingId={buildingId} building={building} currentPage="RepBillingMonthlyEdit">
@@ -279,113 +275,261 @@ export default function RepBillingMonthlyEdit() {
           </CardContent>
         </Card>
 
-        <div className="space-y-3 mb-6">
-          {billItems.map((item) => {
-            const templateType = getTemplateType(item.id);
-            const isFixed = templateType === "고정";
-            const isVariable = templateType === "변동";
-            
-            // 변동 항목의 경우 세대별 금액 합계 계산
-            const variableTotal = isVariable && unitAmounts[item.id]
-              ? Object.values(unitAmounts[item.id]).reduce((sum, amt) => sum + (parseInt(amt) || 0), 0)
-              : 0;
-            
-            return (
-              <Card key={item.id}>
-                <CardContent className="p-4">
-                  <div className="flex items-start gap-4">
-                    <div className="flex-1 space-y-3">
-                      {!isVariable ? (
-                        <div className="grid grid-cols-2 gap-3">
-                          <div>
-                            <Label className="text-xs">항목명</Label>
-                            <Input
-                              value={item.name}
-                              disabled
-                              className="mt-1 bg-slate-50"
-                            />
-                          </div>
-                          <div>
-                            <Label className="text-xs">
-                              금액 (원) {isFixed && <span className="text-slate-500">(고정)</span>}
-                            </Label>
-                            <Input
-                              type="number"
-                              value={item.amount_total}
-                              onChange={(e) => handleItemChange(item.id, 'amount_total', e.target.value)}
-                              disabled={isFixed}
-                              className={`mt-1 ${isFixed ? 'bg-slate-50' : ''}`}
-                            />
-                          </div>
-                        </div>
-                      ) : (
-                        <div>
-                          <div className="flex items-center justify-between mb-2">
-                            <Label className="text-xs">항목명</Label>
-                            <span className="text-sm font-semibold text-primary">
-                              합계: {variableTotal.toLocaleString()}원
-                            </span>
-                          </div>
-                          <Input
-                            value={item.name}
-                            disabled
-                            className="bg-slate-50"
-                          />
-                        </div>
-                      )}
-
-                      {isVariable && (
-                        <div className="mt-3 p-3 bg-slate-50 rounded-lg">
-                          <Label className="text-xs mb-2 block">세대별 금액 입력</Label>
-                          <div className="space-y-2 max-h-60 overflow-y-auto">
-                            {units.map(unit => (
-                              <div key={unit.id} className="flex items-center gap-2">
-                                <span className="text-sm w-32">{unit.unit_name}</span>
+        <div className="space-y-6 mb-6">
+          {/* 일반관리비 */}
+          {generalItems.length > 0 && (
+            <div>
+              <h3 className="text-sm font-semibold text-slate-700 mb-3 flex items-center gap-2">
+                <span className="w-1 h-4 bg-blue-500 rounded"></span>
+                일반관리비
+              </h3>
+              <div className="space-y-3">
+                {generalItems.map((item) => (
+                  <Card key={item.id}>
+                    <CardContent className="p-4">
+                      <div className="flex items-start gap-4">
+                        <div className="flex-1 space-y-3">
+                          {item.type === "세대별" ? (
+                            <>
+                              <div>
+                                <div className="flex items-center justify-between mb-2">
+                                  <Label className="text-xs">항목명</Label>
+                                  <span className="text-sm font-semibold text-primary">
+                                    합계: {(unitAmounts[item.id] ? Object.values(unitAmounts[item.id]).reduce((sum, amt) => sum + (parseInt(amt) || 0), 0) : 0).toLocaleString()}원
+                                  </span>
+                                </div>
+                                <Input value={item.name} disabled className="bg-slate-50" />
+                              </div>
+                              <div className="mt-3 p-3 bg-slate-50 rounded-lg">
+                                <Label className="text-xs mb-2 block">세대별 금액 입력</Label>
+                                <div className="space-y-2 max-h-60 overflow-y-auto">
+                                  {units.map(unit => (
+                                    <div key={unit.id} className="flex items-center gap-2">
+                                      <span className="text-sm w-32">{unit.unit_name}</span>
+                                      <Input
+                                        type="number"
+                                        placeholder="0"
+                                        value={unitAmounts[item.id]?.[unit.id] || 0}
+                                        onChange={(e) => {
+                                          const newAmount = parseInt(e.target.value) || 0;
+                                          setUnitAmounts(prev => ({
+                                            ...prev,
+                                            [item.id]: { ...prev[item.id], [unit.id]: newAmount }
+                                          }));
+                                          const updatedAmounts = { ...unitAmounts[item.id], [unit.id]: newAmount };
+                                          const total = Object.values(updatedAmounts).reduce((sum, amt) => sum + (parseInt(amt) || 0), 0);
+                                          handleItemChange(item.id, 'amount_total', total);
+                                        }}
+                                        className="h-8 flex-1"
+                                      />
+                                    </div>
+                                  ))}
+                                </div>
+                              </div>
+                            </>
+                          ) : (
+                            <div className="grid grid-cols-2 gap-3">
+                              <div>
+                                <Label className="text-xs">항목명</Label>
+                                <Input value={item.name} disabled className="mt-1 bg-slate-50" />
+                              </div>
+                              <div>
+                                <Label className="text-xs">금액 (원)</Label>
                                 <Input
                                   type="number"
-                                  placeholder="0"
-                                  value={unitAmounts[item.id]?.[unit.id] || 0}
-                                  onChange={(e) => {
-                                    const newAmount = parseInt(e.target.value) || 0;
-                                    setUnitAmounts(prev => ({
-                                      ...prev,
-                                      [item.id]: {
-                                        ...prev[item.id],
-                                        [unit.id]: newAmount
-                                      }
-                                    }));
-                                    
-                                    // 세대별 금액 합계를 amount_total에 반영
-                                    const updatedAmounts = {
-                                      ...unitAmounts[item.id],
-                                      [unit.id]: newAmount
-                                    };
-                                    const total = Object.values(updatedAmounts).reduce((sum, amt) => sum + (parseInt(amt) || 0), 0);
-                                    handleItemChange(item.id, 'amount_total', total);
-                                  }}
-                                  className="h-8 flex-1"
+                                  value={item.amount_total}
+                                  onChange={(e) => handleItemChange(item.id, 'amount_total', e.target.value)}
+                                  className="mt-1"
                                 />
                               </div>
-                            ))}
-                          </div>
+                            </div>
+                          )}
                         </div>
-                      )}
-                    </div>
-                    {!isFixed && (
-                      <Button
-                        variant="ghost"
-                        size="icon"
-                        onClick={() => handleDeleteItem(item.id)}
-                        className="text-red-500 hover:text-red-600"
-                      >
-                        <Trash2 className="w-4 h-4" />
-                      </Button>
-                    )}
-                  </div>
-                </CardContent>
-              </Card>
-            );
-          })}
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          onClick={() => handleDeleteItem(item.id)}
+                          className="text-red-500 hover:text-red-600"
+                        >
+                          <Trash2 className="w-4 h-4" />
+                        </Button>
+                      </div>
+                    </CardContent>
+                  </Card>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {/* 수선유지비 */}
+          {repairItems.length > 0 && (
+            <div>
+              <h3 className="text-sm font-semibold text-slate-700 mb-3 flex items-center gap-2">
+                <span className="w-1 h-4 bg-green-500 rounded"></span>
+                수선유지비
+              </h3>
+              <div className="space-y-3">
+                {repairItems.map((item) => (
+                  <Card key={item.id}>
+                    <CardContent className="p-4">
+                      <div className="flex items-start gap-4">
+                        <div className="flex-1 space-y-3">
+                          {item.type === "세대별" ? (
+                            <>
+                              <div>
+                                <div className="flex items-center justify-between mb-2">
+                                  <Label className="text-xs">항목명</Label>
+                                  <span className="text-sm font-semibold text-primary">
+                                    합계: {(unitAmounts[item.id] ? Object.values(unitAmounts[item.id]).reduce((sum, amt) => sum + (parseInt(amt) || 0), 0) : 0).toLocaleString()}원
+                                  </span>
+                                </div>
+                                <Input value={item.name} disabled className="bg-slate-50" />
+                              </div>
+                              <div className="mt-3 p-3 bg-slate-50 rounded-lg">
+                                <Label className="text-xs mb-2 block">세대별 금액 입력</Label>
+                                <div className="space-y-2 max-h-60 overflow-y-auto">
+                                  {units.map(unit => (
+                                    <div key={unit.id} className="flex items-center gap-2">
+                                      <span className="text-sm w-32">{unit.unit_name}</span>
+                                      <Input
+                                        type="number"
+                                        placeholder="0"
+                                        value={unitAmounts[item.id]?.[unit.id] || 0}
+                                        onChange={(e) => {
+                                          const newAmount = parseInt(e.target.value) || 0;
+                                          setUnitAmounts(prev => ({
+                                            ...prev,
+                                            [item.id]: { ...prev[item.id], [unit.id]: newAmount }
+                                          }));
+                                          const updatedAmounts = { ...unitAmounts[item.id], [unit.id]: newAmount };
+                                          const total = Object.values(updatedAmounts).reduce((sum, amt) => sum + (parseInt(amt) || 0), 0);
+                                          handleItemChange(item.id, 'amount_total', total);
+                                        }}
+                                        className="h-8 flex-1"
+                                      />
+                                    </div>
+                                  ))}
+                                </div>
+                              </div>
+                            </>
+                          ) : (
+                            <div className="grid grid-cols-2 gap-3">
+                              <div>
+                                <Label className="text-xs">항목명</Label>
+                                <Input value={item.name} disabled className="mt-1 bg-slate-50" />
+                              </div>
+                              <div>
+                                <Label className="text-xs">금액 (원)</Label>
+                                <Input
+                                  type="number"
+                                  value={item.amount_total}
+                                  onChange={(e) => handleItemChange(item.id, 'amount_total', e.target.value)}
+                                  className="mt-1"
+                                />
+                              </div>
+                            </div>
+                          )}
+                        </div>
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          onClick={() => handleDeleteItem(item.id)}
+                          className="text-red-500 hover:text-red-600"
+                        >
+                          <Trash2 className="w-4 h-4" />
+                        </Button>
+                      </div>
+                    </CardContent>
+                  </Card>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {/* 기타(세대별) */}
+          {otherItems.length > 0 && (
+            <div>
+              <h3 className="text-sm font-semibold text-slate-700 mb-3 flex items-center gap-2">
+                <span className="w-1 h-4 bg-purple-500 rounded"></span>
+                기타(세대별)
+              </h3>
+              <div className="space-y-3">
+                {otherItems.map((item) => (
+                  <Card key={item.id}>
+                    <CardContent className="p-4">
+                      <div className="flex items-start gap-4">
+                        <div className="flex-1 space-y-3">
+                          {item.type === "세대별" ? (
+                            <>
+                              <div>
+                                <div className="flex items-center justify-between mb-2">
+                                  <Label className="text-xs">항목명</Label>
+                                  <span className="text-sm font-semibold text-primary">
+                                    합계: {(unitAmounts[item.id] ? Object.values(unitAmounts[item.id]).reduce((sum, amt) => sum + (parseInt(amt) || 0), 0) : 0).toLocaleString()}원
+                                  </span>
+                                </div>
+                                <Input value={item.name} disabled className="bg-slate-50" />
+                              </div>
+                              <div className="mt-3 p-3 bg-slate-50 rounded-lg">
+                                <Label className="text-xs mb-2 block">세대별 금액 입력</Label>
+                                <div className="space-y-2 max-h-60 overflow-y-auto">
+                                  {units.filter(u => item.target_unit_ids?.includes(u.id)).map(unit => (
+                                    <div key={unit.id} className="flex items-center gap-2">
+                                      <span className="text-sm w-32">{unit.unit_name}</span>
+                                      <Input
+                                        type="number"
+                                        placeholder="0"
+                                        value={unitAmounts[item.id]?.[unit.id] || 0}
+                                        onChange={(e) => {
+                                          const newAmount = parseInt(e.target.value) || 0;
+                                          setUnitAmounts(prev => ({
+                                            ...prev,
+                                            [item.id]: { ...prev[item.id], [unit.id]: newAmount }
+                                          }));
+                                          const updatedAmounts = { ...unitAmounts[item.id], [unit.id]: newAmount };
+                                          const total = Object.values(updatedAmounts).reduce((sum, amt) => sum + (parseInt(amt) || 0), 0);
+                                          handleItemChange(item.id, 'amount_total', total);
+                                        }}
+                                        className="h-8 flex-1"
+                                      />
+                                    </div>
+                                  ))}
+                                </div>
+                              </div>
+                            </>
+                          ) : (
+                            <div className="grid grid-cols-2 gap-3">
+                              <div>
+                                <Label className="text-xs">항목명</Label>
+                                <Input value={item.name} disabled className="mt-1 bg-slate-50" />
+                              </div>
+                              <div>
+                                <Label className="text-xs">금액 (원)</Label>
+                                <Input
+                                  type="number"
+                                  value={item.amount_total}
+                                  onChange={(e) => handleItemChange(item.id, 'amount_total', e.target.value)}
+                                  className="mt-1"
+                                />
+                              </div>
+                            </div>
+                          )}
+                        </div>
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          onClick={() => handleDeleteItem(item.id)}
+                          className="text-red-500 hover:text-red-600"
+                        >
+                          <Trash2 className="w-4 h-4" />
+                        </Button>
+                      </div>
+                    </CardContent>
+                  </Card>
+                ))}
+              </div>
+            </div>
+          )}
         </div>
 
         <Card className="sticky bottom-4">
