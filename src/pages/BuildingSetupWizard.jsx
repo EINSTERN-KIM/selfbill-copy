@@ -69,9 +69,14 @@ export default function BuildingSetupWizard() {
   // Step 4: 관리비 항목
   const [templates, setTemplates] = useState([]);
   const [templateForm, setTemplateForm] = useState({
-    name: "", category: "일반", amount_type: "고정",
+    name: "", category: "일반",
     default_amount: "", default_months: [1,2,3,4,5,6,7,8,9,10,11,12],
     target_unit_id: ""
+  });
+
+  // Step 5: 요금제 확인
+  const [step5Data, setStep5Data] = useState({
+    agreedToPlan: false
   });
 
   useEffect(() => {
@@ -377,7 +382,6 @@ export default function BuildingSetupWizard() {
         building_id: buildingId,
         name: templateForm.name,
         category: templateForm.category,
-        amount_type: templateForm.amount_type,
         default_amount: templateForm.default_amount ? parseFloat(templateForm.default_amount) : 0,
         default_months: templateForm.default_months,
         default_type: templateForm.category === "기타" ? "세대별" : "공용",
@@ -390,7 +394,7 @@ export default function BuildingSetupWizard() {
       setTemplates(templatesData);
 
       setTemplateForm({
-        name: "", category: "일반", amount_type: "고정",
+        name: "", category: "일반",
         default_amount: "", default_months: [1,2,3,4,5,6,7,8,9,10,11,12],
         target_unit_id: ""
       });
@@ -961,30 +965,15 @@ export default function BuildingSetupWizard() {
                   </div>
                 </div>
 
-                <div className="grid grid-cols-2 gap-3">
-                  <div>
-                    <Label className="text-xs">금액 유형</Label>
-                    <Select value={templateForm.amount_type} onValueChange={(val) => setTemplateForm({...templateForm, amount_type: val})}>
-                      <SelectTrigger>
-                        <SelectValue />
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="고정">고정 (변동 없음)</SelectItem>
-                        <SelectItem value="변동">변동 (매달 입력)</SelectItem>
-                      </SelectContent>
-                    </Select>
-                  </div>
-                  {templateForm.amount_type === "고정" && (
-                    <div>
-                      <Label className="text-xs">기본 금액</Label>
-                      <Input
-                        type="number"
-                        value={templateForm.default_amount}
-                        onChange={(e) => setTemplateForm({...templateForm, default_amount: e.target.value})}
-                        placeholder="0"
-                      />
-                    </div>
-                  )}
+                <div>
+                  <Label className="text-xs">기본 금액</Label>
+                  <Input
+                    type="number"
+                    value={templateForm.default_amount}
+                    onChange={(e) => setTemplateForm({...templateForm, default_amount: e.target.value})}
+                    placeholder="0"
+                  />
+                  <p className="text-xs text-slate-500 mt-1">월별 관리비 입력 시 기본값으로 적용됩니다</p>
                 </div>
 
                 <div>
@@ -1039,8 +1028,7 @@ export default function BuildingSetupWizard() {
                       <div className="font-semibold text-slate-900">{tpl.name}</div>
                       <div className="text-sm text-slate-500 mt-1">
                         <Badge variant="outline" className="mr-2">{tpl.category}</Badge>
-                        <Badge variant="outline" className="mr-2">{tpl.amount_type}</Badge>
-                        {tpl.amount_type === "고정" && `${tpl.default_amount?.toLocaleString()}원`}
+                        기본 금액: {tpl.default_amount?.toLocaleString() || 0}원
                       </div>
                     </div>
                     <Button variant="ghost" size="icon" onClick={() => deleteTemplate(tpl.id)}>
@@ -1121,18 +1109,46 @@ export default function BuildingSetupWizard() {
                 </div>
               </div>
 
-              <div className="p-4 bg-blue-50 rounded-lg">
-                <p className="text-sm text-blue-900">
-                  ✓ 위 요금으로 셀프빌 서비스를 이용하실 수 있습니다.<br/>
-                  ✓ 건물 등록을 완료하면 대표자 대시보드로 이동합니다.
-                </p>
+              {/* 요금제 동의 */}
+              <div className="p-4 bg-slate-50 border-2 border-primary rounded-lg">
+                <div className="flex items-start gap-3">
+                  <Checkbox
+                    id="agree-plan"
+                    checked={step5Data.agreedToPlan}
+                    onCheckedChange={(checked) => setStep5Data({ ...step5Data, agreedToPlan: checked })}
+                  />
+                  <div className="flex-1">
+                    <label htmlFor="agree-plan" className="text-sm font-semibold text-slate-900 cursor-pointer block mb-2">
+                      요금제 및 월 이용료 확인
+                    </label>
+                    <div className="text-sm text-slate-700 space-y-1">
+                      <p>• 위 요금제 내용을 확인했으며 동의합니다.</p>
+                      <p>• 공동주택 등록일로부터 1개월은 무료입니다.</p>
+                      <p>• {(() => {
+                        const today = new Date();
+                        const nextMonth = new Date(today.setMonth(today.getMonth() + 1));
+                        return `${nextMonth.getFullYear()}-${String(nextMonth.getMonth() + 1).padStart(2, '0')}-${String(nextMonth.getDate()).padStart(2, '0')}`;
+                      })()}부터는 자동이체가 정상 처리되어야 셀프빌을 계속 이용하실 수 있습니다.</p>
+                      <p>• 자동이체는 대표님이 직접 등록해 주십시오.</p>
+                    </div>
+                  </div>
+                </div>
               </div>
 
               <Separator className="my-6" />
 
               {/* 자동이체 계좌 등록 */}
               <div className="space-y-4">
-                <h3 className="text-lg font-semibold text-slate-900">자동이체 계좌 등록 (선택사항)</h3>
+                <h3 className="text-lg font-semibold text-slate-900">자동이체 계좌 등록</h3>
+                <div className="bg-blue-50 border border-blue-200 rounded-lg p-3">
+                  <p className="text-sm text-blue-800">
+                    건물 등록일로부터 1개월 후인 <strong>{(() => {
+                      const today = new Date();
+                      const nextMonth = new Date(today.setMonth(today.getMonth() + 1));
+                      return `${nextMonth.getFullYear()}-${String(nextMonth.getMonth() + 1).padStart(2, '0')}-${String(nextMonth.getDate()).padStart(2, '0')}`;
+                    })()}</strong>부터 요금이 부과됩니다.
+                  </p>
+                </div>
                 <p className="text-sm text-slate-600">
                   셀프빌 이용료 자동이체를 위한 계좌 정보를 등록하실 수 있습니다.
                 </p>
@@ -1176,7 +1192,7 @@ export default function BuildingSetupWizard() {
                 <Button variant="outline" onClick={() => setCurrentStep(4)}>
                   이전
                 </Button>
-                <Button onClick={completeSetup} disabled={isSaving || units.length === 0} className="flex-1 bg-green-600 hover:bg-green-700">
+                <Button onClick={completeSetup} disabled={isSaving || units.length === 0 || !step5Data.agreedToPlan} className="flex-1 bg-green-600 hover:bg-green-700">
                   {isSaving ? <Loader2 className="w-4 h-4 mr-2 animate-spin" /> : <Check className="w-5 h-5 mr-2" />}
                   등록 완료
                 </Button>
