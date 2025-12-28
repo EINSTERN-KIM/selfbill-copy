@@ -29,6 +29,7 @@ export default function TenantMyUnit() {
     is_owner: false,
     residents_count: "",
     move_in_date: "",
+    move_out_date: "",
     car_count: "",
     car_numbers: []
   });
@@ -49,6 +50,7 @@ export default function TenantMyUnit() {
           is_owner: unitData.is_owner || false,
           residents_count: unitData.residents_count || "",
           move_in_date: unitData.move_in_date || "",
+          move_out_date: unitData.move_out_date || "",
           car_count: unitData.car_count || "",
           car_numbers: unitData.car_numbers || []
         });
@@ -188,12 +190,17 @@ export default function TenantMyUnit() {
                 <Label className="text-slate-500">연락처</Label>
                 <p className="font-medium text-slate-900 mt-1">{unit.tenant_phone}</p>
               </div>
-              {building?.billing_method === "by_share_ratio" && unit.share_ratio && (
+              {building?.billing_method === "지분율에 의거 부과" && unit.share_ratio !== undefined && (
                 <div>
-                  <Label className="text-slate-500">관리비 배분 비율</Label>
+                  <Label className="text-slate-500">지분율</Label>
                   <p className="font-medium text-primary mt-1">{unit.share_ratio}%</p>
                 </div>
               )}
+            </div>
+            <div className="pt-3 border-t">
+              <p className="text-sm text-slate-500">
+                ℹ️ 수정사항 발생 시, 대표자에게 문의하세요
+              </p>
             </div>
           </CardContent>
         </Card>
@@ -238,6 +245,15 @@ export default function TenantMyUnit() {
                 type="date"
                 value={formData.move_in_date}
                 onChange={(e) => setFormData({ ...formData, move_in_date: e.target.value })}
+              />
+            </div>
+
+            <div className="space-y-2">
+              <Label>퇴거 예정일</Label>
+              <Input
+                type="date"
+                value={formData.move_out_date}
+                onChange={(e) => setFormData({ ...formData, move_out_date: e.target.value })}
               />
             </div>
 
