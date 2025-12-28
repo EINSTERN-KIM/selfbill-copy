@@ -37,7 +37,8 @@ export default function RepFeeItems() {
     default_amount: "",
     default_type: "공용",
     default_months: [1,2,3,4,5,6,7,8,9,10,11,12],
-    default_target_unit_ids: []
+    default_target_unit_ids: [],
+    default_unit_amounts: {}
   });
 
   useEffect(() => {
@@ -63,13 +64,22 @@ export default function RepFeeItems() {
   const handleOpenDialog = (template = null, category = "일반") => {
     if (template) {
       setEditingTemplate(template);
+      let unitAmounts = {};
+      if (template.default_unit_amounts) {
+        try {
+          unitAmounts = JSON.parse(template.default_unit_amounts);
+        } catch (e) {
+          console.error("Error parsing unit amounts:", e);
+        }
+      }
       setFormData({
         name: template.name || "",
         category: template.category || "일반",
         default_amount: template.default_amount || "",
         default_type: template.default_type || "공용",
         default_months: template.default_months || [1,2,3,4,5,6,7,8,9,10,11,12],
-        default_target_unit_ids: template.default_target_unit_ids || []
+        default_target_unit_ids: template.default_target_unit_ids || [],
+        default_unit_amounts: unitAmounts
       });
     } else {
       setEditingTemplate(null);
@@ -80,7 +90,8 @@ export default function RepFeeItems() {
         default_amount: "",
         default_type: defaultType,
         default_months: [1,2,3,4,5,6,7,8,9,10,11,12],
-        default_target_unit_ids: []
+        default_target_unit_ids: [],
+        default_unit_amounts: {}
       });
     }
     setShowDialog(true);
@@ -99,6 +110,11 @@ export default function RepFeeItems() {
         building_id: buildingId,
         default_amount: formData.default_amount ? parseFloat(formData.default_amount) : 0
       };
+      
+      // 세대별 금액을 JSON 문자열로 저장
+      if (formData.category === "기타" && formData.default_unit_amounts && Object.keys(formData.default_unit_amounts).length > 0) {
+        saveData.default_unit_amounts = JSON.stringify(formData.default_unit_amounts);
+      }
 
       if (editingTemplate) {
         await base44.entities.BillItemTemplate.update(editingTemplate.id, saveData);
@@ -198,15 +214,38 @@ export default function RepFeeItems() {
                       {template.default_type}
                     </Badge>
                   </div>
-                  <p className="text-sm text-slate-500 mb-2">
-                    기본 금액: {template.default_amount?.toLocaleString() || 0}원
-                  </p>
+                  {template.category === "기타" && template.default_unit_amounts ? (
+                    <div className="text-sm text-slate-500 mb-2">
+                      <p className="font-medium mb-1">세대별 금액:</p>
+                      <div className="flex flex-wrap gap-2">
+                        {(() => {
+                          try {
+                            const unitAmounts = JSON.parse(template.default_unit_amounts);
+                            return Object.entries(unitAmounts).map(([unitId, amount]) => {
+                              const unit = units.find(u => u.id === unitId);
+                              return unit ? (
+                                <Badge key={unitId} variant="outline" className="text-xs">
+                                  {unit.unit_name}: {parseInt(amount).toLocaleString()}원
+                                </Badge>
+                              ) : null;
+                            });
+                          } catch (e) {
+                            return null;
+                          }
+                        })()}
+                      </div>
+                    </div>
+                  ) : (
+                    <p className="text-sm text-slate-500 mb-2">
+                      기본 금액: {template.default_amount?.toLocaleString() || 0}원
+                    </p>
+                  )}
                   {template.default_months && template.default_months.length < 12 && (
                     <p className="text-xs text-slate-400">
                       부과월: {template.default_months.join(", ")}월
                     </p>
                   )}
-                  {template.default_target_unit_ids && template.default_target_unit_ids.length > 0 && (
+                  {template.default_target_unit_ids && template.default_target_unit_ids.length > 0 && template.category !== "기타" && (
                     <div className="flex flex-wrap gap-1 mt-2">
                       {template.default_target_unit_ids.map(unitId => {
                         const unit = units.find(u => u.id === unitId);
@@ -323,21 +362,51 @@ export default function RepFeeItems() {
 
               {formData.category === "기타" && (
                 <div className="space-y-2 border-t pt-4">
-                  <Label>부과 대상 세대 *</Label>
+                  <Label>부과 대상 세대 및 금액 설정 *</Label>
                   <p className="text-xs text-slate-500 mb-3">
-                    이 항목을 부과할 세대를 선택하세요
+                    이 항목을 부과할 세대를 선택하고 각 세대별 금액을 입력하세요
                   </p>
-                  <div className="space-y-2 max-h-48 overflow-y-auto border rounded-lg p-3">
-                    {units.map(unit => (
-                      <label key={unit.id} className="flex items-center gap-2 cursor-pointer hover:bg-slate-50 p-2 rounded">
-                        <Checkbox
-                          checked={formData.default_target_unit_ids?.includes(unit.id)}
-                          onCheckedChange={() => toggleUnit(unit.id)}
-                        />
-                        <span className="text-sm">{unit.unit_name}</span>
-                      </label>
-                    ))}
+                  <div className="space-y-2 max-h-64 overflow-y-auto border rounded-lg p-3">
+                    {units.map(unit => {
+                      const isSelected = formData.default_target_unit_ids?.includes(unit.id);
+                      return (
+                        <div key={unit.id} className={`p-2 rounded ${isSelected ? 'bg-primary-light bg-opacity-20' : 'hover:bg-slate-50'}`}>
+                          <label className="flex items-center gap-2 cursor-pointer">
+                            <Checkbox
+                              checked={isSelected}
+                              onCheckedChange={() => toggleUnit(unit.id)}
+                            />
+                            <span className="text-sm flex-1">{unit.unit_name}</span>
+                            {isSelected && (
+                              <Input
+                                type="number"
+                                placeholder="금액 (원)"
+                                value={formData.default_unit_amounts?.[unit.id] || ""}
+                                onChange={(e) => {
+                                  setFormData({
+                                    ...formData,
+                                    default_unit_amounts: {
+                                      ...formData.default_unit_amounts,
+                                      [unit.id]: parseInt(e.target.value) || 0
+                                    }
+                                  });
+                                }}
+                                className="w-32 h-8"
+                                onClick={(e) => e.stopPropagation()}
+                              />
+                            )}
+                          </label>
+                        </div>
+                      );
+                    })}
                   </div>
+                  {formData.default_target_unit_ids && formData.default_target_unit_ids.length > 0 && (
+                    <div className="mt-2 p-2 bg-blue-50 rounded">
+                      <p className="text-sm text-blue-900">
+                        총 금액: {Object.values(formData.default_unit_amounts || {}).reduce((sum, amt) => sum + (parseInt(amt) || 0), 0).toLocaleString()}원
+                      </p>
+                    </div>
+                  )}
                 </div>
               )}
             </div>

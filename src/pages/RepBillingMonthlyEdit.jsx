@@ -85,7 +85,7 @@ export default function RepBillingMonthlyEdit() {
           const shouldInclude = !template.default_months || template.default_months.includes(month);
           
           if (shouldInclude) {
-            const item = await base44.entities.BillItem.create({
+            let itemData = {
               bill_cycle_id: cycle.id,
               building_id: buildingId,
               template_id: template.id,
@@ -94,7 +94,22 @@ export default function RepBillingMonthlyEdit() {
               amount_total: template.default_amount || 0,
               type: template.default_type || "공용",
               target_unit_ids: template.default_target_unit_ids || []
-            });
+            };
+            
+            // 기타 항목이고 세대별 금액이 설정되어 있으면 그대로 복사
+            if (template.category === "기타" && template.default_unit_amounts) {
+              itemData.unit_amounts = template.default_unit_amounts;
+              // 세대별 금액 합계를 amount_total로 설정
+              try {
+                const unitAmounts = JSON.parse(template.default_unit_amounts);
+                const total = Object.values(unitAmounts).reduce((sum, amt) => sum + (parseInt(amt) || 0), 0);
+                itemData.amount_total = total;
+              } catch (e) {
+                console.error("Error parsing unit amounts:", e);
+              }
+            }
+            
+            const item = await base44.entities.BillItem.create(itemData);
             newItems.push(item);
           }
         }
@@ -110,7 +125,7 @@ export default function RepBillingMonthlyEdit() {
             const shouldInclude = !template.default_months || template.default_months.includes(month);
             
             if (shouldInclude) {
-              const newItem = await base44.entities.BillItem.create({
+              let itemData = {
                 bill_cycle_id: cycle.id,
                 building_id: buildingId,
                 template_id: template.id,
@@ -119,7 +134,21 @@ export default function RepBillingMonthlyEdit() {
                 amount_total: template.default_amount || 0,
                 type: template.default_type || "공용",
                 target_unit_ids: template.default_target_unit_ids || []
-              });
+              };
+              
+              // 기타 항목이고 세대별 금액이 설정되어 있으면 그대로 복사
+              if (template.category === "기타" && template.default_unit_amounts) {
+                itemData.unit_amounts = template.default_unit_amounts;
+                try {
+                  const unitAmounts = JSON.parse(template.default_unit_amounts);
+                  const total = Object.values(unitAmounts).reduce((sum, amt) => sum + (parseInt(amt) || 0), 0);
+                  itemData.amount_total = total;
+                } catch (e) {
+                  console.error("Error parsing unit amounts:", e);
+                }
+              }
+              
+              const newItem = await base44.entities.BillItem.create(itemData);
               items.push(newItem);
             }
           }
@@ -130,6 +159,13 @@ export default function RepBillingMonthlyEdit() {
       const loadedUnitAmounts = {};
       for (const item of items) {
         if (item.type === "세대별" && item.unit_amounts) {
+          try {
+            loadedUnitAmounts[item.id] = JSON.parse(item.unit_amounts);
+          } catch (e) {
+            console.error("Error parsing unit_amounts:", e);
+          }
+        } else if (item.category === "기타" && item.type === "세대별" && item.unit_amounts) {
+          // 기타 항목은 템플릿에서 온 금액을 그대로 사용
           try {
             loadedUnitAmounts[item.id] = JSON.parse(item.unit_amounts);
           } catch (e) {
@@ -460,43 +496,35 @@ export default function RepBillingMonthlyEdit() {
                       <div className="flex items-start gap-4">
                         <div className="flex-1 space-y-3">
                           {item.type === "세대별" ? (
-                            <>
-                              <div>
-                                <div className="flex items-center justify-between mb-2">
-                                  <Label className="text-xs">항목명</Label>
-                                  <span className="text-sm font-semibold text-primary">
-                                    합계: {(unitAmounts[item.id] ? Object.values(unitAmounts[item.id]).reduce((sum, amt) => sum + (parseInt(amt) || 0), 0) : 0).toLocaleString()}원
-                                  </span>
-                                </div>
-                                <Input value={item.name} disabled className="bg-slate-50" />
-                              </div>
-                              <div className="mt-3 p-3 bg-slate-50 rounded-lg">
-                                <Label className="text-xs mb-2 block">세대별 금액 입력</Label>
-                                <div className="space-y-2 max-h-60 overflow-y-auto">
-                                  {units.filter(u => item.target_unit_ids?.includes(u.id)).map(unit => (
-                                    <div key={unit.id} className="flex items-center gap-2">
-                                      <span className="text-sm w-32">{unit.unit_name}</span>
-                                      <Input
-                                        type="number"
-                                        placeholder="0"
-                                        value={unitAmounts[item.id]?.[unit.id] || 0}
-                                        onChange={(e) => {
-                                          const newAmount = parseInt(e.target.value) || 0;
-                                          setUnitAmounts(prev => ({
-                                            ...prev,
-                                            [item.id]: { ...prev[item.id], [unit.id]: newAmount }
-                                          }));
-                                          const updatedAmounts = { ...unitAmounts[item.id], [unit.id]: newAmount };
-                                          const total = Object.values(updatedAmounts).reduce((sum, amt) => sum + (parseInt(amt) || 0), 0);
-                                          handleItemChange(item.id, 'amount_total', total);
-                                        }}
-                                        className="h-8 flex-1"
-                                      />
-                                    </div>
-                                  ))}
-                                </div>
-                              </div>
-                            </>
+                           <>
+                             <div>
+                               <div className="flex items-center justify-between mb-2">
+                                 <Label className="text-xs">항목명</Label>
+                                 <span className="text-sm font-semibold text-primary">
+                                   합계: {(unitAmounts[item.id] ? Object.values(unitAmounts[item.id]).reduce((sum, amt) => sum + (parseInt(amt) || 0), 0) : 0).toLocaleString()}원
+                                 </span>
+                               </div>
+                               <Input value={item.name} disabled className="bg-slate-50" />
+                             </div>
+                             <div className="mt-3 p-3 bg-slate-100 rounded-lg">
+                               <div className="flex items-center justify-between mb-2">
+                                 <Label className="text-xs">세대별 금액</Label>
+                                 <p className="text-xs text-slate-500">
+                                   (템플릿에서 설정된 금액이 자동 적용됩니다)
+                                 </p>
+                               </div>
+                               <div className="space-y-2 max-h-60 overflow-y-auto">
+                                 {units.filter(u => item.target_unit_ids?.includes(u.id)).map(unit => (
+                                   <div key={unit.id} className="flex items-center gap-2 bg-white p-2 rounded">
+                                     <span className="text-sm w-32 font-medium">{unit.unit_name}</span>
+                                     <span className="text-sm text-primary font-semibold">
+                                       {(unitAmounts[item.id]?.[unit.id] || 0).toLocaleString()}원
+                                     </span>
+                                   </div>
+                                 ))}
+                               </div>
+                             </div>
+                           </>
                           ) : (
                             <div className="grid grid-cols-2 gap-3">
                               <div>
