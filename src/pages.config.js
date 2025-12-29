@@ -1,4 +1,3 @@
-import AcceptInvite from './pages/AcceptInvite';
 import BuildingSetupWizard from './pages/BuildingSetupWizard';
 import Home from './pages/Home';
 import MyBuildings from './pages/MyBuildings';
@@ -28,7 +27,6 @@ import __Layout from './Layout.jsx';
 
 
 export const PAGES = {
-    "AcceptInvite": AcceptInvite,
     "BuildingSetupWizard": BuildingSetupWizard,
     "Home": Home,
     "MyBuildings": MyBuildings,
