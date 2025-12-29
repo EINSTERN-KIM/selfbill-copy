@@ -71,7 +71,9 @@ export default function BuildingSetupWizard() {
   const [templateForm, setTemplateForm] = useState({
     name: "", category: "일반",
     default_amount: "", default_months: [1,2,3,4,5,6,7,8,9,10,11,12],
-    target_unit_id: ""
+    default_type: "공용",
+    default_target_unit_ids: [],
+    default_unit_amounts: {}
   });
 
   // Step 5: 요금제 확인
@@ -377,16 +379,28 @@ export default function BuildingSetupWizard() {
       return;
     }
 
+    if (templateForm.category === "기타" && templateForm.default_target_unit_ids.length === 0) {
+      alert("기타 항목은 하나 이상의 부과 대상 세대를 선택해 주세요.");
+      return;
+    }
+
     try {
-      await base44.entities.BillItemTemplate.create({
+      const saveData = {
         building_id: buildingId,
         name: templateForm.name,
         category: templateForm.category,
         default_amount: templateForm.default_amount ? parseFloat(templateForm.default_amount) : 0,
         default_months: templateForm.default_months,
         default_type: templateForm.category === "기타" ? "세대별" : "공용",
-        default_target_unit_ids: templateForm.target_unit_id ? [templateForm.target_unit_id] : []
-      });
+        default_target_unit_ids: templateForm.default_target_unit_ids || []
+      };
+
+      // 세대별 금액을 JSON 문자열로 저장
+      if (templateForm.category === "기타" && templateForm.default_unit_amounts && Object.keys(templateForm.default_unit_amounts).length > 0) {
+        saveData.default_unit_amounts = JSON.stringify(templateForm.default_unit_amounts);
+      }
+
+      await base44.entities.BillItemTemplate.create(saveData);
 
       const templatesData = await base44.entities.BillItemTemplate.filter({
         building_id: buildingId
@@ -396,7 +410,9 @@ export default function BuildingSetupWizard() {
       setTemplateForm({
         name: "", category: "일반",
         default_amount: "", default_months: [1,2,3,4,5,6,7,8,9,10,11,12],
-        target_unit_id: ""
+        default_type: "공용",
+        default_target_unit_ids: [],
+        default_unit_amounts: {}
       });
     } catch (err) {
       console.error("Error adding template:", err);
@@ -937,7 +953,7 @@ export default function BuildingSetupWizard() {
         {currentStep === 4 && (
           <Card>
             <CardHeader>
-              <CardTitle>4단계: 관리비 항목 선택 (고정관리비)</CardTitle>
+              <CardTitle>4단계: 관리비 항목 선택</CardTitle>
             </CardHeader>
             <CardContent className="space-y-6">
               <div className="p-4 bg-slate-50 rounded-lg space-y-4">
@@ -999,20 +1015,62 @@ export default function BuildingSetupWizard() {
 
                 {templateForm.category === "기타" && (
                   <div>
-                    <Label className="text-xs">부과 대상 세대</Label>
-                    <Select 
-                      value={templateForm.target_unit_id || ""} 
-                      onValueChange={(val) => setTemplateForm({...templateForm, target_unit_id: val})}
-                    >
-                      <SelectTrigger>
-                        <SelectValue placeholder="세대 선택" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        {units.map(unit => (
-                          <SelectItem key={unit.id} value={unit.id}>{unit.unit_name}</SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
+                    <Label className="text-xs">부과 대상 세대 및 금액 설정 *</Label>
+                    <p className="text-xs text-slate-500 mb-2">
+                      이 항목을 부과할 세대를 선택하고 각 세대별 금액을 입력하세요
+                    </p>
+                    <div className="space-y-2 max-h-48 overflow-y-auto border rounded-lg p-2">
+                      {units.map(unit => {
+                        const isSelected = templateForm.default_target_unit_ids?.includes(unit.id);
+                        return (
+                          <div key={unit.id} className={`p-2 rounded ${isSelected ? 'bg-primary-light bg-opacity-20' : 'hover:bg-slate-50'}`}>
+                            <label className="flex items-center gap-2 cursor-pointer">
+                              <Checkbox
+                                checked={isSelected}
+                                onCheckedChange={() => {
+                                  const units = templateForm.default_target_unit_ids || [];
+                                  if (units.includes(unit.id)) {
+                                    setTemplateForm({ 
+                                      ...templateForm, 
+                                      default_target_unit_ids: units.filter(id => id !== unit.id) 
+                                    });
+                                  } else {
+                                    setTemplateForm({ 
+                                      ...templateForm, 
+                                      default_target_unit_ids: [...units, unit.id] 
+                                    });
+                                  }
+                                }}
+                              />
+                              <span className="text-sm flex-1">{unit.unit_name}</span>
+                              {isSelected && (
+                                <Input
+                                  type="number"
+                                  placeholder="금액"
+                                  value={templateForm.default_unit_amounts?.[unit.id] || ""}
+                                  onChange={(e) => {
+                                    setTemplateForm({
+                                      ...templateForm,
+                                      default_unit_amounts: {
+                                        ...templateForm.default_unit_amounts,
+                                        [unit.id]: parseInt(e.target.value) || 0
+                                      }
+                                    });
+                                  }}
+                                  className="w-24 h-8"
+                                  onClick={(e) => e.stopPropagation()}
+                                />
+                              )}
+                            </label>
+                          </div>
+                        );
+                      })}
+                    </div>
+                    {templateForm.default_target_unit_ids && templateForm.default_target_unit_ids.length > 0 && (
+                      <div className="mt-2 p-2 bg-blue-50 rounded text-sm text-blue-900">
+                        총 금액: {Object.values(templateForm.default_unit_amounts || {}).reduce((sum, amt) => sum + (parseInt(amt) || 0), 0).toLocaleString()}원
+                      </div>
+                    )}
                   </div>
                 )}
 
@@ -1028,7 +1086,30 @@ export default function BuildingSetupWizard() {
                       <div className="font-semibold text-slate-900">{tpl.name}</div>
                       <div className="text-sm text-slate-500 mt-1">
                         <Badge variant="outline" className="mr-2">{tpl.category}</Badge>
-                        기본 금액: {tpl.default_amount?.toLocaleString() || 0}원
+                        {tpl.category === "기타" && tpl.default_unit_amounts ? (
+                          <div>
+                            <p className="font-medium mb-1">세대별 금액:</p>
+                            <div className="flex flex-wrap gap-2">
+                              {(() => {
+                                try {
+                                  const unitAmounts = JSON.parse(tpl.default_unit_amounts);
+                                  return Object.entries(unitAmounts).map(([unitId, amount]) => {
+                                    const unit = units.find(u => u.id === unitId);
+                                    return unit ? (
+                                      <Badge key={unitId} variant="outline" className="text-xs">
+                                        {unit.unit_name}: {parseInt(amount).toLocaleString()}원
+                                      </Badge>
+                                    ) : null;
+                                  });
+                                } catch (e) {
+                                  return null;
+                                }
+                              })()}
+                            </div>
+                          </div>
+                        ) : (
+                          <span>기본 금액: {tpl.default_amount?.toLocaleString() || 0}원</span>
+                        )}
                       </div>
                     </div>
                     <Button variant="ghost" size="icon" onClick={() => deleteTemplate(tpl.id)}>
