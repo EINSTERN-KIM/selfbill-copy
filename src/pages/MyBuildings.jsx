@@ -4,7 +4,7 @@ import { useNavigate, Link } from 'react-router-dom';
 import { createPageUrl } from '@/utils';
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
-import { Building2, Plus, MapPin, Users, ChevronRight, AlertCircle } from 'lucide-react';
+import { Building2, Plus, MapPin, Users, ChevronRight, AlertCircle, UserPlus, LogOut } from 'lucide-react';
 import { Badge } from "@/components/ui/badge";
 import LoadingSpinner from '@/components/common/LoadingSpinner';
 import EmptyState from '@/components/common/EmptyState';
@@ -73,6 +73,12 @@ export default function MyBuildings() {
     }
   };
 
+  const handleLogout = async () => {
+    if (confirm("로그아웃 하시겠습니까?")) {
+      await base44.auth.logout();
+    }
+  };
+
   if (isLoading) {
     return (
       <div className="min-h-screen bg-slate-50 flex items-center justify-center">
@@ -90,13 +96,31 @@ export default function MyBuildings() {
             <h1 className="text-2xl font-bold text-slate-900">내 공동주택</h1>
             <p className="text-slate-500 mt-1">관리 중인 공동주택 목록</p>
           </div>
-          <Button 
-            onClick={() => navigate(createPageUrl("BuildingSetupWizard"))}
-            className="bg-primary hover:bg-primary-dark text-white rounded-full px-6 font-semibold"
-          >
-            <Plus className="w-4 h-4 mr-2" />
-            새 건물 등록
-          </Button>
+          <div className="flex items-center gap-2">
+            <Button 
+              variant="outline"
+              onClick={() => navigate(createPageUrl("AcceptInvite"))}
+              className="border-primary text-primary hover:bg-primary-light hover:text-primary-dark rounded-full px-4 font-semibold"
+            >
+              <UserPlus className="w-4 h-4 mr-2" />
+              입주자 등록
+            </Button>
+            <Button 
+              onClick={() => navigate(createPageUrl("BuildingSetupWizard"))}
+              className="bg-primary hover:bg-primary-dark text-white rounded-full px-4 font-semibold"
+            >
+              <Plus className="w-4 h-4 mr-2" />
+              새 건물 등록
+            </Button>
+            <Button
+              variant="ghost"
+              size="icon"
+              onClick={handleLogout}
+              className="text-slate-500 hover:text-slate-700 rounded-full"
+            >
+              <LogOut className="w-4 h-4" />
+            </Button>
+          </div>
         </div>
 
         {/* Building List */}
