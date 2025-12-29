@@ -49,7 +49,11 @@ export default function TenantMyBills() {
         })
       ]);
 
-      setUnitCharge(charges[0] || null);
+      // 같은 달에 여러 청구서가 있을 경우 가장 최신 것만 표시
+      const sortedCharges = charges.sort((a, b) => 
+        new Date(b.sent_at || b.created_date) - new Date(a.sent_at || a.created_date)
+      );
+      setUnitCharge(sortedCharges[0] || null);
       setBillCycle(cycles[0] || null);
       setBillItems(items.filter(item => {
         const cycleMatch = cycles[0] && item.bill_cycle_id === cycles[0].id;
