@@ -5,7 +5,7 @@ import { createPageUrl } from '@/utils';
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { AlertCircle, Loader2, Home, Calculator, ChevronRight, Calendar } from 'lucide-react';
+import { AlertCircle, Loader2, Home, Calculator, ChevronRight, Calendar, ChevronDown } from 'lucide-react';
 import LoadingSpinner from '@/components/common/LoadingSpinner';
 import PageHeader from '@/components/common/PageHeader';
 import EmptyState from '@/components/common/EmptyState';
@@ -32,6 +32,7 @@ export default function RepBillingUnitCharges() {
   const [billItems, setBillItems] = useState([]);
   const [units, setUnits] = useState([]);
   const [unitCharges, setUnitCharges] = useState([]);
+  const [expandedUnitId, setExpandedUnitId] = useState(null);
 
   useEffect(() => {
     loadData();
@@ -325,11 +326,24 @@ export default function RepBillingUnitCharges() {
             <div className="space-y-3">
               {units.map((unit) => {
                 const charge = getChargeForUnit(unit.id);
+                const isExpanded = expandedUnitId === unit.id;
+                let breakdown = [];
+                
+                if (charge?.breakdown_json) {
+                  try {
+                    breakdown = JSON.parse(charge.breakdown_json);
+                  } catch (e) {
+                    console.error("Error parsing breakdown:", e);
+                  }
+                }
                 
                 return (
                   <Card key={unit.id} className="hover:shadow-md transition-all">
                     <CardContent className="p-4">
-                      <div className="flex items-center justify-between">
+                      <div 
+                        className="flex items-center justify-between cursor-pointer"
+                        onClick={() => setExpandedUnitId(isExpanded ? null : unit.id)}
+                      >
                         <div className="flex items-center gap-3">
                           <div className="w-10 h-10 rounded-lg bg-blue-100 flex items-center justify-center">
                             <Home className="w-5 h-5 text-blue-600" />
@@ -341,23 +355,66 @@ export default function RepBillingUnitCharges() {
                             )}
                           </div>
                         </div>
-                        <div className="text-right">
-                          {charge ? (
-                            <>
-                              <p className="text-lg font-bold text-slate-900">
-                                {charge.amount_total?.toLocaleString()}원
-                              </p>
-                              {charge.late_fee_amount > 0 && (
-                                <p className="text-xs text-slate-500">
-                                  (연체 시: {charge.after_due_amount?.toLocaleString()}원)
+                        <div className="flex items-center gap-3">
+                          <div className="text-right">
+                            {charge ? (
+                              <>
+                                <p className="text-lg font-bold text-slate-900">
+                                  {charge.amount_total?.toLocaleString()}원
                                 </p>
-                              )}
-                            </>
-                          ) : (
-                            <p className="text-sm text-slate-400">미계산</p>
+                                {charge.late_fee_amount > 0 && (
+                                  <p className="text-xs text-slate-500">
+                                    (연체 시: {charge.after_due_amount?.toLocaleString()}원)
+                                  </p>
+                                )}
+                              </>
+                            ) : (
+                              <p className="text-sm text-slate-400">미계산</p>
+                            )}
+                          </div>
+                          {charge && breakdown.length > 0 && (
+                            <ChevronDown 
+                              className={`w-5 h-5 text-slate-400 transition-transform ${isExpanded ? 'rotate-180' : ''}`}
+                            />
                           )}
                         </div>
                       </div>
+                      
+                      {isExpanded && charge && breakdown.length > 0 && (
+                        <div className="mt-4 pt-4 border-t space-y-2">
+                          <p className="text-sm font-semibold text-slate-700 mb-3">상세 내역</p>
+                          {breakdown.map((item, idx) => (
+                            <div key={idx} className="flex items-center justify-between py-2">
+                              <span className="text-sm text-slate-600">{item.name}</span>
+                              <span className="text-sm font-medium text-slate-900">
+                                {item.amount?.toLocaleString()}원
+                              </span>
+                            </div>
+                          ))}
+                          <div className="pt-2 border-t flex items-center justify-between">
+                            <span className="text-sm font-bold text-slate-900">합계</span>
+                            <span className="text-lg font-bold text-primary">
+                              {charge.amount_total?.toLocaleString()}원
+                            </span>
+                          </div>
+                          {charge.late_fee_amount > 0 && (
+                            <div className="mt-3 pt-3 border-t bg-amber-50 rounded-lg p-3">
+                              <div className="flex items-center justify-between text-sm mb-2">
+                                <span className="text-amber-900">연체료 ({building?.late_fee_rate_percent || 0}%)</span>
+                                <span className="font-medium text-amber-900">
+                                  +{charge.late_fee_amount?.toLocaleString()}원
+                                </span>
+                              </div>
+                              <div className="flex items-center justify-between">
+                                <span className="text-sm font-bold text-amber-900">납기후 금액</span>
+                                <span className="text-lg font-bold text-amber-900">
+                                  {charge.after_due_amount?.toLocaleString()}원
+                                </span>
+                              </div>
+                            </div>
+                          )}
+                        </div>
+                      )}
                     </CardContent>
                   </Card>
                 );

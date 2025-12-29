@@ -153,7 +153,7 @@ export default function TenantMyBills() {
                     {unitCharge.amount_total?.toLocaleString()}<span className="text-2xl text-slate-600">원</span>
                   </p>
                 </div>
-                <div className="grid grid-cols-2 gap-3 pt-4 border-t">
+                <div className="grid grid-cols-3 gap-3 pt-4 border-t">
                   <div className="text-center">
                     <p className="text-xs text-slate-500">부과 기간</p>
                     <p className="text-sm font-medium text-slate-900 mt-1">
@@ -168,7 +168,20 @@ export default function TenantMyBills() {
                       {billCycle.due_date ? new Date(billCycle.due_date).toLocaleDateString('ko-KR', { month: 'short', day: 'numeric' }) : '-'}
                     </p>
                   </div>
+                  <div className="text-center">
+                    <p className="text-xs text-slate-500">납기후 금액</p>
+                    <p className="text-sm font-medium text-amber-600 mt-1">
+                      {unitCharge.after_due_amount?.toLocaleString() || 0}원
+                    </p>
+                  </div>
                 </div>
+                {unitCharge.late_fee_amount > 0 && (
+                  <div className="mt-3 pt-3 border-t">
+                    <p className="text-xs text-center text-slate-500">
+                      연체 시 연체료 {unitCharge.late_fee_amount?.toLocaleString()}원 ({building?.late_fee_rate_percent || 0}%)이 추가됩니다
+                    </p>
+                  </div>
+                )}
               </CardContent>
             </Card>
 
@@ -178,38 +191,39 @@ export default function TenantMyBills() {
                 <CardTitle>항목별 내역</CardTitle>
               </CardHeader>
               <CardContent>
-                {billItems.length === 0 ? (
-                  <p className="text-center text-slate-500 py-4">항목 정보가 없습니다.</p>
-                ) : (
-                  <div className="space-y-3">
-                    {billItems.map((item) => (
-                      <div key={item.id} className="flex items-center justify-between py-3 border-b last:border-0">
-                        <div className="flex items-center gap-3">
-                          <div>
-                            <p className="font-medium text-slate-900">{item.name}</p>
-                            <div className="flex items-center gap-2 mt-1">
-                              <Badge variant="outline" className="text-xs">
-                                {item.category}
-                              </Badge>
-                              <Badge variant="outline" className="text-xs">
-                                {item.type}
-                              </Badge>
-                            </div>
-                          </div>
+                {(() => {
+                  let breakdown = [];
+                  if (unitCharge?.breakdown_json) {
+                    try {
+                      breakdown = JSON.parse(unitCharge.breakdown_json);
+                    } catch (e) {
+                      console.error("Error parsing breakdown:", e);
+                    }
+                  }
+                  
+                  if (breakdown.length === 0) {
+                    return <p className="text-center text-slate-500 py-4">항목 정보가 없습니다.</p>;
+                  }
+                  
+                  return (
+                    <div className="space-y-3">
+                      {breakdown.map((item, idx) => (
+                        <div key={idx} className="flex items-center justify-between py-3 border-b last:border-0">
+                          <p className="font-medium text-slate-900">{item.name}</p>
+                          <p className="font-semibold text-slate-900">
+                            {item.amount?.toLocaleString()}원
+                          </p>
                         </div>
-                        <p className="font-semibold text-slate-900">
-                          {item.amount_total?.toLocaleString()}원
+                      ))}
+                      <div className="flex items-center justify-between pt-4 border-t-2">
+                        <p className="font-bold text-slate-900">합계</p>
+                        <p className="text-2xl font-bold text-primary">
+                          {unitCharge.amount_total?.toLocaleString()}원
                         </p>
                       </div>
-                    ))}
-                    <div className="flex items-center justify-between pt-4 border-t-2">
-                      <p className="font-bold text-slate-900">합계</p>
-                      <p className="text-2xl font-bold text-primary">
-                        {unitCharge.amount_total?.toLocaleString()}원
-                      </p>
                     </div>
-                  </div>
-                )}
+                  );
+                })()}
               </CardContent>
             </Card>
 
