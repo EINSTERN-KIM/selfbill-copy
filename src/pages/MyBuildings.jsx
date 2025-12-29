@@ -111,7 +111,7 @@ export default function MyBuildings() {
           <div className="flex items-center gap-2">
             <Button 
               variant="outline"
-              onClick={() => navigate(createPageUrl("AcceptInvite"))}
+              onClick={() => navigate(createPageUrl("TenantInviteCheck"))}
               className="border-primary text-primary hover:bg-primary-light hover:text-primary-dark rounded-full px-4 font-semibold"
             >
               <UserPlus className="w-4 h-4 mr-2" />
