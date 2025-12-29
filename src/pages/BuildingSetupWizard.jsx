@@ -975,22 +975,24 @@ export default function BuildingSetupWizard() {
                       <SelectContent>
                         <SelectItem value="일반">일반</SelectItem>
                         <SelectItem value="수선">수선</SelectItem>
-                        <SelectItem value="기타">기타</SelectItem>
+                        <SelectItem value="기타">기타(세대별)</SelectItem>
                       </SelectContent>
                     </Select>
                   </div>
                 </div>
 
-                <div>
-                  <Label className="text-xs">기본 금액</Label>
-                  <Input
-                    type="number"
-                    value={templateForm.default_amount}
-                    onChange={(e) => setTemplateForm({...templateForm, default_amount: e.target.value})}
-                    placeholder="0"
-                  />
-                  <p className="text-xs text-slate-500 mt-1">월별 관리비 입력 시 기본값으로 적용됩니다</p>
-                </div>
+                {templateForm.category !== "기타" && (
+                  <div>
+                    <Label className="text-xs">기본 금액</Label>
+                    <Input
+                      type="number"
+                      value={templateForm.default_amount}
+                      onChange={(e) => setTemplateForm({...templateForm, default_amount: e.target.value})}
+                      placeholder="0"
+                    />
+                    <p className="text-xs text-slate-500 mt-1">월별 관리비 입력 시 기본값으로 적용됩니다</p>
+                  </div>
+                )}
 
                 <div>
                   <Label className="text-xs">부과 월 선택</Label>
