@@ -90,6 +90,18 @@ export default function MyBuildings() {
   return (
     <div className="min-h-screen bg-slate-50">
       <div className="max-w-2xl mx-auto px-4 py-8">
+        {/* Logout Button */}
+        <div className="flex justify-end mb-4">
+          <Button
+            variant="ghost"
+            onClick={handleLogout}
+            className="text-slate-500 hover:text-slate-700"
+          >
+            <LogOut className="w-4 h-4 mr-2" />
+            로그아웃
+          </Button>
+        </div>
+
         {/* Header */}
         <div className="flex items-center justify-between mb-8">
           <div>
@@ -111,14 +123,6 @@ export default function MyBuildings() {
             >
               <Plus className="w-4 h-4 mr-2" />
               새 건물 등록
-            </Button>
-            <Button
-              variant="ghost"
-              size="icon"
-              onClick={handleLogout}
-              className="text-slate-500 hover:text-slate-700 rounded-full"
-            >
-              <LogOut className="w-4 h-4" />
             </Button>
           </div>
         </div>
