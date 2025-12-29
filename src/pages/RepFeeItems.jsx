@@ -334,16 +334,18 @@ export default function RepFeeItems() {
                 />
               </div>
 
-              <div className="space-y-2">
-                <Label>기본 금액 (원)</Label>
-                <Input
-                  type="number"
-                  value={formData.default_amount}
-                  onChange={(e) => setFormData({ ...formData, default_amount: e.target.value })}
-                  placeholder="0"
-                />
-                <p className="text-xs text-slate-500">월별 관리비 입력 시 기본값으로 적용됩니다</p>
-              </div>
+              {formData.category !== "기타" && (
+                <div className="space-y-2">
+                  <Label>기본 금액 (원)</Label>
+                  <Input
+                    type="number"
+                    value={formData.default_amount}
+                    onChange={(e) => setFormData({ ...formData, default_amount: e.target.value })}
+                    placeholder="0"
+                  />
+                  <p className="text-xs text-slate-500">월별 관리비 입력 시 기본값으로 적용됩니다</p>
+                </div>
+              )}
 
               <div className="space-y-2">
                 <Label>부과 월 선택</Label>
