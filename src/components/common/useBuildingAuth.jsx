@@ -44,15 +44,20 @@ export function useBuildingAuth(buildingId, requiredRole = null) {
           return;
         }
 
-        const member = memberships[0];
-        setMembership(member);
-
-        // Check role if required
-        if (requiredRole && member.role !== requiredRole) {
-          setError(`이 페이지는 ${requiredRole}만 접근할 수 있습니다.`);
-          setIsLoading(false);
-          return;
+        // If requiredRole is specified, find membership with that role
+        let member;
+        if (requiredRole) {
+          member = memberships.find(m => m.role === requiredRole);
+          if (!member) {
+            setError(`이 페이지는 ${requiredRole}만 접근할 수 있습니다.`);
+            setIsLoading(false);
+            return;
+          }
+        } else {
+          member = memberships[0];
         }
+
+        setMembership(member);
 
         setIsLoading(false);
       } catch (err) {
