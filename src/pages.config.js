@@ -20,10 +20,10 @@ import RepUnits from './pages/RepUnits';
 import RepUnitsInvite from './pages/RepUnitsInvite';
 import RepUnitsReview from './pages/RepUnitsReview';
 import TenantDashboard from './pages/TenantDashboard';
+import TenantInviteCheck from './pages/TenantInviteCheck';
 import TenantMyBills from './pages/TenantMyBills';
 import TenantMyPayments from './pages/TenantMyPayments';
 import TenantMyUnit from './pages/TenantMyUnit';
-import TenantInviteCheck from './pages/TenantInviteCheck';
 import __Layout from './Layout.jsx';
 
 
@@ -50,10 +50,10 @@ export const PAGES = {
     "RepUnitsInvite": RepUnitsInvite,
     "RepUnitsReview": RepUnitsReview,
     "TenantDashboard": TenantDashboard,
+    "TenantInviteCheck": TenantInviteCheck,
     "TenantMyBills": TenantMyBills,
     "TenantMyPayments": TenantMyPayments,
     "TenantMyUnit": TenantMyUnit,
-    "TenantInviteCheck": TenantInviteCheck,
 }
 
 export const pagesConfig = {

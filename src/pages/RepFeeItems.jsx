@@ -106,12 +106,16 @@ export default function RepFeeItems() {
     setIsSaving(true);
     try {
       const saveData = {
-        ...formData,
         building_id: buildingId,
-        default_amount: formData.default_amount ? parseFloat(formData.default_amount) : 0
+        name: formData.name,
+        category: formData.category,
+        default_amount: formData.default_amount ? parseFloat(formData.default_amount) : 0,
+        default_type: formData.default_type,
+        default_months: formData.default_months,
+        default_target_unit_ids: formData.default_target_unit_ids
       };
       
-      // 세대별 금액을 JSON 문자열로 저장
+      // 세대별 금액을 JSON 문자열로 저장 (기타 항목인 경우에만)
       if (formData.category === "기타" && formData.default_unit_amounts && Object.keys(formData.default_unit_amounts).length > 0) {
         saveData.default_unit_amounts = JSON.stringify(formData.default_unit_amounts);
       }
@@ -126,6 +130,7 @@ export default function RepFeeItems() {
       setShowDialog(false);
     } catch (err) {
       console.error("Error saving template:", err);
+      alert("저장 중 오류가 발생했습니다. 다시 시도해주세요.");
     }
     setIsSaving(false);
   };
