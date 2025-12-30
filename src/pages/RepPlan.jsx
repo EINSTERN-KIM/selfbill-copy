@@ -65,6 +65,17 @@ export default function RepPlan() {
     return threeMonthsLater.toISOString().split('T')[0];
   };
 
+  const init = async () => {
+    try {
+      const buildings = await base44.entities.Building.filter({ id: buildingId });
+      if (buildings.length > 0) {
+        // Data will update via the building state from useBuildingAuth
+      }
+    } catch (err) {
+      console.error("Error loading building:", err);
+    }
+  };
+
   const handleSave = async () => {
     setIsSaving(true);
     try {
@@ -75,7 +86,7 @@ export default function RepPlan() {
       await base44.entities.Building.update(buildingId, updateData);
       alert("저장되었습니다.");
       setIsEditing(false);
-      await init();
+      window.location.reload();
     } catch (err) {
       console.error("Error saving:", err);
       alert("저장 중 오류가 발생했습니다.");
