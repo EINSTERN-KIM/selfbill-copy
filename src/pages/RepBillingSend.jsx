@@ -226,7 +226,7 @@ export default function RepBillingSend() {
   }
 
   const getUnitDisplay = (unit) => {
-    return unit.ho || "호수 미입력";
+    return unit.ho ? `${unit.ho}호` : "호수 미입력";
   };
 
   const getChargeForUnit = (unitId) => {
