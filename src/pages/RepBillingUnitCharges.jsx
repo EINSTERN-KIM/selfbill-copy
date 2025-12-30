@@ -240,7 +240,7 @@ export default function RepBillingUnitCharges() {
   }
 
   const getUnitDisplay = (unit) => {
-    return [unit.dong, unit.floor, unit.ho].filter(Boolean).join(" ") || "호수 미입력";
+    return unit.ho || "호수 미입력";
   };
 
   const getChargeForUnit = (unitId) => {
