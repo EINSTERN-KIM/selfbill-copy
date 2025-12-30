@@ -74,9 +74,14 @@ export default function RepUnitsInvite() {
         invitation = await base44.entities.Invitation.create(invitationData);
       }
 
-      // Create notification log
+      // Send SMS via Aligo
       const inviteUrl = `${window.location.origin}${createPageUrl(`AcceptInvite?inviteId=${invitation.id}`)}`;
       const notificationBody = `[셀프빌 입주자 초대]\n\n${building.name}\n${unit.unit_name}\n\n${unit.tenant_name}님을 입주자로 초대합니다.\n\n아래 링크를 클릭하여 초대를 수락해 주세요.\n\n${inviteUrl}`;
+
+      const smsResult = await base44.functions.invoke('sendAligoSMS', {
+        receiver: unit.tenant_phone.replace(/-/g, ''),
+        message: notificationBody
+      });
 
       await base44.entities.NotificationLog.create({
         building_id: buildingId,
@@ -86,13 +91,21 @@ export default function RepUnitsInvite() {
         event_ref_id: invitation.id,
         title: "셀프빌 입주자 초대",
         body: notificationBody,
-        status: "발송성공",
+        status: smsResult.data.success ? "발송성공" : "발송실패",
+        error_message: smsResult.data.error || null,
         sent_at: new Date().toISOString()
       });
+
+      if (smsResult.data.success) {
+        alert("초대 문자가 발송되었습니다.");
+      } else {
+        alert(`문자 발송 실패: ${smsResult.data.error}`);
+      }
 
       await loadData();
     } catch (err) {
       console.error("Error sending invitation:", err);
+      alert("문자 발송 중 오류가 발생했습니다.");
     }
     setIsSending(false);
   };
