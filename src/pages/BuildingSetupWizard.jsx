@@ -154,8 +154,8 @@ export default function BuildingSetupWizard() {
   };
 
   const saveStep1 = async () => {
-    if (!step1Data.name || !step1Data.planned_units_count) {
-      alert("건물명과 전체 세대수를 입력해 주세요.");
+    if (!step1Data.name || !step1Data.planned_units_count || !step1Data.address) {
+      alert("건물명, 주소, 전체 세대수를 모두 입력해 주세요.");
       return;
     }
 
@@ -181,17 +181,17 @@ export default function BuildingSetupWizard() {
           status: "활성"
         });
         
+        // Wait for navigation to complete
         navigate(createPageUrl(`BuildingSetupWizard?buildingId=${bldgId}`));
+        return;
       } else {
         await base44.entities.Building.update(bldgId, {
           ...step1Data,
           planned_units_count: parseInt(step1Data.planned_units_count),
           setup_step: 1
         });
+        setCurrentStep(2);
       }
-      
-      await init();
-      setCurrentStep(2);
     } catch (err) {
       console.error("Error saving step 1:", err);
     }
@@ -281,7 +281,17 @@ export default function BuildingSetupWizard() {
         setSelectedRepUnit(newUnit.id);
         setRepUnitAdded(true);
         
-        // Update BuildingMember with unit_id
+        // Create tenant membership for the representative
+        await base44.entities.BuildingMember.create({
+          building_id: buildingId,
+          user_id: user.id,
+          user_email: user.email,
+          role: "입주자",
+          unit_id: newUnit.id,
+          status: "활성"
+        });
+        
+        // Update representative BuildingMember with unit_id
         const members = await base44.entities.BuildingMember.filter({
           building_id: buildingId,
           user_email: user.email,
@@ -573,7 +583,7 @@ export default function BuildingSetupWizard() {
                 />
               </div>
               <div className="space-y-2">
-                <Label>주소</Label>
+                <Label>주소 *</Label>
                 <div className="flex gap-2">
                   <Input
                     value={step1Data.address}
@@ -809,12 +819,18 @@ export default function BuildingSetupWizard() {
           <Card>
             <CardHeader>
               <CardTitle>3단계: 세대별 정보 입력</CardTitle>
+              <div className="p-4 bg-blue-50 border border-blue-200 rounded-lg mt-3">
+                <p className="text-sm font-semibold text-blue-900 mb-1">
+                  {!repUnitAdded ? "🏠 먼저 대표자님의 입주 정보를 등록해 주세요" : "✅ 대표자님의 세대 등록 완료"}
+                </p>
+                <p className="text-xs text-blue-700">
+                  {!repUnitAdded 
+                    ? "첫 번째로 입력하는 세대가 대표자님(본인)의 세대로 자동 지정됩니다. 대표자님이 거주하시는 세대 정보를 먼저 입력해 주세요."
+                    : "이제 나머지 세대들을 계속 등록해 주세요. 대표자님은 대표자 권한과 입주자 권한을 모두 가지게 됩니다."
+                  }
+                </p>
+              </div>
               <p className="text-sm text-slate-600 mt-2">
-                {!repUnitAdded 
-                  ? "먼저 대표자님의 세대를 입력해 주세요. 첫 번째 세대가 자동으로 대표자 세대로 지정됩니다."
-                  : "대표자 세대 등록 완료! 나머지 세대를 계속 등록해 주세요."
-                }
-              </p>
               <div className="text-sm text-slate-500 mt-2">
                 세대 등록 진행상황: <span className="font-bold text-primary">{units.length}세대</span> / {step1Data.planned_units_count}세대
               </div>
