@@ -30,8 +30,7 @@ export default function RepPlan() {
   const [formData, setFormData] = useState({
     selfbill_auto_bank_name: "",
     selfbill_auto_bank_holder: "",
-    selfbill_auto_bank_account: "",
-    selfbill_auto_start_date: ""
+    selfbill_auto_bank_account: ""
   });
   const [planConfirmed, setPlanConfirmed] = useState(false);
 
@@ -40,12 +39,18 @@ export default function RepPlan() {
       setFormData({
         selfbill_auto_bank_name: building.selfbill_auto_bank_name || "",
         selfbill_auto_bank_holder: building.selfbill_auto_bank_holder || "",
-        selfbill_auto_bank_account: building.selfbill_auto_bank_account || "",
-        selfbill_auto_start_date: building.selfbill_auto_start_date || ""
+        selfbill_auto_bank_account: building.selfbill_auto_bank_account || ""
       });
       setPlanConfirmed(!!building.selfbill_plan_confirmed_at);
     }
   }, [building]);
+  
+  const getNextMonthDate = () => {
+    const today = new Date();
+    const nextMonth = new Date(today);
+    nextMonth.setMonth(nextMonth.getMonth() + 1);
+    return nextMonth.toISOString().split('T')[0];
+  };
 
   const calculateAutoStartDate = () => {
     const today = new Date();
@@ -63,7 +68,11 @@ export default function RepPlan() {
   const handleSave = async () => {
     setIsSaving(true);
     try {
-      await base44.entities.Building.update(buildingId, formData);
+      const updateData = {
+        ...formData,
+        selfbill_auto_start_date: getNextMonthDate()
+      };
+      await base44.entities.Building.update(buildingId, updateData);
       alert("저장되었습니다.");
       setIsEditing(false);
       await init();
@@ -215,13 +224,18 @@ export default function RepPlan() {
                   <div className="flex justify-between">
                     <span className="text-sm text-slate-600">자동이체 시작일</span>
                     <span className="text-sm font-medium text-slate-900">
-                      {formData.selfbill_auto_start_date || "-"}
+                      {building?.selfbill_auto_start_date || "-"}
                     </span>
                   </div>
                 </div>
               </div>
             ) : (
               <>
+                <div className="bg-blue-50 border border-blue-200 rounded-lg p-3 mb-4">
+                  <p className="text-sm text-blue-800">
+                    건물 등록일로부터 1개월 후인 <strong>{getNextMonthDate()}</strong>부터 요금이 부과됩니다.
+                  </p>
+                </div>
                 <p className="text-sm text-slate-600">
                   셀프빌 이용료 자동이체를 위한 계좌 정보를 등록해 주세요.
                 </p>
@@ -261,15 +275,6 @@ export default function RepPlan() {
                   />
                 </div>
 
-                <div className="space-y-2">
-                  <Label>자동이체 시작일</Label>
-                  <Input
-                    type="date"
-                    value={formData.selfbill_auto_start_date}
-                    onChange={(e) => setFormData({ ...formData, selfbill_auto_start_date: e.target.value })}
-                  />
-                </div>
-
                 <div className="pt-4 flex gap-3">
                   <Button
                     variant="outline"
@@ -278,8 +283,7 @@ export default function RepPlan() {
                       setFormData({
                         selfbill_auto_bank_name: building?.selfbill_auto_bank_name || "",
                         selfbill_auto_bank_holder: building?.selfbill_auto_bank_holder || "",
-                        selfbill_auto_bank_account: building?.selfbill_auto_bank_account || "",
-                        selfbill_auto_start_date: building?.selfbill_auto_start_date || ""
+                        selfbill_auto_bank_account: building?.selfbill_auto_bank_account || ""
                       });
                     }}
                     className="flex-1"
