@@ -105,17 +105,19 @@ export default function RepBillingSend() {
     const billingPeriodStart = building?.billing_period_start || 1;
     const billingPeriodEnd = building?.billing_period_end || 31;
     const currentDate = new Date();
+    currentDate.setHours(0, 0, 0, 0);
     
     let billingEndDate;
     if (billingPeriodStart > billingPeriodEnd) {
-      // 예: 21일~20일 (익월)
+      // 예: 21일~20일 (익월) - 다음달 20일
       billingEndDate = new Date(year, month, billingPeriodEnd);
     } else {
-      // 예: 1일~31일 (동월)
+      // 예: 1일~31일 (동월) - 같은달 31일
       billingEndDate = new Date(year, month - 1, billingPeriodEnd);
     }
+    billingEndDate.setHours(23, 59, 59, 999);
     
-    if (currentDate < billingEndDate) {
+    if (currentDate <= billingEndDate) {
       const endDateStr = billingEndDate.toLocaleDateString('ko-KR');
       alert(`부과기간 종료일(${endDateStr})이 지나야 청구서를 발송할 수 있습니다.`);
       return;
