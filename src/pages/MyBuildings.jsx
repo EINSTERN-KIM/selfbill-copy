@@ -38,14 +38,32 @@ export default function MyBuildings() {
         const buildings = await base44.entities.Building.list();
         const filteredBuildings = buildings.filter(b => buildingIds.includes(b.id));
 
-        // Combine data
-        const combined = memberships.map(m => {
+        // Combine data and group by building
+        const buildingMap = new Map();
+        
+        memberships.forEach(m => {
           const building = filteredBuildings.find(b => b.id === m.building_id);
-          return {
-            ...m,
-            building
-          };
-        }).filter(item => item.building);
+          if (!building) return;
+          
+          if (!buildingMap.has(m.building_id)) {
+            buildingMap.set(m.building_id, {
+              building,
+              roles: [m.role],
+              membership: m
+            });
+          } else {
+            const existing = buildingMap.get(m.building_id);
+            if (!existing.roles.includes(m.role)) {
+              existing.roles.push(m.role);
+            }
+          }
+        });
+        
+        const combined = Array.from(buildingMap.values()).map(item => ({
+          ...item.membership,
+          building: item.building,
+          roles: item.roles
+        }));
 
         setBuildingsData(combined);
         setIsLoading(false);
@@ -58,15 +76,16 @@ export default function MyBuildings() {
   }, [navigate]);
 
   const handleBuildingClick = (item) => {
-    const { building, role } = item;
+    const { building, role, roles } = item;
     
     // Check if building setup is incomplete
-    if (role === "대표자" && (building.status === "draft" || building.setup_step < 5)) {
+    if (roles.includes("대표자") && (building.status === "draft" || building.setup_step < 5)) {
       navigate(createPageUrl(`BuildingSetupWizard?buildingId=${building.id}`));
       return;
     }
     
-    if (role === "대표자") {
+    // If user has both roles, prefer representative dashboard
+    if (roles.includes("대표자")) {
       navigate(createPageUrl(`RepDashboard?buildingId=${building.id}`));
     } else {
       navigate(createPageUrl(`TenantDashboard?buildingId=${building.id}`));
@@ -154,8 +173,10 @@ export default function MyBuildings() {
                         <h3 className="font-semibold text-slate-900 truncate">
                           {item.building?.name || "이름 없음"}
                         </h3>
-                        <RoleBadge role={item.role} />
-                        {item.role === "대표자" && (item.building?.status === "draft" || item.building?.setup_step < 5) && (
+                        {item.roles && item.roles.map(role => (
+                          <RoleBadge key={role} role={role} />
+                        ))}
+                        {item.roles?.includes("대표자") && (item.building?.status === "draft" || item.building?.setup_step < 5) && (
                           <Badge className="bg-yellow-100 text-yellow-700 text-xs">
                             <AlertCircle className="w-3 h-3 mr-1" />
                             초기 설정 미완료
