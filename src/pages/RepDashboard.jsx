@@ -7,7 +7,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { 
   Building2, Users, Receipt, CreditCard, Settings, 
   ChevronRight, AlertCircle, CheckCircle2, Clock,
-  FileText, PlusCircle, Send, BarChart3, Menu, X, Upload
+  FileText, PlusCircle, Send, BarChart3, Menu, X, Upload, Loader2
 } from 'lucide-react';
 import LoadingSpinner from '@/components/common/LoadingSpinner';
 import { useBuildingAuth } from '@/components/common/useBuildingAuth';
