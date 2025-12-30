@@ -522,20 +522,28 @@ export default function RepBillingMonthlyEdit() {
                                </div>
                                <Input value={item.name} disabled className="bg-slate-50" />
                              </div>
-                             <div className="mt-3 p-3 bg-slate-100 rounded-lg">
-                               <div className="flex items-center justify-between mb-2">
-                                 <Label className="text-xs">세대별 금액</Label>
-                                 <p className="text-xs text-slate-500">
-                                   (템플릿에서 설정된 금액이 자동 적용됩니다)
-                                 </p>
-                               </div>
+                             <div className="mt-3 p-3 bg-slate-50 rounded-lg">
+                               <Label className="text-xs mb-2 block">세대별 금액 입력</Label>
                                <div className="space-y-2 max-h-60 overflow-y-auto">
                                  {units.filter(u => item.target_unit_ids?.includes(u.id)).map(unit => (
-                                   <div key={unit.id} className="flex items-center gap-2 bg-white p-2 rounded">
-                                     <span className="text-sm w-32 font-medium">{unit.unit_name}</span>
-                                     <span className="text-sm text-primary font-semibold">
-                                       {(unitAmounts[item.id]?.[unit.id] || 0).toLocaleString()}원
-                                     </span>
+                                   <div key={unit.id} className="flex items-center gap-2">
+                                     <span className="text-sm w-32">{unit.unit_name}</span>
+                                     <Input
+                                       type="number"
+                                       placeholder="0"
+                                       value={unitAmounts[item.id]?.[unit.id] || 0}
+                                       onChange={(e) => {
+                                         const newAmount = parseInt(e.target.value) || 0;
+                                         setUnitAmounts(prev => ({
+                                           ...prev,
+                                           [item.id]: { ...prev[item.id], [unit.id]: newAmount }
+                                         }));
+                                         const updatedAmounts = { ...unitAmounts[item.id], [unit.id]: newAmount };
+                                         const total = Object.values(updatedAmounts).reduce((sum, amt) => sum + (parseInt(amt) || 0), 0);
+                                         handleItemChange(item.id, 'amount_total', total);
+                                       }}
+                                       className="h-8 flex-1"
+                                     />
                                    </div>
                                  ))}
                                </div>
