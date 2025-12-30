@@ -5,7 +5,7 @@ import { createPageUrl } from '@/utils';
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Checkbox } from "@/components/ui/checkbox";
-import { AlertCircle, Loader2, Send, Home, Check, Phone } from 'lucide-react';
+import { AlertCircle, Loader2, Send, Home, Check, Phone, Calendar } from 'lucide-react';
 import LoadingSpinner from '@/components/common/LoadingSpinner';
 import PageHeader from '@/components/common/PageHeader';
 import EmptyState from '@/components/common/EmptyState';
@@ -22,10 +22,11 @@ export default function RepBillingSend() {
   const [isLoadingData, setIsLoadingData] = useState(true);
   const [isSending, setIsSending] = useState(false);
   
-  const selectedYearMonth = yearMonthParam || (() => {
+  const [selectedYearMonth, setSelectedYearMonth] = useState(() => {
+    if (yearMonthParam) return yearMonthParam;
     const now = new Date();
     return `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}`;
-  })();
+  });
   
   const [billCycle, setBillCycle] = useState(null);
   const [units, setUnits] = useState([]);
@@ -99,6 +100,27 @@ export default function RepBillingSend() {
   };
 
   const handleSend = async () => {
+    // 부과기간 종료일 체크
+    const [year, month] = selectedYearMonth.split('-').map(Number);
+    const billingPeriodStart = building?.billing_period_start || 1;
+    const billingPeriodEnd = building?.billing_period_end || 31;
+    const currentDate = new Date();
+    
+    let billingEndDate;
+    if (billingPeriodStart > billingPeriodEnd) {
+      // 예: 21일~20일 (익월)
+      billingEndDate = new Date(year, month, billingPeriodEnd);
+    } else {
+      // 예: 1일~31일 (동월)
+      billingEndDate = new Date(year, month - 1, billingPeriodEnd);
+    }
+    
+    if (currentDate < billingEndDate) {
+      const endDateStr = billingEndDate.toLocaleDateString('ko-KR');
+      alert(`부과기간 종료일(${endDateStr})이 지나야 청구서를 발송할 수 있습니다.`);
+      return;
+    }
+
     setIsSending(true);
     let successCount = 0;
     let failCount = 0;
@@ -214,14 +236,42 @@ export default function RepBillingSend() {
 
   const selectableCount = units.filter(canSendUnit).length;
 
+  // Generate year-month options
+  const yearMonthOptions = [];
+  const now = new Date();
+  for (let i = -3; i <= 3; i++) {
+    const d = new Date(now.getFullYear(), now.getMonth() + i, 1);
+    const ym = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}`;
+    yearMonthOptions.push(ym);
+  }
+
   return (
     <RepLayout buildingId={buildingId} building={building} currentPage="RepBillingSend">
       <div className="max-w-2xl mx-auto px-4 py-6">
         <PageHeader
           title="청구서 발송"
-          subtitle={`${selectedYearMonth} 관리비 청구서`}
-          backUrl={createPageUrl(`RepBillingUnitCharges?buildingId=${buildingId}&yearMonth=${selectedYearMonth}`)}
+          subtitle="관리비 청구서를 세대에 발송합니다"
+          backUrl={createPageUrl(`RepDashboard?buildingId=${buildingId}`)}
         />
+
+        {/* Month Selector */}
+        <Card className="mb-6">
+          <CardContent className="pt-4 pb-4">
+            <div className="flex items-center gap-3">
+              <Calendar className="w-5 h-5 text-primary" />
+              <Select value={selectedYearMonth} onValueChange={setSelectedYearMonth}>
+                <SelectTrigger className="w-40">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  {yearMonthOptions.map(ym => (
+                    <SelectItem key={ym} value={ym}>{ym}</SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+          </CardContent>
+        </Card>
 
         {unitCharges.length === 0 ? (
           <EmptyState

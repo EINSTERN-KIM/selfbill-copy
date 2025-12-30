@@ -7,7 +7,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { 
   Building2, Users, Receipt, CreditCard, Settings, 
   ChevronRight, AlertCircle, CheckCircle2, Clock,
-  FileText, PlusCircle, Send, BarChart3, Menu, X
+  FileText, PlusCircle, Send, BarChart3, Menu, X, Upload
 } from 'lucide-react';
 import LoadingSpinner from '@/components/common/LoadingSpinner';
 import { useBuildingAuth } from '@/components/common/useBuildingAuth';
@@ -25,6 +25,8 @@ export default function RepDashboard() {
     unpaidCount: 0,
     currentMonthTotal: 0
   });
+  const [isUploadingIcon, setIsUploadingIcon] = useState(false);
+  const fileInputRef = React.useRef(null);
 
   useEffect(() => {
     async function loadStats() {
@@ -68,6 +70,34 @@ export default function RepDashboard() {
     }
     loadStats();
   }, [buildingId, isLoading, building, navigate]);
+
+  const handleIconUpload = async (e) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    
+    if (!file.type.match(/image\/(png|jpg|jpeg)/)) {
+      alert("PNG 또는 JPG 파일만 업로드 가능합니다.");
+      return;
+    }
+    
+    setIsUploadingIcon(true);
+    try {
+      const { file_url } = await base44.integrations.Core.UploadFile({ file });
+      await base44.entities.Building.update(buildingId, {
+        building_icon_url: file_url
+      });
+      
+      // Reload building data
+      const buildings = await base44.entities.Building.filter({ id: buildingId });
+      if (buildings.length > 0) {
+        window.location.reload();
+      }
+    } catch (err) {
+      console.error("Error uploading icon:", err);
+      alert("아이콘 업로드 중 오류가 발생했습니다.");
+    }
+    setIsUploadingIcon(false);
+  };
 
   if (isLoading) {
     return (
@@ -128,8 +158,36 @@ export default function RepDashboard() {
           </button>
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-4">
-              <div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-primary to-primary-dark flex items-center justify-center">
-                <Building2 className="w-7 h-7 text-white" />
+              <div className="relative group">
+                {building?.building_icon_url ? (
+                  <img 
+                    src={building.building_icon_url} 
+                    alt="건물 아이콘"
+                    className="w-14 h-14 rounded-2xl object-cover"
+                  />
+                ) : (
+                  <div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-primary to-primary-dark flex items-center justify-center">
+                    <Building2 className="w-7 h-7 text-white" />
+                  </div>
+                )}
+                <button
+                  onClick={() => fileInputRef.current?.click()}
+                  disabled={isUploadingIcon}
+                  className="absolute inset-0 bg-black/50 rounded-2xl flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity"
+                >
+                  {isUploadingIcon ? (
+                    <Loader2 className="w-5 h-5 text-white animate-spin" />
+                  ) : (
+                    <Upload className="w-5 h-5 text-white" />
+                  )}
+                </button>
+                <input
+                  ref={fileInputRef}
+                  type="file"
+                  accept="image/png,image/jpeg,image/jpg"
+                  onChange={handleIconUpload}
+                  className="hidden"
+                />
               </div>
               <div>
                 <h1 className="text-2xl font-bold text-slate-900">{building?.name}</h1>

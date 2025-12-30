@@ -78,12 +78,22 @@ export default function RepBillingUnitCharges() {
   const handleCalculate = async () => {
     // 부과기간 종료일 체크
     const [year, month] = selectedYearMonth.split('-').map(Number);
+    const billingPeriodStart = building?.billing_period_start || 1;
     const billingPeriodEnd = building?.billing_period_end || 31;
     const currentDate = new Date();
-    const billingEndDate = new Date(year, month - 1, billingPeriodEnd);
+    
+    let billingEndDate;
+    if (billingPeriodStart > billingPeriodEnd) {
+      // 예: 21일~20일 (익월)
+      billingEndDate = new Date(year, month, billingPeriodEnd);
+    } else {
+      // 예: 1일~31일 (동월)
+      billingEndDate = new Date(year, month - 1, billingPeriodEnd);
+    }
     
     if (currentDate < billingEndDate) {
-      alert(`부과기간 종료일(${billingPeriodEnd}일)이 지나야 청구서를 발행할 수 있습니다.`);
+      const endDateStr = billingEndDate.toLocaleDateString('ko-KR');
+      alert(`부과기간 종료일(${endDateStr})이 지나야 청구서를 발행할 수 있습니다.`);
       return;
     }
 

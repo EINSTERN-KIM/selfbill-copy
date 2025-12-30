@@ -8,6 +8,8 @@ import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
 import { AlertCircle, Loader2, Save, ChevronLeft, ChevronRight, Calendar, CheckCircle2, X, Triangle } from 'lucide-react';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
+import { Label } from "@/components/ui/label";
 import LoadingSpinner from '@/components/common/LoadingSpinner';
 import EmptyState from '@/components/common/EmptyState';
 import { useBuildingAuth } from '@/components/common/useBuildingAuth';
@@ -26,6 +28,12 @@ export default function RepPaymentsManage() {
   const [isLoadingData, setIsLoadingData] = useState(true);
   const [isSaving, setIsSaving] = useState(false);
   const [formData, setFormData] = useState({});
+  const [showPartialDialog, setShowPartialDialog] = useState(false);
+  const [partialPaymentData, setPartialPaymentData] = useState({
+    chargeId: null,
+    amount: "",
+    memo: ""
+  });
 
   useEffect(() => {
     loadData();
@@ -98,11 +106,18 @@ export default function RepPaymentsManage() {
     }));
   };
 
-  const handlePartialPayment = (chargeId, chargeAmount) => {
-    const amount = prompt("부분납 금액을 입력하세요:", "");
-    if (amount === null) return;
+  const handlePartialPayment = (chargeId) => {
+    setPartialPaymentData({
+      chargeId: chargeId,
+      amount: "",
+      memo: formData[chargeId]?.memo || ""
+    });
+    setShowPartialDialog(true);
+  };
+
+  const confirmPartialPayment = (chargeAmount) => {
+    const paidAmount = parseFloat(partialPaymentData.amount);
     
-    const paidAmount = parseFloat(amount);
     if (isNaN(paidAmount) || paidAmount <= 0) {
       alert("올바른 금액을 입력해주세요.");
       return;
@@ -115,13 +130,16 @@ export default function RepPaymentsManage() {
     
     setFormData(prev => ({
       ...prev,
-      [chargeId]: {
-        ...prev[chargeId],
+      [partialPaymentData.chargeId]: {
+        ...prev[partialPaymentData.chargeId],
         status: "부분납",
         paid_amount: paidAmount,
-        paid_at: new Date().toISOString().split('T')[0]
+        paid_at: new Date().toISOString().split('T')[0],
+        memo: partialPaymentData.memo
       }
     }));
+    
+    setShowPartialDialog(false);
   };
 
   const handleSave = async () => {
@@ -373,7 +391,7 @@ export default function RepPaymentsManage() {
                               <Button
                                 size="sm"
                                 variant="outline"
-                                onClick={() => handlePartialPayment(charge.id, charge.amount_total)}
+                                onClick={() => handlePartialPayment(charge.id)}
                                 className="text-xs"
                               >
                                 부분납
@@ -411,6 +429,51 @@ export default function RepPaymentsManage() {
           </>
         )}
       </div>
+
+      {/* Partial Payment Dialog */}
+      <Dialog open={showPartialDialog} onOpenChange={setShowPartialDialog}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>부분납 처리</DialogTitle>
+          </DialogHeader>
+          <div className="space-y-4 py-4">
+            <div className="space-y-2">
+              <Label>납부 금액 *</Label>
+              <Input
+                type="number"
+                placeholder="부분납 금액 입력"
+                value={partialPaymentData.amount}
+                onChange={(e) => setPartialPaymentData({...partialPaymentData, amount: e.target.value})}
+              />
+              {partialPaymentData.chargeId && (
+                <p className="text-xs text-slate-500">
+                  청구 금액: {unitCharges.find(c => c.id === partialPaymentData.chargeId)?.amount_total?.toLocaleString()}원
+                </p>
+              )}
+            </div>
+            <div className="space-y-2">
+              <Label>메모</Label>
+              <Textarea
+                placeholder="메모 입력 (선택)"
+                value={partialPaymentData.memo}
+                onChange={(e) => setPartialPaymentData({...partialPaymentData, memo: e.target.value})}
+                rows={3}
+              />
+            </div>
+          </div>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setShowPartialDialog(false)}>
+              취소
+            </Button>
+            <Button onClick={() => {
+              const charge = unitCharges.find(c => c.id === partialPaymentData.chargeId);
+              confirmPartialPayment(charge?.amount_total || 0);
+            }}>
+              확인
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </RepLayout>
   );
 }
