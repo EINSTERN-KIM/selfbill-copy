@@ -16,6 +16,7 @@ export default function RepLayout({ children, buildingId, building, currentPage 
     building: true,
     units: true,
     billing: true,
+    payments: true,
     reports: true
   });
 
