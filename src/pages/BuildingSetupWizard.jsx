@@ -830,7 +830,6 @@ export default function BuildingSetupWizard() {
                   }
                 </p>
               </div>
-              <p className="text-sm text-slate-600 mt-2">
               <div className="text-sm text-slate-500 mt-2">
                 세대 등록 진행상황: <span className="font-bold text-primary">{units.length}세대</span> / {step1Data.planned_units_count}세대
               </div>
