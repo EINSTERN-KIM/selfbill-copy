@@ -77,6 +77,22 @@ export default function RepBillingMonthlyEdit() {
         bill_cycle_id: cycle.id
       });
 
+      // 템플릿의 기본금액 변경사항을 확인하여 "기본금액"으로 설정된 항목 업데이트
+      for (const item of items) {
+        if (item.template_id) {
+          const template = templatesData.find(t => t.id === item.template_id);
+          if (template) {
+            // 항목이 템플릿의 기본금액과 일치하면 (사용자가 수정하지 않았다면) 업데이트
+            if (item.amount_total === template.default_amount || item.amount_total === 0) {
+              await base44.entities.BillItem.update(item.id, {
+                amount_total: template.default_amount || 0
+              });
+              item.amount_total = template.default_amount || 0;
+            }
+          }
+        }
+      }
+
       // 기존 항목이 없으면 템플릿에서 생성
       if (items.length === 0 && templatesData.length > 0) {
         const newItems = [];

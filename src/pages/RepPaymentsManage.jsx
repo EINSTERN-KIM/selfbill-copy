@@ -7,7 +7,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
-import { AlertCircle, Loader2, Save, ChevronLeft, ChevronRight, Calendar, CheckCircle2 } from 'lucide-react';
+import { AlertCircle, Loader2, Save, ChevronLeft, ChevronRight, Calendar, CheckCircle2, X, Triangle } from 'lucide-react';
 import LoadingSpinner from '@/components/common/LoadingSpinner';
 import EmptyState from '@/components/common/EmptyState';
 import { useBuildingAuth } from '@/components/common/useBuildingAuth';
@@ -80,6 +80,46 @@ export default function RepPaymentsManage() {
       [chargeId]: {
         ...prev[chargeId],
         [field]: value
+      }
+    }));
+  };
+
+  const handleMarkAsPaid = async (chargeId, chargeAmount) => {
+    if (!confirm("완납 처리하시겠습니까?")) return;
+    
+    setFormData(prev => ({
+      ...prev,
+      [chargeId]: {
+        ...prev[chargeId],
+        status: "완납",
+        paid_amount: chargeAmount,
+        paid_at: new Date().toISOString().split('T')[0]
+      }
+    }));
+  };
+
+  const handlePartialPayment = (chargeId, chargeAmount) => {
+    const amount = prompt("부분납 금액을 입력하세요:", "");
+    if (amount === null) return;
+    
+    const paidAmount = parseFloat(amount);
+    if (isNaN(paidAmount) || paidAmount <= 0) {
+      alert("올바른 금액을 입력해주세요.");
+      return;
+    }
+    
+    if (paidAmount >= chargeAmount) {
+      alert("부분납 금액은 청구 금액보다 작아야 합니다. 완납 처리하려면 X 아이콘을 클릭하세요.");
+      return;
+    }
+    
+    setFormData(prev => ({
+      ...prev,
+      [chargeId]: {
+        ...prev[chargeId],
+        status: "부분납",
+        paid_amount: paidAmount,
+        paid_at: new Date().toISOString().split('T')[0]
       }
     }));
   };
@@ -163,9 +203,10 @@ export default function RepPaymentsManage() {
     } : { name: '정보 없음', tenant: '' };
   };
 
-  // 완납과 미완납 분리
+  // 완납, 부분납, 미납 분리
   const paidCharges = unitCharges.filter(charge => formData[charge.id]?.status === "완납");
-  const unpaidCharges = unitCharges.filter(charge => formData[charge.id]?.status !== "완납");
+  const partialCharges = unitCharges.filter(charge => formData[charge.id]?.status === "부분납");
+  const unpaidCharges = unitCharges.filter(charge => formData[charge.id]?.status === "미납");
 
   return (
     <RepLayout buildingId={buildingId} building={building} currentPage="RepPaymentsManage">
@@ -221,35 +262,73 @@ export default function RepPaymentsManage() {
                     return (
                       <Card key={charge.id} className="card-rounded border-green-200 bg-green-50">
                         <CardContent className="p-4">
-                          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                            <div>
+                          <div className="flex items-center justify-between">
+                            <div className="flex-1">
+                              <p className="font-bold text-slate-900 mb-1">{unitInfo.name}</p>
+                              <p className="text-sm text-slate-600">{unitInfo.tenant}</p>
+                              <p className="text-sm text-green-700 mt-1 font-semibold">
+                                완납: {data.paid_amount?.toLocaleString()}원
+                              </p>
+                              {data.paid_at && (
+                                <p className="text-xs text-slate-500 mt-1">
+                                  납부일: {new Date(data.paid_at).toLocaleDateString('ko-KR')}
+                                </p>
+                              )}
+                            </div>
+                            <CheckCircle2 className="w-8 h-8 text-green-600" />
+                          </div>
+                        </CardContent>
+                      </Card>
+                    );
+                  })}
+                </div>
+              </div>
+            )}
+
+            {/* 부분납 세대 섹션 */}
+            {partialCharges.length > 0 && (
+              <div className="mb-6">
+                <div className="flex items-center gap-2 mb-3">
+                  <Triangle className="w-5 h-5 text-amber-600" />
+                  <h2 className="font-semibold text-amber-700">부분납 ({partialCharges.length}세대)</h2>
+                </div>
+                <div className="space-y-3">
+                  {partialCharges.map((charge) => {
+                    const data = formData[charge.id] || {};
+                    const unitInfo = getUnitInfo(charge.unit_id);
+                    const remainingAmount = charge.amount_total - (parseFloat(data.paid_amount) || 0);
+                    
+                    return (
+                      <Card key={charge.id} className="card-rounded border-amber-200 bg-amber-50">
+                        <CardContent className="p-4">
+                          <div className="flex items-center justify-between">
+                            <div className="flex-1">
                               <p className="font-bold text-slate-900 mb-1">{unitInfo.name}</p>
                               <p className="text-sm text-slate-600">{unitInfo.tenant}</p>
                               <p className="text-sm text-slate-500 mt-1">
-                                청구 금액: {charge.amount_total?.toLocaleString()}원
+                                청구: {charge.amount_total?.toLocaleString()}원
                               </p>
+                              <p className="text-sm text-amber-700 font-semibold">
+                                납부: {data.paid_amount?.toLocaleString()}원
+                              </p>
+                              <p className="text-sm text-red-600 font-semibold">
+                                잔액: {remainingAmount.toLocaleString()}원
+                              </p>
+                              {data.paid_at && (
+                                <p className="text-xs text-slate-500 mt-1">
+                                  납부일: {new Date(data.paid_at).toLocaleDateString('ko-KR')}
+                                </p>
+                              )}
                             </div>
-                            
-                            <div className="grid grid-cols-2 gap-3">
-                              <div>
-                                <label className="text-xs text-slate-500 block mb-1">납부 금액</label>
-                                <Input
-                                  type="number"
-                                  value={data.paid_amount}
-                                  onChange={(e) => updateField(charge.id, 'paid_amount', e.target.value)}
-                                  placeholder="0"
-                                  className="h-9"
-                                />
-                              </div>
-                              <div>
-                                <label className="text-xs text-slate-500 block mb-1">납부일</label>
-                                <Input
-                                  type="date"
-                                  value={data.paid_at}
-                                  onChange={(e) => updateField(charge.id, 'paid_at', e.target.value)}
-                                  className="h-9"
-                                />
-                              </div>
+                            <div className="flex flex-col gap-2">
+                              <button
+                                onClick={() => handleMarkAsPaid(charge.id, charge.amount_total)}
+                                className="p-2 hover:bg-green-100 rounded-full transition-colors"
+                                title="완납 처리"
+                              >
+                                <X className="w-6 h-6 text-green-600" />
+                              </button>
+                              <Triangle className="w-6 h-6 text-amber-600" />
                             </div>
                           </div>
                         </CardContent>
@@ -260,76 +339,45 @@ export default function RepPaymentsManage() {
               </div>
             )}
 
-            {/* 미완납 세대 섹션 */}
+            {/* 미납 세대 섹션 */}
             {unpaidCharges.length > 0 && (
               <div className="mb-6">
-                <h2 className="font-semibold text-slate-700 mb-3">미완납 ({unpaidCharges.length}세대)</h2>
+                <div className="flex items-center gap-2 mb-3">
+                  <X className="w-5 h-5 text-red-600" />
+                  <h2 className="font-semibold text-red-700">미납 ({unpaidCharges.length}세대)</h2>
+                </div>
                 <div className="space-y-3">
                   {unpaidCharges.map((charge) => {
                     const data = formData[charge.id] || {};
                     const unitInfo = getUnitInfo(charge.unit_id);
                     
                     return (
-                      <Card key={charge.id} className="card-rounded">
+                      <Card key={charge.id} className="card-rounded border-red-200">
                         <CardContent className="p-4">
-                          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                            <div>
+                          <div className="flex items-center justify-between">
+                            <div className="flex-1">
                               <p className="font-bold text-slate-900 mb-1">{unitInfo.name}</p>
                               <p className="text-sm text-slate-600">{unitInfo.tenant}</p>
-                              <p className="text-sm text-slate-500 mt-1">
-                                청구 금액: {charge.amount_total?.toLocaleString()}원
+                              <p className="text-sm text-red-600 font-semibold mt-1">
+                                청구: {charge.amount_total?.toLocaleString()}원
                               </p>
                             </div>
-                            
-                            <div className="grid grid-cols-2 gap-3">
-                              <div>
-                                <label className="text-xs text-slate-500 block mb-1">납부 상태</label>
-                                <Select
-                                  value={data.status}
-                                  onValueChange={(val) => updateField(charge.id, 'status', val)}
-                                >
-                                  <SelectTrigger className="h-9">
-                                    <SelectValue />
-                                  </SelectTrigger>
-                                  <SelectContent>
-                                    <SelectItem value="미납">미납</SelectItem>
-                                    <SelectItem value="부분납">부분납</SelectItem>
-                                    <SelectItem value="완납">완납</SelectItem>
-                                  </SelectContent>
-                                </Select>
-                              </div>
-                              
-                              <div>
-                                <label className="text-xs text-slate-500 block mb-1">납부 금액</label>
-                                <Input
-                                  type="number"
-                                  value={data.paid_amount}
-                                  onChange={(e) => updateField(charge.id, 'paid_amount', e.target.value)}
-                                  placeholder="0"
-                                  className="h-9"
-                                />
-                              </div>
-                            </div>
-                            
-                            <div>
-                              <label className="text-xs text-slate-500 block mb-1">납부일</label>
-                              <Input
-                                type="date"
-                                value={data.paid_at}
-                                onChange={(e) => updateField(charge.id, 'paid_at', e.target.value)}
-                                className="h-9"
-                              />
-                            </div>
-                            
-                            <div>
-                              <label className="text-xs text-slate-500 block mb-1">메모</label>
-                              <Textarea
-                                value={data.memo}
-                                onChange={(e) => updateField(charge.id, 'memo', e.target.value)}
-                                placeholder="메모 입력"
-                                rows={1}
-                                className="resize-none"
-                              />
+                            <div className="flex flex-col gap-2">
+                              <button
+                                onClick={() => handleMarkAsPaid(charge.id, charge.amount_total)}
+                                className="p-2 hover:bg-red-100 rounded-full transition-colors"
+                                title="완납 처리"
+                              >
+                                <X className="w-6 h-6 text-red-600" />
+                              </button>
+                              <Button
+                                size="sm"
+                                variant="outline"
+                                onClick={() => handlePartialPayment(charge.id, charge.amount_total)}
+                                className="text-xs"
+                              >
+                                부분납
+                              </Button>
                             </div>
                           </div>
                         </CardContent>
