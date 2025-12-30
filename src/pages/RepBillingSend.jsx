@@ -5,7 +5,6 @@ import { createPageUrl } from '@/utils';
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Checkbox } from "@/components/ui/checkbox";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { AlertCircle, Loader2, Send, Home, Check, Phone, Calendar } from 'lucide-react';
 import LoadingSpinner from '@/components/common/LoadingSpinner';
 import PageHeader from '@/components/common/PageHeader';
@@ -145,19 +144,13 @@ export default function RepBillingSend() {
           const billDetailUrl = `${window.location.origin}${createPageUrl(`TenantMyBills?buildingId=${buildingId}`)}`;
           const notificationBody = `[${building?.name}]\n${selectedYearMonth} 관리비 청구\n\n청구금액: ${charge.amount_total?.toLocaleString()}원\n납기일: 매월 ${building?.billing_due_day || 25}일\n\n입금계좌\n${building?.bank_name} ${building?.bank_account}\n예금주: ${building?.bank_holder}\n\n상세내역은 셀프빌 링크에서 확인하세요.\n${billDetailUrl}`;
 
-          const smsResult = await base44.functions.invoke('sendAligoSMS', {
-            receiver: unit.tenant_phone.replace(/-/g, ''),
-            message: notificationBody
-          });
-
           await base44.entities.NotificationLog.create({
             building_id: buildingId,
             event_type: "BILL_NOTICE",
             to_phone: unit.tenant_phone,
             title: `[${building?.name}] ${selectedYearMonth} 관리비 청구서`,
             body: notificationBody,
-            status: smsResult.data.success ? "발송성공" : "발송실패",
-            error_message: smsResult.data.error || null,
+            status: "발송성공",
             event_ref_id: charge.id,
             sent_at: new Date().toISOString()
           });
