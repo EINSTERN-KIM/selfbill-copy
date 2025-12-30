@@ -245,11 +245,16 @@ export default function RepFeeItems() {
                       기본 금액: {template.default_amount?.toLocaleString() || 0}원
                     </p>
                   )}
-                  {template.default_months && template.default_months.length < 12 && (
-                    <p className="text-xs text-slate-400">
-                      부과월: {template.default_months.join(", ")}월
-                    </p>
-                  )}
+                  <div className="flex items-center gap-1 mt-2">
+                    <span className="text-xs text-slate-500">부과 월:</span>
+                    <div className="flex flex-wrap gap-1">
+                      {(template.default_months || []).sort((a, b) => a - b).map(month => (
+                        <span key={month} className="inline-flex items-center justify-center w-6 h-6 text-xs font-semibold text-white bg-green-500 rounded">
+                          {month}
+                        </span>
+                      ))}
+                    </div>
+                  </div>
                   {template.default_target_unit_ids && template.default_target_unit_ids.length > 0 && template.category !== "기타" && (
                     <div className="flex flex-wrap gap-1 mt-2">
                       {template.default_target_unit_ids.map(unitId => {
