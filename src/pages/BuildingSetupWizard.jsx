@@ -57,6 +57,7 @@ export default function BuildingSetupWizard() {
 
   // Step 3: 세대 정보
   const [units, setUnits] = useState([]);
+  const [repUnitAdded, setRepUnitAdded] = useState(false);
   const [selectedRepUnit, setSelectedRepUnit] = useState(null);
   const [editingUnit, setEditingUnit] = useState(null);
   const [unitForm, setUnitForm] = useState({
@@ -123,6 +124,17 @@ export default function BuildingSetupWizard() {
               status: "active"
             });
             setUnits(unitsData);
+            
+            // Check if representative unit is already set
+            const members = await base44.entities.BuildingMember.filter({
+              building_id: buildingId,
+              user_email: currentUser.email,
+              role: "대표자"
+            });
+            if (members.length > 0 && members[0].unit_id) {
+              setSelectedRepUnit(members[0].unit_id);
+              setRepUnitAdded(true);
+            }
           }
           if (bldg.setup_step >= 4) {
             const templatesData = await base44.entities.BillItemTemplate.filter({
@@ -263,6 +275,25 @@ export default function BuildingSetupWizard() {
       });
       setUnits(unitsData);
       
+      // 첫 번째 세대 추가 시 자동으로 대표자 세대로 설정
+      if (!repUnitAdded && !editingUnit) {
+        const newUnit = unitsData[unitsData.length - 1];
+        setSelectedRepUnit(newUnit.id);
+        setRepUnitAdded(true);
+        
+        // Update BuildingMember with unit_id
+        const members = await base44.entities.BuildingMember.filter({
+          building_id: buildingId,
+          user_email: user.email,
+          role: "대표자"
+        });
+        if (members.length > 0) {
+          await base44.entities.BuildingMember.update(members[0].id, {
+            unit_id: newUnit.id
+          });
+        }
+      }
+      
       // Auto-calculate share_ratio for 균등배분
       if (step2Data.billing_method === "균등 배분") {
         await recalculateEqualShares(unitsData);
@@ -341,8 +372,8 @@ export default function BuildingSetupWizard() {
       }
     }
 
-    if (!selectedRepUnit) {
-      alert("대표자의 세대를 선택해 주세요.");
+    if (!repUnitAdded || !selectedRepUnit) {
+      alert("대표자의 세대를 먼저 등록해 주세요.");
       return;
     }
 
@@ -352,18 +383,6 @@ export default function BuildingSetupWizard() {
         building_units_count: units.length,
         setup_step: 3
       });
-      
-      // Update BuildingMember with unit_id
-      const members = await base44.entities.BuildingMember.filter({
-        building_id: buildingId,
-        user_email: user.email,
-        role: "대표자"
-      });
-      if (members.length > 0) {
-        await base44.entities.BuildingMember.update(members[0].id, {
-          unit_id: selectedRepUnit
-        });
-      }
 
       await init();
       setCurrentStep(4);
@@ -457,13 +476,27 @@ export default function BuildingSetupWizard() {
     try {
       const unitCount = units.length;
       const monthlyFee = unitCount * 2900;
-
-      await base44.entities.Building.update(buildingId, {
+      
+      // Save auto payment account info if provided
+      const updateData = {
         billing_monthly_fee_krw: monthlyFee,
         selfbill_plan_confirmed_at: new Date().toISOString(),
         setup_step: 5,
         status: "active"
-      });
+      };
+      
+      if (step2Data.bank_name && step2Data.bank_account && step2Data.bank_holder) {
+        const today = new Date();
+        const threeMonthsLater = new Date(today);
+        threeMonthsLater.setMonth(threeMonthsLater.getMonth() + 3);
+        
+        updateData.selfbill_auto_bank_name = step2Data.bank_name;
+        updateData.selfbill_auto_bank_account = step2Data.bank_account;
+        updateData.selfbill_auto_bank_holder = step2Data.bank_holder;
+        updateData.selfbill_auto_start_date = threeMonthsLater.toISOString().split('T')[0];
+      }
+
+      await base44.entities.Building.update(buildingId, updateData);
 
       navigate(createPageUrl(`RepDashboard?buildingId=${buildingId}`));
     } catch (err) {
@@ -777,7 +810,10 @@ export default function BuildingSetupWizard() {
             <CardHeader>
               <CardTitle>3단계: 세대별 정보 입력</CardTitle>
               <p className="text-sm text-slate-600 mt-2">
-                세대를 등록한 후, 대표자님의 세대를 선택해주세요.
+                {!repUnitAdded 
+                  ? "먼저 대표자님의 세대를 입력해 주세요. 첫 번째 세대가 자동으로 대표자 세대로 지정됩니다."
+                  : "대표자 세대 등록 완료! 나머지 세대를 계속 등록해 주세요."
+                }
               </p>
               <div className="text-sm text-slate-500 mt-2">
                 세대 등록 진행상황: <span className="font-bold text-primary">{units.length}세대</span> / {step1Data.planned_units_count}세대
@@ -888,52 +924,41 @@ export default function BuildingSetupWizard() {
                 </Button>
               </div>
 
-              {/* 대표자 선택 안내 */}
-              <div className="p-3 bg-amber-50 rounded-lg border border-amber-200">
-                <p className="text-sm font-medium text-amber-900">
-                  ⚠️ 세대 추가 후 라디오 버튼을 클릭하여 대표자의 세대를 선택해 주세요.
-                </p>
-              </div>
-
               {/* 세대 목록 */}
               <div className="space-y-2">
-                {units.map(unit => (
-                  <div key={unit.id} className="p-4 border rounded-lg flex items-center justify-between">
-                    <div className="flex items-center gap-3">
-                      <input
-                        type="radio"
-                        name="repUnit"
-                        checked={selectedRepUnit === unit.id}
-                        onChange={() => setSelectedRepUnit(unit.id)}
-                        className="w-4 h-4"
-                      />
-                      <div>
-                        <div className="font-semibold text-slate-900">
-                          {unit.unit_name || [unit.dong && `${unit.dong}동`, unit.ho && `${unit.ho}호`, unit.floor && `${unit.floor}층`].filter(Boolean).join(" ")}
-                        </div>
-                        <div className="text-sm text-slate-500">
-                          {unit.tenant_name} · {unit.tenant_phone}
-                          {unit.share_ratio && ` · 지분율 ${unit.share_ratio}%`}
+                {units.map(unit => {
+                  const isRepUnit = selectedRepUnit === unit.id;
+                  return (
+                    <div key={unit.id} className={`p-4 border rounded-lg flex items-center justify-between ${isRepUnit ? 'bg-blue-50 border-blue-300' : ''}`}>
+                      <div className="flex items-center gap-3">
+                        {isRepUnit && (
+                          <Badge className="bg-blue-600 text-white">대표자</Badge>
+                        )}
+                        <div>
+                          <div className="font-semibold text-slate-900">
+                            {unit.unit_name || [unit.dong && `${unit.dong}동`, unit.ho && `${unit.ho}호`, unit.floor && `${unit.floor}층`].filter(Boolean).join(" ")}
+                          </div>
+                          <div className="text-sm text-slate-500">
+                            {unit.tenant_name} · {unit.tenant_phone}
+                            {unit.share_ratio && ` · 지분율 ${unit.share_ratio}%`}
+                          </div>
                         </div>
                       </div>
+                      <Button 
+                        variant="ghost" 
+                        size="icon" 
+                        onClick={() => deleteUnit(unit.id)}
+                        disabled={isRepUnit}
+                        title={isRepUnit ? "대표자 세대는 삭제할 수 없습니다" : "세대 삭제"}
+                      >
+                        <Trash2 className={`w-4 h-4 ${isRepUnit ? 'text-slate-300' : 'text-red-500'}`} />
+                      </Button>
                     </div>
-                    <Button variant="ghost" size="icon" onClick={() => deleteUnit(unit.id)}>
-                      <Trash2 className="w-4 h-4 text-red-500" />
-                    </Button>
-                  </div>
-                ))}
+                  );
+                })}
               </div>
 
-              {selectedRepUnit && (
-                <div className="p-3 bg-blue-50 rounded-lg flex items-center gap-2">
-                  <div className="w-5 h-5 rounded-full bg-blue-600 flex items-center justify-center flex-shrink-0">
-                    <div className="w-2 h-2 rounded-full bg-white" />
-                  </div>
-                  <p className="text-sm text-blue-900">
-                    선택된 세대가 대표자의 세대로 등록됩니다
-                  </p>
-                </div>
-              )}
+
 
               <div className="pt-4 flex gap-3">
                 <Button variant="outline" onClick={() => setCurrentStep(2)}>
@@ -997,21 +1022,24 @@ export default function BuildingSetupWizard() {
                 <div>
                   <Label className="text-xs">부과 월 선택</Label>
                   <div className="grid grid-cols-6 gap-2 mt-2">
-                    {[1,2,3,4,5,6,7,8,9,10,11,12].map(month => (
-                      <label key={month} className="flex items-center gap-1 cursor-pointer">
-                        <Checkbox
-                          checked={templateForm.default_months?.includes(month)}
-                          onCheckedChange={() => {
-                            const months = templateForm.default_months || [];
-                            const newMonths = months.includes(month)
-                              ? months.filter(m => m !== month)
-                              : [...months, month].sort((a, b) => a - b);
-                            setTemplateForm({...templateForm, default_months: newMonths});
-                          }}
-                        />
-                        <span className="text-xs">{month}월</span>
-                      </label>
-                    ))}
+                    {[1,2,3,4,5,6,7,8,9,10,11,12].map(month => {
+                      const isSelected = templateForm.default_months?.includes(month);
+                      return (
+                        <label key={month} className={`flex items-center gap-1 cursor-pointer px-2 py-1 rounded ${isSelected ? 'bg-green-100' : ''}`}>
+                          <Checkbox
+                            checked={isSelected}
+                            onCheckedChange={() => {
+                              const months = templateForm.default_months || [];
+                              const newMonths = months.includes(month)
+                                ? months.filter(m => m !== month)
+                                : [...months, month].sort((a, b) => a - b);
+                              setTemplateForm({...templateForm, default_months: newMonths});
+                            }}
+                          />
+                          <span className={`text-xs ${isSelected ? 'text-green-700 font-semibold' : ''}`}>{month}월</span>
+                        </label>
+                      );
+                    })}
                   </div>
                 </div>
 
@@ -1084,10 +1112,12 @@ export default function BuildingSetupWizard() {
               <div className="space-y-2">
                 {templates.map(tpl => (
                   <div key={tpl.id} className="p-4 border rounded-lg flex items-center justify-between">
-                    <div>
-                      <div className="font-semibold text-slate-900">{tpl.name}</div>
-                      <div className="text-sm text-slate-500 mt-1">
-                        <Badge variant="outline" className="mr-2">{tpl.category}</Badge>
+                    <div className="flex-1">
+                      <div className="flex items-center gap-2 mb-2">
+                        <div className="font-semibold text-slate-900">{tpl.name}</div>
+                        <Badge variant="outline">{tpl.category}</Badge>
+                      </div>
+                      <div className="text-sm text-slate-500 mb-2">
                         {tpl.category === "기타" && tpl.default_unit_amounts ? (
                           <div>
                             <p className="font-medium mb-1">세대별 금액:</p>
@@ -1112,6 +1142,16 @@ export default function BuildingSetupWizard() {
                         ) : (
                           <span>기본 금액: {tpl.default_amount?.toLocaleString() || 0}원</span>
                         )}
+                      </div>
+                      <div className="flex items-center gap-1 mt-2">
+                        <span className="text-xs text-slate-500">부과 월:</span>
+                        <div className="flex flex-wrap gap-1">
+                          {tpl.default_months?.sort((a, b) => a - b).map(month => (
+                            <span key={month} className="inline-flex items-center justify-center w-6 h-6 text-xs font-semibold text-white bg-green-500 rounded">
+                              {month}
+                            </span>
+                          ))}
+                        </div>
                       </div>
                     </div>
                     <Button variant="ghost" size="icon" onClick={() => deleteTemplate(tpl.id)}>

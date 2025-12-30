@@ -38,14 +38,17 @@ export default function RepDashboard() {
       }
       
       try {
-        const unitsData = await base44.entities.Unit.filter({
-          building_id: buildingId,
-          status: "active"
-        });
+        const [unitsData, invitationsData] = await Promise.all([
+          base44.entities.Unit.filter({
+            building_id: buildingId,
+            status: "active"
+          }),
+          base44.entities.Invitation.filter({ building_id: buildingId })
+        ]);
 
         const currentDate = new Date();
         const yearMonth = `${currentDate.getFullYear()}-${String(currentDate.getMonth() + 1).padStart(2, '0')}`;
-        
+
         const payments = await base44.entities.PaymentStatus.filter({
           building_id: buildingId,
           year_month: yearMonth
@@ -58,9 +61,12 @@ export default function RepDashboard() {
         });
         const currentCycle = cycles.find(c => c.year_month === yearMonth);
 
+        // Count only completed invitations
+        const completedInvites = invitationsData.filter(inv => inv.status === "가입 완료").length;
+
         setStats({
           totalUnits: unitsData.length,
-          invitedUnits: unitsData.filter(u => u.tenant_phone).length,
+          invitedUnits: completedInvites,
           unpaidCount: unpaid,
           currentMonthTotal: currentCycle?.total_amount || 0
         });

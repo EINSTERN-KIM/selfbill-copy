@@ -23,25 +23,37 @@ export default function RepRoleChange() {
   const [isSending, setIsSending] = useState(false);
   
   const [members, setMembers] = useState([]);
+  const [units, setUnits] = useState([]);
   const [requests, setRequests] = useState([]);
   const [selectedMemberId, setSelectedMemberId] = useState("");
+  const [currentRepUnit, setCurrentRepUnit] = useState(null);
 
   useEffect(() => {
     loadData();
-  }, [buildingId]);
+  }, [buildingId, user]);
 
   const loadData = async () => {
-    if (!buildingId) return;
+    if (!buildingId || !user) return;
     setIsLoadingData(true);
     
     try {
-      const [membersData, requestsData] = await Promise.all([
+      const [membersData, requestsData, unitsData] = await Promise.all([
         base44.entities.BuildingMember.filter({ building_id: buildingId, status: "활성" }),
-        base44.entities.RoleChangeRequest.filter({ building_id: buildingId })
+        base44.entities.RoleChangeRequest.filter({ building_id: buildingId }),
+        base44.entities.Unit.filter({ building_id: buildingId, status: "active" })
       ]);
 
       setMembers(membersData.filter(m => m.role === "입주자"));
       setRequests(requestsData.sort((a, b) => new Date(b.requested_at) - new Date(a.requested_at)));
+      setUnits(unitsData);
+      
+      // Get current representative's unit
+      const repMember = membersData.find(m => m.user_email === user.email && m.role === "대표자");
+      if (repMember && repMember.unit_id) {
+        const repUnit = unitsData.find(u => u.id === repMember.unit_id);
+        setCurrentRepUnit(repUnit);
+      }
+      
       setIsLoadingData(false);
     } catch (err) {
       console.error("Error loading data:", err);
@@ -175,7 +187,15 @@ export default function RepRoleChange() {
             </CardTitle>
           </CardHeader>
           <CardContent>
-            <p className="font-medium text-slate-900">{user?.email}</p>
+            {currentRepUnit ? (
+              <div>
+                <p className="font-semibold text-slate-900 mb-1">{currentRepUnit.unit_name}</p>
+                <p className="text-sm text-slate-600">{currentRepUnit.tenant_name} · {currentRepUnit.tenant_phone}</p>
+                <p className="text-xs text-slate-400 mt-1">{user?.email}</p>
+              </div>
+            ) : (
+              <p className="font-medium text-slate-900">{user?.email}</p>
+            )}
           </CardContent>
         </Card>
 
@@ -199,11 +219,14 @@ export default function RepRoleChange() {
                         <SelectValue placeholder="입주자 선택" />
                       </SelectTrigger>
                       <SelectContent>
-                        {members.map(member => (
-                          <SelectItem key={member.id} value={member.id}>
-                            {member.user_email}
-                          </SelectItem>
-                        ))}
+                        {members.map(member => {
+                          const unit = units.find(u => u.id === member.unit_id);
+                          return (
+                            <SelectItem key={member.id} value={member.id}>
+                              {unit ? `${unit.unit_name} - ${unit.tenant_name}` : member.user_email}
+                            </SelectItem>
+                          );
+                        })}
                       </SelectContent>
                     </Select>
                   </div>
@@ -240,7 +263,13 @@ export default function RepRoleChange() {
                 <div className="flex-1">
                   <p className="font-medium text-slate-900">대기 중인 요청</p>
                   <p className="text-sm text-slate-600 mt-1">
-                    {pendingRequest.to_user_email}님에게 대표자 변경 요청을 보냈습니다.
+                    {(() => {
+                      const toMember = members.find(m => m.user_email === pendingRequest.to_user_email);
+                      const toUnit = toMember && units.find(u => u.id === toMember.unit_id);
+                      return toUnit 
+                        ? `${toUnit.unit_name} (${toUnit.tenant_name})님에게 대표자 변경 요청을 보냈습니다.`
+                        : `${pendingRequest.to_user_email}님에게 대표자 변경 요청을 보냈습니다.`;
+                    })()}
                   </p>
                   <Button
                     variant="outline"
@@ -263,19 +292,23 @@ export default function RepRoleChange() {
               <CardTitle className="text-lg">요청 이력</CardTitle>
             </CardHeader>
             <CardContent className="space-y-3">
-              {requests.map(request => (
-                <div key={request.id} className="flex items-center justify-between p-3 bg-slate-50 rounded-lg">
-                  <div>
-                    <p className="text-sm font-medium text-slate-900">
-                      → {request.to_user_email}
-                    </p>
-                    <p className="text-xs text-slate-500">
-                      {new Date(request.requested_at).toLocaleDateString()}
-                    </p>
+              {requests.map(request => {
+                const toMember = members.find(m => m.user_email === request.to_user_email);
+                const toUnit = toMember && units.find(u => u.id === toMember.unit_id);
+                return (
+                  <div key={request.id} className="flex items-center justify-between p-3 bg-slate-50 rounded-lg">
+                    <div>
+                      <p className="text-sm font-medium text-slate-900">
+                        → {toUnit ? `${toUnit.unit_name} (${toUnit.tenant_name})` : request.to_user_email}
+                      </p>
+                      <p className="text-xs text-slate-500">
+                        {new Date(request.requested_at).toLocaleDateString()}
+                      </p>
+                    </div>
+                    {getStatusBadge(request.status)}
                   </div>
-                  {getStatusBadge(request.status)}
-                </div>
-              ))}
+                );
+              })}
             </CardContent>
           </Card>
         )}

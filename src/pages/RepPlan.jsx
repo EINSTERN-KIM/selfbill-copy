@@ -119,78 +119,80 @@ export default function RepPlan() {
           backUrl={createPageUrl(`RepDashboard?buildingId=${buildingId}`)}
         />
 
-        {/* Pricing Card */}
-        <Card className="mb-6 bg-gradient-to-br from-primary-light/20 to-primary/10 border-primary-light card-rounded border-0 shadow-md">
-          <CardContent className="pt-6">
-            <div className="text-center mb-6">
-              <Building2 className="w-12 h-12 text-primary mx-auto mb-3" />
-              <h2 className="text-xl font-bold text-slate-900">{building?.name}</h2>
-              <p className="text-sm text-slate-500 mt-1">셀프빌 이용 요금제</p>
-            </div>
+        {/* Pricing Card - Only show if not confirmed yet */}
+        {!building?.selfbill_plan_confirmed_at && (
+          <Card className="mb-6 bg-gradient-to-br from-primary-light/20 to-primary/10 border-primary-light card-rounded border-0 shadow-md">
+            <CardContent className="pt-6">
+              <div className="text-center mb-6">
+                <Building2 className="w-12 h-12 text-primary mx-auto mb-3" />
+                <h2 className="text-xl font-bold text-slate-900">{building?.name}</h2>
+                <p className="text-sm text-slate-500 mt-1">셀프빌 이용 요금제</p>
+              </div>
 
-            <div className="grid grid-cols-2 gap-3 mb-6">
-              <div className="text-center p-4 bg-white rounded-xl">
-                <Users className="w-5 h-5 text-primary mx-auto mb-2" />
-                <p className="text-2xl font-bold text-slate-900">{unitCount}</p>
-                <p className="text-xs text-slate-500 mt-1">총 세대 수</p>
+              <div className="grid grid-cols-2 gap-3 mb-6">
+                <div className="text-center p-4 bg-white rounded-xl">
+                  <Users className="w-5 h-5 text-primary mx-auto mb-2" />
+                  <p className="text-2xl font-bold text-slate-900">{unitCount}</p>
+                  <p className="text-xs text-slate-500 mt-1">총 세대 수</p>
+                </div>
+                <div className="text-center p-4 bg-white rounded-xl">
+                  <CreditCard className="w-5 h-5 text-primary mx-auto mb-2" />
+                  <p className="text-2xl font-bold text-primary">{monthlyFee.toLocaleString()}</p>
+                  <p className="text-xs text-slate-500 mt-1">월 이용요금(원)</p>
+                </div>
               </div>
-              <div className="text-center p-4 bg-white rounded-xl">
-                <CreditCard className="w-5 h-5 text-primary mx-auto mb-2" />
-                <p className="text-2xl font-bold text-primary">{monthlyFee.toLocaleString()}</p>
-                <p className="text-xs text-slate-500 mt-1">월 이용요금(원)</p>
-              </div>
-            </div>
 
-            <div className="bg-white rounded-xl p-4 mb-4">
-              <h3 className="font-semibold text-slate-900 mb-3">요금 계산 방식</h3>
-              <div className="space-y-2 text-sm text-slate-600">
-                <div className="flex justify-between">
-                  <span>• 세대당 요금:</span>
-                  <span className="font-medium">2,900원</span>
-                </div>
-                <div className="flex justify-between">
-                  <span>• 총 세대 수:</span>
-                  <span className="font-medium">{unitCount}세대</span>
-                </div>
-                <div className="flex justify-between pt-2 border-t">
-                  <span className="font-semibold">월 이용료:</span>
-                  <span className="font-bold text-primary">{monthlyFee.toLocaleString()}원</span>
+              <div className="bg-white rounded-xl p-4 mb-4">
+                <h3 className="font-semibold text-slate-900 mb-3">요금 계산 방식</h3>
+                <div className="space-y-2 text-sm text-slate-600">
+                  <div className="flex justify-between">
+                    <span>• 세대당 요금:</span>
+                    <span className="font-medium">2,900원</span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span>• 총 세대 수:</span>
+                    <span className="font-medium">{unitCount}세대</span>
+                  </div>
+                  <div className="flex justify-between pt-2 border-t">
+                    <span className="font-semibold">월 이용료:</span>
+                    <span className="font-bold text-primary">{monthlyFee.toLocaleString()}원</span>
+                  </div>
                 </div>
               </div>
-            </div>
 
-            <div className="bg-white rounded-xl p-4 mb-4 border border-slate-200">
-              <p className="text-xs font-semibold text-slate-700 mb-3">셀프빌 입금 계좌</p>
-              <div className="space-y-1 text-sm">
-                <div className="flex justify-between">
-                  <span className="text-slate-500">은행</span>
-                  <span className="font-medium">신한은행</span>
-                </div>
-                <div className="flex justify-between">
-                  <span className="text-slate-500">예금주</span>
-                  <span className="font-medium">(주)셀프빌</span>
-                </div>
-                <div className="flex justify-between">
-                  <span className="text-slate-500">계좌번호</span>
-                  <span className="font-medium">110-123-456789</span>
+              <div className="bg-white rounded-xl p-4 mb-4 border border-slate-200">
+                <p className="text-xs font-semibold text-slate-700 mb-3">셀프빌 입금 계좌</p>
+                <div className="space-y-1 text-sm">
+                  <div className="flex justify-between">
+                    <span className="text-slate-500">은행</span>
+                    <span className="font-medium">신한은행</span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span className="text-slate-500">예금주</span>
+                    <span className="font-medium">(주)셀프빌</span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span className="text-slate-500">계좌번호</span>
+                    <span className="font-medium">110-123-456789</span>
+                  </div>
                 </div>
               </div>
-            </div>
 
-            <label className="flex items-start gap-3 p-4 bg-white rounded-xl cursor-pointer hover:bg-slate-50 transition-colors">
-              <input
-                type="checkbox"
-                checked={planConfirmed}
-                onChange={(e) => setPlanConfirmed(e.target.checked)}
-                className="w-4 h-4 mt-0.5 text-primary"
-              />
-              <div className="flex-1">
-                <div className="font-semibold text-slate-900">요금제 및 월 이용료 확인</div>
-                <div className="text-sm text-slate-500 mt-1">위 요금제 내용을 확인했으며 동의합니다</div>
-              </div>
-            </label>
-          </CardContent>
-        </Card>
+              <label className="flex items-start gap-3 p-4 bg-white rounded-xl cursor-pointer hover:bg-slate-50 transition-colors">
+                <input
+                  type="checkbox"
+                  checked={planConfirmed}
+                  onChange={(e) => setPlanConfirmed(e.target.checked)}
+                  className="w-4 h-4 mt-0.5 text-primary"
+                />
+                <div className="flex-1">
+                  <div className="font-semibold text-slate-900">요금제 및 월 이용료 확인</div>
+                  <div className="text-sm text-slate-500 mt-1">위 요금제 내용을 확인했으며 동의합니다</div>
+                </div>
+              </label>
+            </CardContent>
+          </Card>
+        )}
 
         {/* Auto-payment Settings */}
         <Card>
