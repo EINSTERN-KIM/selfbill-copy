@@ -240,7 +240,12 @@ export default function RepBillingUnitCharges() {
   }
 
   const getUnitDisplay = (unit) => {
-    return unit.ho ? `${unit.ho}호` : "호수 미입력";
+    const dong = unit.dong || "";
+    const ho = unit.ho || "호수 미입력";
+    if (dong && unit.ho) {
+      return `${dong}, ${ho}호`;
+    }
+    return ho;
   };
 
   const getChargeForUnit = (unitId) => {
@@ -347,7 +352,11 @@ export default function RepBillingUnitCharges() {
 
             {/* Unit Charges List */}
             <div className="space-y-3">
-              {units.map((unit) => {
+              {units.sort((a, b) => {
+                const hoA = parseInt(a.ho) || 0;
+                const hoB = parseInt(b.ho) || 0;
+                return hoA - hoB;
+              }).map((unit) => {
                 const charge = getChargeForUnit(unit.id);
                 const isExpanded = expandedUnitId === unit.id;
                 let breakdown = [];
