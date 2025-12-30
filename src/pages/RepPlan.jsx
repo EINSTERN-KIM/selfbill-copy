@@ -26,6 +26,7 @@ export default function RepPlan() {
   
   const { isLoading, building, error } = useBuildingAuth(buildingId, "대표자");
   const [isSaving, setIsSaving] = useState(false);
+  const [isEditing, setIsEditing] = useState(false);
   const [formData, setFormData] = useState({
     selfbill_auto_bank_name: "",
     selfbill_auto_bank_holder: "",
@@ -60,21 +61,12 @@ export default function RepPlan() {
   };
 
   const handleSave = async () => {
-    if (!planConfirmed) {
-      alert("요금제를 확인하고 체크박스를 선택해주세요.");
-      return;
-    }
-    
     setIsSaving(true);
     try {
-      const updateData = {
-        ...formData,
-        selfbill_plan_confirmed_at: building?.selfbill_plan_confirmed_at || new Date().toISOString()
-      };
-      
-      await base44.entities.Building.update(buildingId, updateData);
+      await base44.entities.Building.update(buildingId, formData);
       alert("저장되었습니다.");
-      navigate(createPageUrl(`RepDashboard?buildingId=${buildingId}`));
+      setIsEditing(false);
+      await init();
     } catch (err) {
       console.error("Error saving:", err);
       alert("저장 중 오류가 발생했습니다.");
@@ -182,86 +174,138 @@ export default function RepPlan() {
         {/* Auto-payment Settings */}
         <Card>
           <CardHeader>
-            <CardTitle className="text-lg flex items-center gap-2">
-              <CreditCard className="w-5 h-5" />
-              셀프빌 자동이체 계좌
-            </CardTitle>
+            <div className="flex items-center justify-between">
+              <CardTitle className="text-lg flex items-center gap-2">
+                <CreditCard className="w-5 h-5" />
+                셀프빌 자동이체 계좌
+              </CardTitle>
+              {!isEditing && (
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => setIsEditing(true)}
+                >
+                  수정하기
+                </Button>
+              )}
+            </div>
           </CardHeader>
           <CardContent className="space-y-5">
-            <p className="text-sm text-slate-600 mb-4">
-              셀프빌 이용료 자동이체를 위한 계좌 정보를 등록해 주세요.
-            </p>
+            {!isEditing ? (
+              <div className="space-y-4">
+                <div className="p-4 bg-slate-50 rounded-lg space-y-3">
+                  <div className="flex justify-between">
+                    <span className="text-sm text-slate-600">은행명</span>
+                    <span className="text-sm font-medium text-slate-900">
+                      {formData.selfbill_auto_bank_name || "-"}
+                    </span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span className="text-sm text-slate-600">예금주</span>
+                    <span className="text-sm font-medium text-slate-900">
+                      {formData.selfbill_auto_bank_holder || "-"}
+                    </span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span className="text-sm text-slate-600">계좌번호</span>
+                    <span className="text-sm font-medium text-slate-900">
+                      {formData.selfbill_auto_bank_account || "-"}
+                    </span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span className="text-sm text-slate-600">자동이체 시작일</span>
+                    <span className="text-sm font-medium text-slate-900">
+                      {formData.selfbill_auto_start_date || "-"}
+                    </span>
+                  </div>
+                </div>
+              </div>
+            ) : (
+              <>
+                <p className="text-sm text-slate-600">
+                  셀프빌 이용료 자동이체를 위한 계좌 정보를 등록해 주세요.
+                </p>
 
-            <div className="space-y-2">
-              <Label>은행명 *</Label>
-              <Select
-                value={formData.selfbill_auto_bank_name}
-                onValueChange={(value) => setFormData({ ...formData, selfbill_auto_bank_name: value })}
-              >
-                <SelectTrigger>
-                  <SelectValue placeholder="은행 선택" />
-                </SelectTrigger>
-                <SelectContent>
-                  {BANKS.map((bank) => (
-                    <SelectItem key={bank} value={bank}>{bank}</SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div>
+                <div className="space-y-2">
+                  <Label>은행명 *</Label>
+                  <Select
+                    value={formData.selfbill_auto_bank_name}
+                    onValueChange={(value) => setFormData({ ...formData, selfbill_auto_bank_name: value })}
+                  >
+                    <SelectTrigger>
+                      <SelectValue placeholder="은행 선택" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {BANKS.map((bank) => (
+                        <SelectItem key={bank} value={bank}>{bank}</SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
 
-            <div className="space-y-2">
-              <Label>예금주 *</Label>
-              <Input
-                value={formData.selfbill_auto_bank_holder}
-                onChange={(e) => setFormData({ ...formData, selfbill_auto_bank_holder: e.target.value })}
-                placeholder="예금주명"
-              />
-            </div>
+                <div className="space-y-2">
+                  <Label>예금주 *</Label>
+                  <Input
+                    value={formData.selfbill_auto_bank_holder}
+                    onChange={(e) => setFormData({ ...formData, selfbill_auto_bank_holder: e.target.value })}
+                    placeholder="예금주명"
+                  />
+                </div>
 
-            <div className="space-y-2">
-              <Label>계좌번호 *</Label>
-              <Input
-                value={formData.selfbill_auto_bank_account}
-                onChange={(e) => setFormData({ ...formData, selfbill_auto_bank_account: e.target.value })}
-                placeholder="- 없이 입력"
-              />
-            </div>
+                <div className="space-y-2">
+                  <Label>계좌번호 *</Label>
+                  <Input
+                    value={formData.selfbill_auto_bank_account}
+                    onChange={(e) => setFormData({ ...formData, selfbill_auto_bank_account: e.target.value })}
+                    placeholder="- 없이 입력"
+                  />
+                </div>
 
-            <div className="space-y-2">
-              <Label>자동이체 시작일</Label>
-              <Input
-                type="date"
-                value={formData.selfbill_auto_start_date}
-                onChange={(e) => setFormData({ ...formData, selfbill_auto_start_date: e.target.value })}
-              />
-            </div>
+                <div className="space-y-2">
+                  <Label>자동이체 시작일</Label>
+                  <Input
+                    type="date"
+                    value={formData.selfbill_auto_start_date}
+                    onChange={(e) => setFormData({ ...formData, selfbill_auto_start_date: e.target.value })}
+                  />
+                </div>
 
-            <div className="pt-4 flex gap-3">
-              <Button
-                variant="outline"
-                onClick={() => navigate(createPageUrl(`RepDashboard?buildingId=${buildingId}`))}
-                className="flex-1"
-              >
-                취소
-              </Button>
-              <Button
-                onClick={handleSave}
-                disabled={isSaving}
-                className="flex-1 bg-primary hover:bg-primary-dark text-white rounded-full font-semibold"
-              >
-                {isSaving ? (
-                  <>
-                    <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                    저장 중...
-                  </>
-                ) : (
-                  <>
-                    <Save className="w-4 h-4 mr-2" />
-                    저장
-                  </>
-                )}
-              </Button>
-            </div>
+                <div className="pt-4 flex gap-3">
+                  <Button
+                    variant="outline"
+                    onClick={() => {
+                      setIsEditing(false);
+                      setFormData({
+                        selfbill_auto_bank_name: building?.selfbill_auto_bank_name || "",
+                        selfbill_auto_bank_holder: building?.selfbill_auto_bank_holder || "",
+                        selfbill_auto_bank_account: building?.selfbill_auto_bank_account || "",
+                        selfbill_auto_start_date: building?.selfbill_auto_start_date || ""
+                      });
+                    }}
+                    className="flex-1"
+                  >
+                    취소
+                  </Button>
+                  <Button
+                    onClick={handleSave}
+                    disabled={isSaving}
+                    className="flex-1 bg-primary hover:bg-primary-dark text-white rounded-full font-semibold"
+                  >
+                    {isSaving ? (
+                      <>
+                        <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                        저장 중...
+                      </>
+                    ) : (
+                      <>
+                        <Save className="w-4 h-4 mr-2" />
+                        저장
+                      </>
+                    )}
+                  </Button>
+                </div>
+              </>
+            )}
           </CardContent>
         </Card>
       </div>
