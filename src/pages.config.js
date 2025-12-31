@@ -1,4 +1,6 @@
+import BuildingSetupWizard from './pages/BuildingSetupWizard';
 import Home from './pages/Home';
+import MyBuildings from './pages/MyBuildings';
 import Onboarding from './pages/Onboarding';
 import RepBankAccount from './pages/RepBankAccount';
 import RepBillingMonthlyEdit from './pages/RepBillingMonthlyEdit';
@@ -22,13 +24,13 @@ import TenantInviteCheck from './pages/TenantInviteCheck';
 import TenantMyBills from './pages/TenantMyBills';
 import TenantMyPayments from './pages/TenantMyPayments';
 import TenantMyUnit from './pages/TenantMyUnit';
-import MyBuildings from './pages/MyBuildings';
-import BuildingSetupWizard from './pages/BuildingSetupWizard';
 import __Layout from './Layout.jsx';
 
 
 export const PAGES = {
+    "BuildingSetupWizard": BuildingSetupWizard,
     "Home": Home,
+    "MyBuildings": MyBuildings,
     "Onboarding": Onboarding,
     "RepBankAccount": RepBankAccount,
     "RepBillingMonthlyEdit": RepBillingMonthlyEdit,
@@ -52,8 +54,6 @@ export const PAGES = {
     "TenantMyBills": TenantMyBills,
     "TenantMyPayments": TenantMyPayments,
     "TenantMyUnit": TenantMyUnit,
-    "MyBuildings": MyBuildings,
-    "BuildingSetupWizard": BuildingSetupWizard,
 }
 
 export const pagesConfig = {
