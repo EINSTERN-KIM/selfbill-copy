@@ -601,7 +601,7 @@ export default function BuildingSetupWizard() {
                           ✕
                         </Button>
                       </div>
-                      <DaumPostcode
+                      <DaumPostcodeEmbed
                         onComplete={(data) => {
                           setStep1Data({
                             ...step1Data,
