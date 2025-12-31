@@ -25,6 +25,12 @@ export default function Onboarding() {
   useEffect(() => {
     async function init() {
       try {
+        const isAuthenticated = await base44.auth.isAuthenticated();
+        if (!isAuthenticated) {
+          base44.auth.redirectToLogin(createPageUrl("Onboarding"));
+          return;
+        }
+        
         const currentUser = await base44.auth.me();
         setUser(currentUser);
         
@@ -41,7 +47,8 @@ export default function Onboarding() {
         
         setIsLoading(false);
       } catch (err) {
-        base44.auth.redirectToLogin();
+        console.error("Onboarding init error:", err);
+        setIsLoading(false);
       }
     }
     init();
