@@ -4,9 +4,8 @@ import { useNavigate, Link } from 'react-router-dom';
 import { createPageUrl } from '@/utils';
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
-import { Building2, Plus, MapPin, Users, ChevronRight, AlertCircle, UserPlus, LogOut, Home, UserCog } from 'lucide-react';
+import { Building2, Plus, MapPin, Users, ChevronRight, AlertCircle, UserPlus, LogOut } from 'lucide-react';
 import { Badge } from "@/components/ui/badge";
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import LoadingSpinner from '@/components/common/LoadingSpinner';
 import EmptyState from '@/components/common/EmptyState';
 import RoleBadge from '@/components/common/RoleBadge';
@@ -16,8 +15,6 @@ export default function MyBuildings() {
   const [user, setUser] = useState(null);
   const [isLoading, setIsLoading] = useState(true);
   const [buildingsData, setBuildingsData] = useState([]);
-  const [showRoleDialog, setShowRoleDialog] = useState(false);
-  const [selectedBuilding, setSelectedBuilding] = useState(null);
 
   useEffect(() => {
     async function loadData() {
@@ -41,32 +38,14 @@ export default function MyBuildings() {
         const buildings = await base44.entities.Building.list();
         const filteredBuildings = buildings.filter(b => buildingIds.includes(b.id));
 
-        // Combine data and group by building
-        const buildingMap = new Map();
-        
-        memberships.forEach(m => {
+        // Combine data
+        const combined = memberships.map(m => {
           const building = filteredBuildings.find(b => b.id === m.building_id);
-          if (!building) return;
-          
-          if (!buildingMap.has(m.building_id)) {
-            buildingMap.set(m.building_id, {
-              building,
-              roles: [m.role],
-              membership: m
-            });
-          } else {
-            const existing = buildingMap.get(m.building_id);
-            if (!existing.roles.includes(m.role)) {
-              existing.roles.push(m.role);
-            }
-          }
-        });
-        
-        const combined = Array.from(buildingMap.values()).map(item => ({
-          ...item.membership,
-          building: item.building,
-          roles: item.roles
-        }));
+          return {
+            ...m,
+            building
+          };
+        }).filter(item => item.building);
 
         setBuildingsData(combined);
         setIsLoading(false);
@@ -79,38 +58,18 @@ export default function MyBuildings() {
   }, [navigate]);
 
   const handleBuildingClick = (item) => {
-    const { building, role, roles } = item;
+    const { building, role } = item;
     
     // Check if building setup is incomplete
-    if (roles.includes("대표자") && (building.status === "draft" || building.setup_step < 5)) {
+    if (role === "대표자" && (building.status === "draft" || building.setup_step < 5)) {
       navigate(createPageUrl(`BuildingSetupWizard?buildingId=${building.id}`));
       return;
     }
     
-    // If user has both roles, show selection dialog
-    if (roles.length > 1) {
-      setSelectedBuilding(item);
-      setShowRoleDialog(true);
-      return;
-    }
-    
-    // Single role - navigate directly
-    if (roles.includes("대표자")) {
+    if (role === "대표자") {
       navigate(createPageUrl(`RepDashboard?buildingId=${building.id}`));
     } else {
       navigate(createPageUrl(`TenantDashboard?buildingId=${building.id}`));
-    }
-  };
-
-  const handleRoleSelection = (role) => {
-    if (!selectedBuilding) return;
-    
-    setShowRoleDialog(false);
-    
-    if (role === "대표자") {
-      navigate(createPageUrl(`RepDashboard?buildingId=${selectedBuilding.building.id}`));
-    } else {
-      navigate(createPageUrl(`TenantDashboard?buildingId=${selectedBuilding.building.id}`));
     }
   };
 
@@ -195,10 +154,8 @@ export default function MyBuildings() {
                         <h3 className="font-semibold text-slate-900 truncate">
                           {item.building?.name || "이름 없음"}
                         </h3>
-                        {item.roles && item.roles.map(role => (
-                          <RoleBadge key={role} role={role} />
-                        ))}
-                        {item.roles?.includes("대표자") && (item.building?.status === "draft" || item.building?.setup_step < 5) && (
+                        <RoleBadge role={item.role} />
+                        {item.role === "대표자" && (item.building?.status === "draft" || item.building?.setup_step < 5) && (
                           <Badge className="bg-yellow-100 text-yellow-700 text-xs">
                             <AlertCircle className="w-3 h-3 mr-1" />
                             초기 설정 미완료
@@ -227,55 +184,6 @@ export default function MyBuildings() {
             ))}
           </div>
         )}
-
-        {/* Role Selection Dialog */}
-        <Dialog open={showRoleDialog} onOpenChange={setShowRoleDialog}>
-          <DialogContent className="sm:max-w-md">
-            <DialogHeader>
-              <DialogTitle className="text-center">역할 선택</DialogTitle>
-            </DialogHeader>
-            <div className="space-y-3 pt-4">
-              <p className="text-sm text-slate-600 text-center mb-4">
-                어떤 권한으로 접속하시겠습니까?
-              </p>
-              <Card 
-                className="cursor-pointer hover:shadow-lg transition-all border-2 border-primary"
-                onClick={() => handleRoleSelection("대표자")}
-              >
-                <CardContent className="p-6">
-                  <div className="flex items-center gap-4">
-                    <div className="w-12 h-12 rounded-full bg-primary flex items-center justify-center">
-                      <UserCog className="w-6 h-6 text-white" />
-                    </div>
-                    <div className="flex-1">
-                      <div className="font-semibold text-slate-900 text-lg">대표자 대시보드</div>
-                      <p className="text-sm text-slate-500 mt-1">건물 관리 및 청구서 발송</p>
-                    </div>
-                    <ChevronRight className="w-5 h-5 text-primary" />
-                  </div>
-                </CardContent>
-              </Card>
-              
-              <Card 
-                className="cursor-pointer hover:shadow-lg transition-all border-2 border-blue-500"
-                onClick={() => handleRoleSelection("입주자")}
-              >
-                <CardContent className="p-6">
-                  <div className="flex items-center gap-4">
-                    <div className="w-12 h-12 rounded-full bg-blue-500 flex items-center justify-center">
-                      <Home className="w-6 h-6 text-white" />
-                    </div>
-                    <div className="flex-1">
-                      <div className="font-semibold text-slate-900 text-lg">입주자 대시보드</div>
-                      <p className="text-sm text-slate-500 mt-1">청구서 조회 및 납부 관리</p>
-                    </div>
-                    <ChevronRight className="w-5 h-5 text-blue-500" />
-                  </div>
-                </CardContent>
-              </Card>
-            </div>
-          </DialogContent>
-        </Dialog>
       </div>
     </div>
   );
