@@ -74,21 +74,43 @@ export default function RepUnitsInvite() {
         invitation = await base44.entities.Invitation.create(invitationData);
       }
 
-      // Create notification log
+      // Send SMS via Twilio
       const inviteUrl = `${window.location.origin}${createPageUrl(`AcceptInvite?inviteId=${invitation.id}`)}`;
       const notificationBody = `[셀프빌 입주자 초대]\n\n${building.name}\n${unit.unit_name}\n\n${unit.tenant_name}님을 입주자로 초대합니다.\n\n아래 링크를 클릭하여 초대를 수락해 주세요.\n\n${inviteUrl}`;
 
-      await base44.entities.NotificationLog.create({
-        building_id: buildingId,
-        to_phone: unit.tenant_phone,
-        channel: "MMS",
-        event_type: "INVITATION",
-        event_ref_id: invitation.id,
-        title: "셀프빌 입주자 초대",
-        body: notificationBody,
-        status: "발송성공",
-        sent_at: new Date().toISOString()
-      });
+      try {
+        await base44.functions.invoke('sendTwilioSMS', {
+          to: unit.tenant_phone,
+          message: notificationBody
+        });
+
+        await base44.entities.NotificationLog.create({
+          building_id: buildingId,
+          to_phone: unit.tenant_phone,
+          channel: "SMS",
+          event_type: "INVITATION",
+          event_ref_id: invitation.id,
+          title: "셀프빌 입주자 초대",
+          body: notificationBody,
+          status: "발송성공",
+          sent_at: new Date().toISOString()
+        });
+      } catch (smsError) {
+        console.error("SMS 발송 오류:", smsError);
+        await base44.entities.NotificationLog.create({
+          building_id: buildingId,
+          to_phone: unit.tenant_phone,
+          channel: "SMS",
+          event_type: "INVITATION",
+          event_ref_id: invitation.id,
+          title: "셀프빌 입주자 초대",
+          body: notificationBody,
+          status: "발송실패",
+          error_message: smsError.message,
+          sent_at: new Date().toISOString()
+        });
+        throw smsError;
+      }
 
       await loadData();
     } catch (err) {

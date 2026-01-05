@@ -147,16 +147,37 @@ export default function RepBillingSend() {
           const billDetailUrl = `${window.location.origin}${createPageUrl(`TenantMyBills?buildingId=${buildingId}`)}`;
           const notificationBody = `[${building?.name}]\n${selectedYearMonth} 관리비 청구\n\n청구금액: ${charge.amount_total?.toLocaleString()}원\n납기일: 매월 ${building?.billing_due_day || 25}일\n\n입금계좌\n${building?.bank_name} ${building?.bank_account}\n예금주: ${building?.bank_holder}\n\n상세내역은 셀프빌 링크에서 확인하세요.\n${billDetailUrl}`;
 
-          await base44.entities.NotificationLog.create({
-            building_id: buildingId,
-            event_type: "BILL_NOTICE",
-            to_phone: unit.tenant_phone,
-            title: `[${building?.name}] ${selectedYearMonth} 관리비 청구서`,
-            body: notificationBody,
-            status: "발송성공",
-            event_ref_id: charge.id,
-            sent_at: new Date().toISOString()
-          });
+          try {
+            await base44.functions.invoke('sendTwilioSMS', {
+              to: unit.tenant_phone,
+              message: notificationBody
+            });
+
+            await base44.entities.NotificationLog.create({
+              building_id: buildingId,
+              event_type: "BILL_NOTICE",
+              to_phone: unit.tenant_phone,
+              title: `[${building?.name}] ${selectedYearMonth} 관리비 청구서`,
+              body: notificationBody,
+              status: "발송성공",
+              event_ref_id: charge.id,
+              sent_at: new Date().toISOString()
+            });
+          } catch (smsError) {
+            console.error("SMS 발송 오류:", smsError);
+            await base44.entities.NotificationLog.create({
+              building_id: buildingId,
+              event_type: "BILL_NOTICE",
+              to_phone: unit.tenant_phone,
+              title: `[${building?.name}] ${selectedYearMonth} 관리비 청구서`,
+              body: notificationBody,
+              status: "발송실패",
+              error_message: smsError.message,
+              event_ref_id: charge.id,
+              sent_at: new Date().toISOString()
+            });
+            throw smsError;
+          }
 
           const existingPayment = await base44.entities.PaymentStatus.filter({
             unit_charge_id: charge.id
