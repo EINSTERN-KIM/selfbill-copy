@@ -2,7 +2,6 @@ import { createClientFromRequest } from 'npm:@base44/sdk@0.8.6';
 
 const TWILIO_ACCOUNT_SID = Deno.env.get("TWILIO_ACCOUNT_SID");
 const TWILIO_AUTH_TOKEN = Deno.env.get("TWILIO_AUTH_TOKEN");
-const TWILIO_PHONE_NUMBER = Deno.env.get("TWILIO_PHONE_NUMBER");
 
 Deno.serve(async (req) => {
   try {
@@ -15,9 +14,17 @@ Deno.serve(async (req) => {
 
     const { to_phone, body, building_id, event_type, event_ref_id } = await req.json();
 
-    if (!to_phone || !body) {
-      return Response.json({ error: 'to_phone and body are required' }, { status: 400 });
+    if (!to_phone || !body || !building_id) {
+      return Response.json({ error: 'to_phone, body, and building_id are required' }, { status: 400 });
     }
+
+    // Get building's Twilio phone number
+    const buildings = await base44.asServiceRole.entities.Building.filter({ id: building_id });
+    if (buildings.length === 0 || !buildings[0].twilio_phone_number) {
+      return Response.json({ error: 'Building Twilio phone number not configured' }, { status: 400 });
+    }
+
+    const fromPhoneNumber = buildings[0].twilio_phone_number;
 
     // Send SMS via Twilio
     const twilioUrl = `https://api.twilio.com/2010-04-01/Accounts/${TWILIO_ACCOUNT_SID}/Messages.json`;
@@ -25,7 +32,7 @@ Deno.serve(async (req) => {
     
     const formData = new URLSearchParams();
     formData.append('To', to_phone);
-    formData.append('From', TWILIO_PHONE_NUMBER);
+    formData.append('From', fromPhoneNumber);
     formData.append('Body', body);
 
     const twilioResponse = await fetch(twilioUrl, {

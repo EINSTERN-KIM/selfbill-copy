@@ -22,7 +22,8 @@ export default function RepBuildingSetup() {
   const [formData, setFormData] = useState({
     name: "",
     address: "",
-    address_detail: ""
+    address_detail: "",
+    twilio_phone_number: ""
   });
 
   useEffect(() => {
@@ -30,7 +31,8 @@ export default function RepBuildingSetup() {
       setFormData({
         name: building.name || "",
         address: building.address || "",
-        address_detail: building.address_detail || ""
+        address_detail: building.address_detail || "",
+        twilio_phone_number: building.twilio_phone_number || ""
       });
     }
   }, [building]);
@@ -107,6 +109,18 @@ export default function RepBuildingSetup() {
                 onChange={(e) => setFormData({ ...formData, address_detail: e.target.value })}
                 placeholder="예: A동 전체"
               />
+            </div>
+
+            <div className="space-y-2">
+              <Label>Twilio 발신 전화번호</Label>
+              <Input
+                value={formData.twilio_phone_number}
+                onChange={(e) => setFormData({ ...formData, twilio_phone_number: e.target.value })}
+                placeholder="예: +821012345678"
+              />
+              <p className="text-xs text-slate-500">
+                Twilio에서 발급받은 발신 번호를 입력하세요 (E.164 형식)
+              </p>
             </div>
 
             <div className="pt-4 flex gap-3">
