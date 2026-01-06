@@ -16,6 +16,8 @@ export default function MyBuildings() {
   const [user, setUser] = useState(null);
   const [isLoading, setIsLoading] = useState(true);
   const [buildingsData, setBuildingsData] = useState([]);
+  const [pendingRequest, setPendingRequest] = useState(null);
+  const [showRequestModal, setShowRequestModal] = useState(false);
 
   useEffect(() => {
     async function loadData() {
