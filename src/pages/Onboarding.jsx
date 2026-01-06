@@ -34,6 +34,12 @@ export default function Onboarding() {
         const currentUser = await base44.auth.me();
         setUser(currentUser);
         
+        // Check if phone is verified
+        if (!currentUser.phone_verified) {
+          navigate(createPageUrl('PhoneVerification'));
+          return;
+        }
+        
         // Check if user already has memberships
         const memberships = await base44.entities.BuildingMember.filter({
           user_email: currentUser.email,
