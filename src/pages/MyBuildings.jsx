@@ -51,6 +51,21 @@ export default function MyBuildings() {
         }).filter(item => item.building);
 
         setBuildingsData(combined);
+        
+        // Check for pending role change requests
+        if (currentUser && buildingIds.length > 0) {
+          const requests = await base44.entities.RoleChangeRequest.filter({
+            to_user_id: currentUser.id,
+            status: "요청"
+          });
+          
+          if (requests.length > 0) {
+            const request = requests[0];
+            setPendingRequest(request);
+            setShowRequestModal(true);
+          }
+        }
+        
         setIsLoading(false);
       } catch (err) {
         console.error(err);
