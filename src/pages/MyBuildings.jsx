@@ -9,6 +9,7 @@ import { Badge } from "@/components/ui/badge";
 import LoadingSpinner from '@/components/common/LoadingSpinner';
 import EmptyState from '@/components/common/EmptyState';
 import RoleBadge from '@/components/common/RoleBadge';
+import RoleChangeRequestModal from '@/components/common/RoleChangeRequestModal';
 
 export default function MyBuildings() {
   const navigate = useNavigate();
