@@ -33,6 +33,7 @@ export default function RepBillingMonthlyEdit() {
   const [templates, setTemplates] = useState([]);
   const [units, setUnits] = useState([]);
   const [unitAmounts, setUnitAmounts] = useState({}); // itemId -> { unitId: amount }
+  const [monthlyExtraItems, setMonthlyExtraItems] = useState([]);
 
   useEffect(() => {
     loadData();
