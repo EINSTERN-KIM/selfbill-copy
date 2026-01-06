@@ -3,6 +3,8 @@ import Home from './pages/Home';
 import MyBuildings from './pages/MyBuildings';
 import Onboarding from './pages/Onboarding';
 import RepBankAccount from './pages/RepBankAccount';
+import RepBillingMonthlyEdit from './pages/RepBillingMonthlyEdit';
+import RepBillingSend from './pages/RepBillingSend';
 import RepBillingSettings from './pages/RepBillingSettings';
 import RepBillingUnitCharges from './pages/RepBillingUnitCharges';
 import RepBuildingSetup from './pages/RepBuildingSetup';
@@ -15,15 +17,13 @@ import RepReportsUnitFee from './pages/RepReportsUnitFee';
 import RepReportsUnitPayments from './pages/RepReportsUnitPayments';
 import RepRoleChange from './pages/RepRoleChange';
 import RepUnits from './pages/RepUnits';
+import RepUnitsInvite from './pages/RepUnitsInvite';
 import RepUnitsReview from './pages/RepUnitsReview';
 import TenantDashboard from './pages/TenantDashboard';
 import TenantInviteCheck from './pages/TenantInviteCheck';
 import TenantMyBills from './pages/TenantMyBills';
 import TenantMyPayments from './pages/TenantMyPayments';
 import TenantMyUnit from './pages/TenantMyUnit';
-import RepBillingMonthlyEdit from './pages/RepBillingMonthlyEdit';
-import RepBillingSend from './pages/RepBillingSend';
-import RepUnitsInvite from './pages/RepUnitsInvite';
 import __Layout from './Layout.jsx';
 
 
@@ -33,6 +33,8 @@ export const PAGES = {
     "MyBuildings": MyBuildings,
     "Onboarding": Onboarding,
     "RepBankAccount": RepBankAccount,
+    "RepBillingMonthlyEdit": RepBillingMonthlyEdit,
+    "RepBillingSend": RepBillingSend,
     "RepBillingSettings": RepBillingSettings,
     "RepBillingUnitCharges": RepBillingUnitCharges,
     "RepBuildingSetup": RepBuildingSetup,
@@ -45,15 +47,13 @@ export const PAGES = {
     "RepReportsUnitPayments": RepReportsUnitPayments,
     "RepRoleChange": RepRoleChange,
     "RepUnits": RepUnits,
+    "RepUnitsInvite": RepUnitsInvite,
     "RepUnitsReview": RepUnitsReview,
     "TenantDashboard": TenantDashboard,
     "TenantInviteCheck": TenantInviteCheck,
     "TenantMyBills": TenantMyBills,
     "TenantMyPayments": TenantMyPayments,
     "TenantMyUnit": TenantMyUnit,
-    "RepBillingMonthlyEdit": RepBillingMonthlyEdit,
-    "RepBillingSend": RepBillingSend,
-    "RepUnitsInvite": RepUnitsInvite,
 }
 
 export const pagesConfig = {

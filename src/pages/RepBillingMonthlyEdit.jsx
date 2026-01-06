@@ -8,7 +8,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Checkbox } from "@/components/ui/checkbox";
-import { AlertCircle, Loader2, Save, Calendar, Trash2, Plus } from 'lucide-react';
+import { AlertCircle, Loader2, Save, Calendar, Trash2 } from 'lucide-react';
 import LoadingSpinner from '@/components/common/LoadingSpinner';
 import PageHeader from '@/components/common/PageHeader';
 import { useBuildingAuth } from '@/components/common/useBuildingAuth';
@@ -33,13 +33,6 @@ export default function RepBillingMonthlyEdit() {
   const [templates, setTemplates] = useState([]);
   const [units, setUnits] = useState([]);
   const [unitAmounts, setUnitAmounts] = useState({}); // itemId -> { unitId: amount }
-  const [showAddItemForm, setShowAddItemForm] = useState(false);
-  const [newItemForm, setNewItemForm] = useState({
-    name: '',
-    category: '일반',
-    amount_total: 0,
-    type: '공용'
-  });
 
   useEffect(() => {
     loadData();
@@ -237,38 +230,6 @@ export default function RepBillingMonthlyEdit() {
     }
   };
 
-  const handleAddOneTimeItem = async () => {
-    if (!newItemForm.name) {
-      alert("항목명을 입력해 주세요.");
-      return;
-    }
-
-    try {
-      const newItem = await base44.entities.BillItem.create({
-        bill_cycle_id: billCycle.id,
-        building_id: buildingId,
-        template_id: null, // 일회성 항목은 템플릿이 없음
-        name: newItemForm.name,
-        category: newItemForm.category,
-        amount_total: parseFloat(newItemForm.amount_total) || 0,
-        type: newItemForm.type,
-        target_unit_ids: []
-      });
-
-      setBillItems(prev => [...prev, newItem]);
-      setShowAddItemForm(false);
-      setNewItemForm({
-        name: '',
-        category: '일반',
-        amount_total: 0,
-        type: '공용'
-      });
-    } catch (err) {
-      console.error("Error adding one-time item:", err);
-      alert("항목 추가 중 오류가 발생했습니다.");
-    }
-  };
-
   const handleSave = async () => {
     setIsSaving(true);
     try {
@@ -366,78 +327,6 @@ export default function RepBillingMonthlyEdit() {
           </CardContent>
         </Card>
 
-        {/* 일회성 항목 추가 버튼 */}
-        <Card className="mb-6">
-          <CardContent className="p-4">
-            {!showAddItemForm ? (
-              <Button
-                variant="outline"
-                onClick={() => setShowAddItemForm(true)}
-                className="w-full"
-              >
-                <Plus className="w-4 h-4 mr-2" />
-                이번 달만 적용되는 항목 추가
-              </Button>
-            ) : (
-              <div className="space-y-3">
-                <div className="flex items-center justify-between mb-2">
-                  <Label className="text-sm font-semibold">일회성 항목 추가</Label>
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    onClick={() => {
-                      setShowAddItemForm(false);
-                      setNewItemForm({ name: '', category: '일반', amount_total: 0, type: '공용' });
-                    }}
-                  >
-                    취소
-                  </Button>
-                </div>
-                <div className="grid grid-cols-2 gap-3">
-                  <div>
-                    <Label className="text-xs">항목명 *</Label>
-                    <Input
-                      value={newItemForm.name}
-                      onChange={(e) => setNewItemForm({ ...newItemForm, name: e.target.value })}
-                      placeholder="예: 엘리베이터 수리비"
-                      className="mt-1"
-                    />
-                  </div>
-                  <div>
-                    <Label className="text-xs">카테고리</Label>
-                    <Select 
-                      value={newItemForm.category} 
-                      onValueChange={(val) => setNewItemForm({ ...newItemForm, category: val })}
-                    >
-                      <SelectTrigger className="mt-1">
-                        <SelectValue />
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="일반">일반</SelectItem>
-                        <SelectItem value="수선">수선</SelectItem>
-                      </SelectContent>
-                    </Select>
-                  </div>
-                </div>
-                <div>
-                  <Label className="text-xs">금액 (원)</Label>
-                  <Input
-                    type="number"
-                    value={newItemForm.amount_total}
-                    onChange={(e) => setNewItemForm({ ...newItemForm, amount_total: e.target.value })}
-                    placeholder="0"
-                    className="mt-1"
-                  />
-                </div>
-                <Button onClick={handleAddOneTimeItem} className="w-full">
-                  <Plus className="w-4 h-4 mr-2" />
-                  항목 추가
-                </Button>
-              </div>
-            )}
-          </CardContent>
-        </Card>
-
         <div className="space-y-6 mb-6">
           {/* 일반관리비 */}
           {generalItems.length > 0 && (
@@ -491,50 +380,40 @@ export default function RepBillingMonthlyEdit() {
                               </div>
                             </>
                           ) : (
-                           <div className="grid grid-cols-2 gap-3">
-                             <div>
-                               <div className="flex items-center gap-2 mb-1">
-                                 <Label className="text-xs">항목명</Label>
-                                 {!item.template_id && (
-                                   <span className="text-xs bg-orange-100 text-orange-700 px-2 py-0.5 rounded">일회성</span>
-                                 )}
-                               </div>
-                               <Input 
-                                 value={item.name} 
-                                 disabled={!!item.template_id} 
-                                 onChange={(e) => handleItemChange(item.id, 'name', e.target.value)}
-                                 className={`mt-1 ${item.template_id ? 'bg-slate-50' : ''}`} 
-                               />
-                             </div>
-                             <div>
-                               <Label className="text-xs">금액 (원)</Label>
-                               <Input
-                                 type="number"
-                                 value={item.amount_total}
-                                 onChange={(e) => handleItemChange(item.id, 'amount_total', e.target.value)}
-                                 className="mt-1"
-                               />
-                             </div>
-                           </div>
+                            <div className="grid grid-cols-2 gap-3">
+                              <div>
+                                <Label className="text-xs">항목명</Label>
+                                <Input value={item.name} disabled className="mt-1 bg-slate-50" />
+                              </div>
+                              <div>
+                                <Label className="text-xs">금액 (원)</Label>
+                                <Input
+                                  type="number"
+                                  value={item.amount_total}
+                                  onChange={(e) => handleItemChange(item.id, 'amount_total', e.target.value)}
+                                  className="mt-1"
+                                />
+                              </div>
+                            </div>
                           )}
-                          </div>
-                          <Button
+                        </div>
+                        <Button
                           variant="ghost"
                           size="icon"
                           onClick={() => handleDeleteItem(item.id)}
                           className="text-red-500 hover:text-red-600"
-                          >
+                        >
                           <Trash2 className="w-4 h-4" />
-                          </Button>
-                          </div>
-                          </CardContent>
-                          </Card>
-                          ))}
-                          </div>
-                          </div>
-                          )}
+                        </Button>
+                      </div>
+                    </CardContent>
+                  </Card>
+                ))}
+              </div>
+            </div>
+          )}
 
-                          {/* 수선유지비 */}
+          {/* 수선유지비 */}
           {repairItems.length > 0 && (
             <div>
               <h3 className="text-sm font-semibold text-slate-700 mb-3 flex items-center gap-2">
@@ -586,50 +465,40 @@ export default function RepBillingMonthlyEdit() {
                               </div>
                             </>
                           ) : (
-                           <div className="grid grid-cols-2 gap-3">
-                             <div>
-                               <div className="flex items-center gap-2 mb-1">
-                                 <Label className="text-xs">항목명</Label>
-                                 {!item.template_id && (
-                                   <span className="text-xs bg-orange-100 text-orange-700 px-2 py-0.5 rounded">일회성</span>
-                                 )}
-                               </div>
-                               <Input 
-                                 value={item.name} 
-                                 disabled={!!item.template_id} 
-                                 onChange={(e) => handleItemChange(item.id, 'name', e.target.value)}
-                                 className={`mt-1 ${item.template_id ? 'bg-slate-50' : ''}`} 
-                               />
-                             </div>
-                             <div>
-                               <Label className="text-xs">금액 (원)</Label>
-                               <Input
-                                 type="number"
-                                 value={item.amount_total}
-                                 onChange={(e) => handleItemChange(item.id, 'amount_total', e.target.value)}
-                                 className="mt-1"
-                               />
-                             </div>
-                           </div>
+                            <div className="grid grid-cols-2 gap-3">
+                              <div>
+                                <Label className="text-xs">항목명</Label>
+                                <Input value={item.name} disabled className="mt-1 bg-slate-50" />
+                              </div>
+                              <div>
+                                <Label className="text-xs">금액 (원)</Label>
+                                <Input
+                                  type="number"
+                                  value={item.amount_total}
+                                  onChange={(e) => handleItemChange(item.id, 'amount_total', e.target.value)}
+                                  className="mt-1"
+                                />
+                              </div>
+                            </div>
                           )}
-                          </div>
-                          <Button
+                        </div>
+                        <Button
                           variant="ghost"
                           size="icon"
                           onClick={() => handleDeleteItem(item.id)}
                           className="text-red-500 hover:text-red-600"
-                          >
+                        >
                           <Trash2 className="w-4 h-4" />
-                          </Button>
-                          </div>
-                          </CardContent>
-                          </Card>
-                          ))}
-                          </div>
-                          </div>
-                          )}
+                        </Button>
+                      </div>
+                    </CardContent>
+                  </Card>
+                ))}
+              </div>
+            </div>
+          )}
 
-                          {/* 기타(세대별) */}
+          {/* 기타(세대별) */}
           {otherItems.length > 0 && (
             <div>
               <h3 className="text-sm font-semibold text-slate-700 mb-3 flex items-center gap-2">
