@@ -238,6 +238,54 @@ export default function RepBillingMonthlyEdit() {
     }
   };
 
+  const addMonthlyExtraItem = () => {
+    const newItem = {
+      id: `temp_${Date.now()}`,
+      category: "일반",
+      name: "",
+      amount_total: 0,
+      type: "공용",
+      target_unit_ids: [],
+      isNew: true
+    };
+    setMonthlyExtraItems(prev => [...prev, newItem]);
+  };
+
+  const handleExtraItemChange = (itemId, field, value) => {
+    setMonthlyExtraItems(prev => prev.map(item => 
+      item.id === itemId ? { ...item, [field]: value } : item
+    ));
+  };
+
+  const toggleExtraItemUnitSelection = (itemId, unitId) => {
+    setMonthlyExtraItems(prev => prev.map(item => {
+      if (item.id !== itemId) return item;
+      const targetIds = item.target_unit_ids || [];
+      const hasUnit = targetIds.includes(unitId);
+      return {
+        ...item,
+        target_unit_ids: hasUnit 
+          ? targetIds.filter(id => id !== unitId)
+          : [...targetIds, unitId]
+      };
+    }));
+  };
+
+  const deleteMonthlyExtraItem = async (itemId) => {
+    if (!confirm("정말 삭제하시겠습니까?")) return;
+    
+    if (itemId.toString().startsWith('temp_')) {
+      setMonthlyExtraItems(prev => prev.filter(item => item.id !== itemId));
+    } else {
+      try {
+        await base44.entities.BillItem.delete(itemId);
+        setMonthlyExtraItems(prev => prev.filter(item => item.id !== itemId));
+      } catch (err) {
+        console.error("Error deleting extra item:", err);
+      }
+    }
+  };
+
   const handleSave = async () => {
     setIsSaving(true);
     try {
