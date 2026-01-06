@@ -264,11 +264,11 @@ export default function RepRoleChange() {
                   <p className="font-medium text-slate-900">대기 중인 요청</p>
                   <p className="text-sm text-slate-600 mt-1">
                     {(() => {
-                      const toMember = members.find(m => m.user_email === pendingRequest.to_user_email);
+                      const toMember = members.find(m => m.user_id === pendingRequest.to_user_id);
                       const toUnit = toMember && units.find(u => u.id === toMember.unit_id);
                       return toUnit 
                         ? `${toUnit.unit_name} (${toUnit.tenant_name})님에게 대표자 변경 요청을 보냈습니다.`
-                        : `${pendingRequest.to_user_email}님에게 대표자 변경 요청을 보냈습니다.`;
+                        : `예비 대표자에게 대표자 변경 요청을 보냈습니다.`;
                     })()}
                   </p>
                   <Button
