@@ -293,13 +293,13 @@ export default function RepRoleChange() {
             </CardHeader>
             <CardContent className="space-y-3">
               {requests.map(request => {
-                const toMember = members.find(m => m.user_email === request.to_user_email);
+                const toMember = members.find(m => m.user_id === request.to_user_id);
                 const toUnit = toMember && units.find(u => u.id === toMember.unit_id);
                 return (
                   <div key={request.id} className="flex items-center justify-between p-3 bg-slate-50 rounded-lg">
                     <div>
                       <p className="text-sm font-medium text-slate-900">
-                        → {toUnit ? `${toUnit.unit_name} (${toUnit.tenant_name})` : request.to_user_email}
+                        → {toUnit ? `${toUnit.unit_name} (${toUnit.tenant_name})` : '예비 대표자'}
                       </p>
                       <p className="text-xs text-slate-500">
                         {new Date(request.requested_at).toLocaleDateString()}
