@@ -138,28 +138,28 @@ export default function RepRoleChange() {
 
   const getStatusBadge = (status) => {
     switch (status) {
-      case "대기중":
+      case "요청":
         return (
           <span className="flex items-center gap-1 text-yellow-600 bg-yellow-100 px-2 py-1 rounded text-xs">
-            <Clock className="w-3 h-3" /> 대기중
+            <Clock className="w-3 h-3" /> 요청
           </span>
         );
-      case "승인됨":
+      case "예비대표 수락":
         return (
           <span className="flex items-center gap-1 text-green-600 bg-green-100 px-2 py-1 rounded text-xs">
-            <Check className="w-3 h-3" /> 승인됨
+            <Check className="w-3 h-3" /> 수락
           </span>
         );
-      case "거절됨":
+      case "거절":
         return (
           <span className="flex items-center gap-1 text-red-600 bg-red-100 px-2 py-1 rounded text-xs">
-            <X className="w-3 h-3" /> 거절됨
+            <X className="w-3 h-3" /> 거절
           </span>
         );
-      case "취소됨":
+      case "취소":
         return (
           <span className="flex items-center gap-1 text-slate-600 bg-slate-100 px-2 py-1 rounded text-xs">
-            <X className="w-3 h-3" /> 취소됨
+            <X className="w-3 h-3" /> 취소
           </span>
         );
       default:
@@ -167,7 +167,7 @@ export default function RepRoleChange() {
     }
   };
 
-  const pendingRequest = requests.find(r => r.status === "대기중");
+  const pendingRequest = requests.find(r => r.status === "요청");
 
   return (
     <RepLayout buildingId={buildingId} building={building} currentPage="RepRoleChange">
