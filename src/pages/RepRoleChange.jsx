@@ -66,34 +66,32 @@ export default function RepRoleChange() {
     setIsSending(true);
     
     try {
+      // Check for existing pending request
+      const existingPending = requests.find(r => r.status === "요청");
+      if (existingPending) {
+        alert("이미 진행 중인 대표자 변경 요청이 있습니다.");
+        setIsSending(false);
+        return;
+      }
+
       const selectedMember = members.find(m => m.id === selectedMemberId);
       if (!selectedMember) return;
 
-      // Create role change request
+      // Create role change request - DO NOT modify building_members
       await base44.entities.RoleChangeRequest.create({
         building_id: buildingId,
-        from_user_email: user.email,
-        to_user_email: selectedMember.user_email,
-        status: "대기중",
+        from_user_id: user.id,
+        to_user_id: selectedMember.user_id,
+        status: "요청",
         requested_at: new Date().toISOString()
       });
 
-      // Create notification log
-      await base44.entities.NotificationLog.create({
-        building_id: buildingId,
-        type: "대표자변경",
-        to_phone: selectedMember.user_phone || "",
-        to_name: selectedMember.user_email,
-        message_content: `[${building?.name}] 대표자 변경 요청\n\n안녕하세요,\n현재 대표자(${user.email})님이 귀하를 새 대표자로 지정하였습니다.\n\n셀프빌 앱에서 확인해주세요.`,
-        status: "성공",
-        reference_type: "RoleChangeRequest",
-        sent_at: new Date().toISOString()
-      });
-
+      alert("대표자 변경 요청을 보냈습니다. 상대방이 수락해야 변경됩니다.");
       await loadData();
       setSelectedMemberId("");
     } catch (err) {
       console.error("Error sending request:", err);
+      alert("요청 전송 중 오류가 발생했습니다.");
     }
     
     setIsSending(false);
