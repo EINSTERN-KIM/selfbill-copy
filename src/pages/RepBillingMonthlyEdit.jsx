@@ -8,8 +8,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Checkbox } from "@/components/ui/checkbox";
-import { AlertCircle, Loader2, Save, Calendar, Trash2, Plus } from 'lucide-react';
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
+import { AlertCircle, Loader2, Save, Calendar, Trash2 } from 'lucide-react';
 import LoadingSpinner from '@/components/common/LoadingSpinner';
 import PageHeader from '@/components/common/PageHeader';
 import { useBuildingAuth } from '@/components/common/useBuildingAuth';
@@ -33,16 +32,7 @@ export default function RepBillingMonthlyEdit() {
   const [billItems, setBillItems] = useState([]);
   const [templates, setTemplates] = useState([]);
   const [units, setUnits] = useState([]);
-  const [unitAmounts, setUnitAmounts] = useState({});
-  const [showAddItemDialog, setShowAddItemDialog] = useState(false);
-  const [newItemForm, setNewItemForm] = useState({
-    name: "",
-    category: "일반",
-    amount_total: "",
-    type: "공용",
-    target_unit_ids: [],
-    unit_amounts: {}
-  }); // itemId -> { unitId: amount }
+  const [unitAmounts, setUnitAmounts] = useState({}); // itemId -> { unitId: amount }
 
   useEffect(() => {
     loadData();
