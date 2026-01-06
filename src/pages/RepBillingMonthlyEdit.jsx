@@ -8,7 +8,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Checkbox } from "@/components/ui/checkbox";
-import { AlertCircle, Loader2, Save, Calendar, Trash2 } from 'lucide-react';
+import { AlertCircle, Loader2, Save, Calendar, Trash2, Plus } from 'lucide-react';
 import LoadingSpinner from '@/components/common/LoadingSpinner';
 import PageHeader from '@/components/common/PageHeader';
 import { useBuildingAuth } from '@/components/common/useBuildingAuth';
