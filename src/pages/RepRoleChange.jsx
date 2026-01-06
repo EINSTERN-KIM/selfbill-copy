@@ -98,10 +98,12 @@ export default function RepRoleChange() {
   };
 
   const handleCancelRequest = async (requestId) => {
+    if (!confirm("요청을 취소하시겠습니까?")) return;
+    
     try {
       await base44.entities.RoleChangeRequest.update(requestId, {
-        status: "취소됨",
-        processed_at: new Date().toISOString()
+        status: "취소",
+        responded_at: new Date().toISOString()
       });
       await loadData();
     } catch (err) {
