@@ -32,7 +32,16 @@ export default function RepBillingMonthlyEdit() {
   const [billItems, setBillItems] = useState([]);
   const [templates, setTemplates] = useState([]);
   const [units, setUnits] = useState([]);
-  const [unitAmounts, setUnitAmounts] = useState({}); // itemId -> { unitId: amount }
+  const [unitAmounts, setUnitAmounts] = useState({});
+  const [showAddItemDialog, setShowAddItemDialog] = useState(false);
+  const [newItemForm, setNewItemForm] = useState({
+    name: "",
+    category: "일반",
+    amount_total: "",
+    type: "공용",
+    target_unit_ids: [],
+    unit_amounts: {}
+  }); // itemId -> { unitId: amount }
 
   useEffect(() => {
     loadData();
