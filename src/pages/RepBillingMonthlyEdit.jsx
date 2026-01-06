@@ -78,6 +78,13 @@ export default function RepBillingMonthlyEdit() {
         bill_cycle_id: cycle.id
       });
 
+      // 월별 추가 항목과 템플릿 기반 항목 분리
+      const extraItems = items.filter(item => !item.template_id);
+      const templateItems = items.filter(item => item.template_id);
+      
+      setMonthlyExtraItems(extraItems);
+      items = templateItems;
+
       // 템플릿의 기본금액 변경사항을 확인하여 "기본금액"으로 설정된 항목 업데이트
       for (const item of items) {
         if (item.template_id) {
