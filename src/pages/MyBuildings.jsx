@@ -107,6 +107,15 @@ export default function MyBuildings() {
 
   return (
     <div className="min-h-screen bg-slate-50">
+      {/* Role Change Request Modal */}
+      {showRequestModal && pendingRequest && (
+        <RoleChangeRequestModal
+          buildingId={pendingRequest.building_id}
+          userId={user?.id}
+          onClose={() => setShowRequestModal(false)}
+        />
+      )}
+      
       <div className="max-w-2xl mx-auto px-4 py-8">
         {/* Logout Button */}
         <div className="flex justify-end mb-4">
