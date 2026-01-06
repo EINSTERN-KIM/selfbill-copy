@@ -368,7 +368,9 @@ export default function RepBillingMonthlyEdit() {
     );
   }
 
-  const totalAmount = billItems.reduce((sum, item) => sum + (parseFloat(item.amount_total) || 0), 0);
+  const baseItemsTotal = billItems.reduce((sum, item) => sum + (parseFloat(item.amount_total) || 0), 0);
+  const extraItemsTotal = monthlyExtraItems.reduce((sum, item) => sum + (parseFloat(item.amount_total) || 0), 0);
+  const totalAmount = baseItemsTotal + extraItemsTotal;
 
   const yearMonthOptions = [];
   const now = new Date();
