@@ -289,6 +289,7 @@ export default function RepBillingMonthlyEdit() {
   const handleSave = async () => {
     setIsSaving(true);
     try {
+      // 기존 템플릿 기반 항목 저장
       for (const item of billItems) {
         const updateData = {
           name: item.name,
@@ -306,7 +307,31 @@ export default function RepBillingMonthlyEdit() {
         await base44.entities.BillItem.update(item.id, updateData);
       }
 
-      const total = billItems.reduce((sum, item) => sum + (parseFloat(item.amount_total) || 0), 0);
+      // 월별 추가 항목 저장
+      for (const item of monthlyExtraItems) {
+        if (!item.name || !item.category) continue;
+        
+        const itemData = {
+          bill_cycle_id: billCycle.id,
+          building_id: buildingId,
+          name: item.name,
+          category: item.category,
+          amount_total: parseFloat(item.amount_total) || 0,
+          type: item.category === "기타" ? "세대별" : "공용",
+          target_unit_ids: item.category === "기타" ? (item.target_unit_ids || []) : []
+        };
+
+        if (item.isNew) {
+          await base44.entities.BillItem.create(itemData);
+        } else {
+          await base44.entities.BillItem.update(item.id, itemData);
+        }
+      }
+
+      const allItemsTotal = billItems.reduce((sum, item) => sum + (parseFloat(item.amount_total) || 0), 0);
+      const extraItemsTotal = monthlyExtraItems.reduce((sum, item) => sum + (parseFloat(item.amount_total) || 0), 0);
+      const total = allItemsTotal + extraItemsTotal;
+      
       await base44.entities.BillCycle.update(billCycle.id, {
         total_amount: total
       });
