@@ -18,6 +18,7 @@ export default function MyBuildings() {
   const [buildingsData, setBuildingsData] = useState([]);
   const [pendingRequest, setPendingRequest] = useState(null);
   const [showRequestModal, setShowRequestModal] = useState(false);
+  const [requestsByBuilding, setRequestsByBuilding] = useState({});
 
   useEffect(() => {
     async function loadData() {
@@ -25,11 +26,11 @@ export default function MyBuildings() {
         const currentUser = await base44.auth.me();
         setUser(currentUser);
 
-        // Get user's memberships
-        const memberships = await base44.entities.BuildingMember.filter({
-          user_email: currentUser.email,
-          status: "활성"
-        });
+        // Get user's memberships - 활성 + 초대중 모두 포함
+        const allMemberships = await base44.entities.BuildingMember.list();
+        const memberships = allMemberships.filter(
+          m => m.user_email === currentUser.email && (m.status === "활성" || m.status === "초대중")
+        );
 
         if (memberships.length === 0) {
           navigate(createPageUrl("Onboarding"));
@@ -54,13 +55,21 @@ export default function MyBuildings() {
         
         // Check for pending role change requests
         if (currentUser && buildingIds.length > 0) {
-          const requests = await base44.entities.RoleChangeRequest.filter({
+          const allRequests = await base44.entities.RoleChangeRequest.filter({
             to_user_id: currentUser.id,
             status: "요청"
           });
           
-          if (requests.length > 0) {
-            const request = requests[0];
+          // 건물별로 요청 매핑
+          const requestsMap = {};
+          allRequests.forEach(req => {
+            requestsMap[req.building_id] = req;
+          });
+          setRequestsByBuilding(requestsMap);
+          
+          // 첫 번째 요청을 모달로 표시
+          if (allRequests.length > 0) {
+            const request = allRequests[0];
             setPendingRequest(request);
             setShowRequestModal(true);
           }
@@ -186,6 +195,11 @@ export default function MyBuildings() {
                           <Badge className="bg-yellow-100 text-yellow-700 text-xs">
                             <AlertCircle className="w-3 h-3 mr-1" />
                             초기 설정 미완료
+                          </Badge>
+                        )}
+                        {requestsByBuilding[item.building_id] && (
+                          <Badge className="bg-blue-100 text-blue-700 text-xs">
+                            대표자 변경 요청 있음
                           </Badge>
                         )}
                       </div>
