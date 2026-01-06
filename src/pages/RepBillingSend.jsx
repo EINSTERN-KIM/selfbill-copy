@@ -101,6 +101,14 @@ export default function RepBillingSend() {
   };
 
   const handleSend = async () => {
+    // Check if the representative's phone is verified
+    const currentUser = await base44.auth.me();
+    if (!currentUser.phone_verified) {
+      alert("문자 발송을 위해서는 먼저 휴대폰 인증이 필요합니다.");
+      navigate(createPageUrl('PhoneVerification'));
+      return;
+    }
+
     // 부과기간 종료일 체크
     const [year, month] = selectedYearMonth.split('-').map(Number);
     const billingPeriodStart = building?.billing_period_start || 1;

@@ -54,6 +54,14 @@ export default function RepUnitsInvite() {
       return;
     }
 
+    // Check if the representative's phone is verified
+    const currentUser = await base44.auth.me();
+    if (!currentUser.phone_verified) {
+      alert("문자 발송을 위해서는 먼저 휴대폰 인증이 필요합니다.");
+      navigate(createPageUrl('PhoneVerification'));
+      return;
+    }
+
     setIsSending(true);
     try {
       const existingInvitation = invitations.find(inv => inv.unit_id === unit.id);
