@@ -667,6 +667,128 @@ export default function RepBillingMonthlyEdit() {
           )}
         </div>
 
+        {/* 이번 달에만 추가하는 항목 섹션 */}
+        <div className="mb-6">
+          <div className="flex items-center justify-between mb-4">
+            <h3 className="text-sm font-semibold text-slate-700 flex items-center gap-2">
+              <span className="w-1 h-4 bg-orange-500 rounded"></span>
+              이번 달에만 추가하는 관리비 항목
+            </h3>
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={addMonthlyExtraItem}
+              className="gap-2"
+            >
+              <Plus className="w-4 h-4" />
+              항목 추가
+            </Button>
+          </div>
+
+          {monthlyExtraItems.length === 0 ? (
+            <Card>
+              <CardContent className="p-8 text-center">
+                <p className="text-sm text-slate-500">이번 달에만 필요한 일회성 항목이 있으면 추가하세요</p>
+              </CardContent>
+            </Card>
+          ) : (
+            <div className="space-y-3">
+              {monthlyExtraItems.map((item) => (
+                <Card key={item.id}>
+                  <CardContent className="p-4">
+                    <div className="flex items-start gap-4">
+                      <div className="flex-1 space-y-3">
+                        <div className="grid grid-cols-3 gap-3">
+                          <div>
+                            <Label className="text-xs">카테고리</Label>
+                            <Select
+                              value={item.category}
+                              onValueChange={(val) => {
+                                handleExtraItemChange(item.id, 'category', val);
+                                // 카테고리 변경 시 타입도 자동 설정
+                                if (val === "기타") {
+                                  handleExtraItemChange(item.id, 'type', '세대별');
+                                } else {
+                                  handleExtraItemChange(item.id, 'type', '공용');
+                                  handleExtraItemChange(item.id, 'target_unit_ids', []);
+                                }
+                              }}
+                            >
+                              <SelectTrigger className="mt-1">
+                                <SelectValue />
+                              </SelectTrigger>
+                              <SelectContent>
+                                <SelectItem value="일반">일반</SelectItem>
+                                <SelectItem value="수선">수선</SelectItem>
+                                <SelectItem value="기타">기타(세대별)</SelectItem>
+                              </SelectContent>
+                            </Select>
+                          </div>
+                          <div>
+                            <Label className="text-xs">항목명</Label>
+                            <Input
+                              value={item.name}
+                              onChange={(e) => handleExtraItemChange(item.id, 'name', e.target.value)}
+                              placeholder="예: 엘리베이터 수리"
+                              className="mt-1"
+                            />
+                          </div>
+                          <div>
+                            <Label className="text-xs">금액 (원)</Label>
+                            <Input
+                              type="number"
+                              value={item.amount_total}
+                              onChange={(e) => handleExtraItemChange(item.id, 'amount_total', e.target.value)}
+                              placeholder="0"
+                              className="mt-1"
+                            />
+                          </div>
+                        </div>
+
+                        {item.category === "기타" && (
+                          <div className="p-3 bg-slate-50 rounded-lg">
+                            <Label className="text-xs mb-2 block">부과 대상 세대 선택</Label>
+                            <div className="grid grid-cols-2 gap-2 max-h-48 overflow-y-auto">
+                              {units.map(unit => {
+                                const isSelected = item.target_unit_ids?.includes(unit.id);
+                                return (
+                                  <label
+                                    key={unit.id}
+                                    className={`flex items-center gap-2 p-2 rounded cursor-pointer hover:bg-slate-100 ${isSelected ? 'bg-primary-light' : ''}`}
+                                  >
+                                    <Checkbox
+                                      checked={isSelected}
+                                      onCheckedChange={() => toggleExtraItemUnitSelection(item.id, unit.id)}
+                                    />
+                                    <span className="text-sm">{unit.unit_name}</span>
+                                  </label>
+                                );
+                              })}
+                            </div>
+                            {item.target_unit_ids && item.target_unit_ids.length > 0 && (
+                              <div className="mt-2 text-xs text-slate-600">
+                                선택된 세대: {item.target_unit_ids.length}개
+                              </div>
+                            )}
+                          </div>
+                        )}
+                      </div>
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        onClick={() => deleteMonthlyExtraItem(item.id)}
+                        className="text-red-500 hover:text-red-600"
+                      >
+                        <Trash2 className="w-4 h-4" />
+                      </Button>
+                    </div>
+                  </CardContent>
+                </Card>
+              ))}
+            </div>
+          )}
+        </div>
+
         <Card className="sticky bottom-4">
           <CardContent className="p-4">
             <div className="flex items-center justify-between mb-4">
