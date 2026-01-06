@@ -491,40 +491,50 @@ export default function RepBillingMonthlyEdit() {
                               </div>
                             </>
                           ) : (
-                            <div className="grid grid-cols-2 gap-3">
-                              <div>
-                                <Label className="text-xs">항목명</Label>
-                                <Input value={item.name} disabled className="mt-1 bg-slate-50" />
-                              </div>
-                              <div>
-                                <Label className="text-xs">금액 (원)</Label>
-                                <Input
-                                  type="number"
-                                  value={item.amount_total}
-                                  onChange={(e) => handleItemChange(item.id, 'amount_total', e.target.value)}
-                                  className="mt-1"
-                                />
-                              </div>
-                            </div>
+                           <div className="grid grid-cols-2 gap-3">
+                             <div>
+                               <div className="flex items-center gap-2 mb-1">
+                                 <Label className="text-xs">항목명</Label>
+                                 {!item.template_id && (
+                                   <span className="text-xs bg-orange-100 text-orange-700 px-2 py-0.5 rounded">일회성</span>
+                                 )}
+                               </div>
+                               <Input 
+                                 value={item.name} 
+                                 disabled={!!item.template_id} 
+                                 onChange={(e) => handleItemChange(item.id, 'name', e.target.value)}
+                                 className={`mt-1 ${item.template_id ? 'bg-slate-50' : ''}`} 
+                               />
+                             </div>
+                             <div>
+                               <Label className="text-xs">금액 (원)</Label>
+                               <Input
+                                 type="number"
+                                 value={item.amount_total}
+                                 onChange={(e) => handleItemChange(item.id, 'amount_total', e.target.value)}
+                                 className="mt-1"
+                               />
+                             </div>
+                           </div>
                           )}
-                        </div>
-                        <Button
+                          </div>
+                          <Button
                           variant="ghost"
                           size="icon"
                           onClick={() => handleDeleteItem(item.id)}
                           className="text-red-500 hover:text-red-600"
-                        >
+                          >
                           <Trash2 className="w-4 h-4" />
-                        </Button>
-                      </div>
-                    </CardContent>
-                  </Card>
-                ))}
-              </div>
-            </div>
-          )}
+                          </Button>
+                          </div>
+                          </CardContent>
+                          </Card>
+                          ))}
+                          </div>
+                          </div>
+                          )}
 
-          {/* 수선유지비 */}
+                          {/* 수선유지비 */}
           {repairItems.length > 0 && (
             <div>
               <h3 className="text-sm font-semibold text-slate-700 mb-3 flex items-center gap-2">
