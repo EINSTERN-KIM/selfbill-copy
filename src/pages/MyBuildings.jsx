@@ -113,17 +113,24 @@ export default function MyBuildings() {
   }, [navigate]);
 
   const handleBuildingClick = (item) => {
-    const { building, role } = item;
+    const { building, hasRepRole, hasTenantRole, hasBothRoles, primaryRole } = item;
     
-    // Check if building setup is incomplete
-    if (role === "대표자" && (building.status === "draft" || building.setup_step < 5)) {
-      navigate(createPageUrl(`BuildingSetupWizard?buildingId=${building.id}`));
+    // 두 역할을 모두 가진 경우 역할 선택 모달 표시
+    if (hasBothRoles) {
+      setSelectedBuilding(building);
+      setShowRoleModal(true);
       return;
     }
     
-    if (role === "대표자") {
+    // 하나의 역할만 가진 경우
+    if (hasRepRole) {
+      // Check if building setup is incomplete
+      if (building.status === "draft" || building.setup_step < 5) {
+        navigate(createPageUrl(`BuildingSetupWizard?buildingId=${building.id}`));
+        return;
+      }
       navigate(createPageUrl(`RepDashboard?buildingId=${building.id}`));
-    } else {
+    } else if (hasTenantRole) {
       navigate(createPageUrl(`TenantDashboard?buildingId=${building.id}`));
     }
   };
