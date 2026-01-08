@@ -66,21 +66,55 @@ export default function RoleChangeRequestModal({ buildingId, userId, onClose }) 
         status: "활성"
       });
 
-      // 3. Swap roles
-      const newRepMember = members.find(m => m.user_id === userId);
-      const oldRepMember = members.find(m => m.user_id === request.from_user_id);
-
-      if (newRepMember) {
-        await base44.entities.BuildingMember.update(newRepMember.id, {
-          role: "대표자",
-          is_primary_representative: true
-        });
+      // 3. 기존 대표자의 대표자 권한 제거
+      const oldRepMembers = members.filter(m => 
+        m.user_id === request.from_user_id && m.role === "대표자"
+      );
+      
+      for (const oldRepMember of oldRepMembers) {
+        // 대표자 역할을 가진 멤버십 삭제
+        await base44.entities.BuildingMember.delete(oldRepMember.id);
       }
 
-      if (oldRepMember) {
-        await base44.entities.BuildingMember.update(oldRepMember.id, {
-          role: "입주자",
-          is_primary_representative: false
+      // 기존 대표자가 입주자 역할을 가지고 있는지 확인
+      const oldRepTenantMember = members.find(m => 
+        m.user_id === request.from_user_id && m.role === "입주자"
+      );
+      
+      // 입주자 역할이 없다면 새로 생성 (선택사항 - PRD에 따라)
+      if (!oldRepTenantMember) {
+        const oldRepUnit = members.find(m => m.user_id === request.from_user_id)?.unit_id;
+        if (oldRepUnit) {
+          await base44.entities.BuildingMember.create({
+            building_id: buildingId,
+            user_id: request.from_user_id,
+            user_email: members.find(m => m.user_id === request.from_user_id)?.user_email,
+            role: "입주자",
+            unit_id: oldRepUnit,
+            status: "활성"
+          });
+        }
+      }
+
+      // 4. 새로운 대표자에게 대표자 권한 부여
+      const newRepMemberExists = members.find(m => 
+        m.user_id === userId && m.role === "대표자"
+      );
+
+      if (!newRepMemberExists) {
+        const newRepTenantMember = members.find(m => m.user_id === userId);
+        await base44.entities.BuildingMember.create({
+          building_id: buildingId,
+          user_id: userId,
+          user_email: newRepTenantMember?.user_email,
+          role: "대표자",
+          is_primary_representative: true,
+          status: "활성"
+        });
+      } else {
+        // 이미 대표자 멤버십이 있으면 업데이트
+        await base44.entities.BuildingMember.update(newRepMemberExists.id, {
+          is_primary_representative: true
         });
       }
 
