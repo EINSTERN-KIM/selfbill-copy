@@ -86,7 +86,8 @@ export default function RepRoleChange() {
         requested_at: new Date().toISOString()
       });
 
-      alert("대표자 변경 요청을 보냈습니다. 상대방이 수락해야 변경됩니다.");
+      // 요청 전송 완료 팝업
+      alert("대표자 변경 요청이 전송되었습니다.\n\n입주자가 대표자 권한 양도를 수락하면 대표자 변경이 완료됩니다.");
       await loadData();
       setSelectedMemberId("");
     } catch (err) {
