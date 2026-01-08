@@ -76,7 +76,7 @@ export default function RepUnitsInvite() {
 
       // Send SMS via Twilio
       const inviteUrl = `${window.location.origin}${createPageUrl(`AcceptInvite?inviteId=${invitation.id}`)}`;
-      const notificationBody = `[셀프빌 입주자 초대]\n\n${building.name}\n${unit.unit_name}\n\n${unit.tenant_name}님을 입주자로 초대합니다.\n\n아래 링크를 클릭하여 초대를 수락해 주세요.\n\n${inviteUrl}`;
+      const notificationBody = `[셀프빌 입주자 초대]\n\n${building.name}\n${unit.ho ? `${unit.ho}호` : unit.unit_name}\n\n${unit.tenant_name}님을 입주자로 초대합니다.\n\n아래 링크를 클릭하여 초대를 수락해 주세요.\n\n${inviteUrl}`;
 
       await base44.functions.invoke('sendTwilioSMS', {
         to_phone: unit.tenant_phone,
@@ -87,22 +87,74 @@ export default function RepUnitsInvite() {
       });
 
       await loadData();
+      alert(`✅ ${unit.ho ? `${unit.ho}호` : unit.unit_name} (${unit.tenant_name}님)에게 초대 문자를 전송했습니다.`);
     } catch (err) {
       console.error("Error sending invitation:", err);
+      alert(`❌ ${unit.ho ? `${unit.ho}호` : unit.unit_name} 초대 문자 전송에 실패했습니다.\n잠시 후 다시 시도해주세요.`);
     }
     setIsSending(false);
   };
 
   const handleSendAll = async () => {
-    if (!confirm("모든 세대에 초대 MMS를 발송하시겠습니까?")) return;
+    const eligibleUnits = units.filter(u => u.tenant_name && u.tenant_phone && getInvitationStatus(u.id) !== "가입 완료");
+    
+    if (eligibleUnits.length === 0) {
+      alert("발송 가능한 세대가 없습니다.");
+      return;
+    }
+    
+    if (!confirm(`${eligibleUnits.length}세대에 초대 MMS를 발송하시겠습니까?`)) return;
 
     setIsSending(true);
-    for (const unit of units) {
-      if (unit.tenant_name && unit.tenant_phone && getInvitationStatus(unit.id) !== "가입 완료") {
-        await handleSendInvitation(unit);
+    let successCount = 0;
+    let failCount = 0;
+    
+    for (const unit of eligibleUnits) {
+      try {
+        const existingInvitation = invitations.find(inv => inv.unit_id === unit.id);
+        
+        const invitationData = {
+          building_id: buildingId,
+          unit_id: unit.id,
+          tenant_name: unit.tenant_name,
+          tenant_phone: unit.tenant_phone,
+          status: "초대 발송",
+          invited_at: new Date().toISOString()
+        };
+
+        let invitation;
+        if (existingInvitation) {
+          invitation = await base44.entities.Invitation.update(existingInvitation.id, invitationData);
+        } else {
+          invitation = await base44.entities.Invitation.create(invitationData);
+        }
+
+        const inviteUrl = `${window.location.origin}${createPageUrl(`AcceptInvite?inviteId=${invitation.id}`)}`;
+        const notificationBody = `[셀프빌 입주자 초대]\n\n${building.name}\n${unit.ho ? `${unit.ho}호` : unit.unit_name}\n\n${unit.tenant_name}님을 입주자로 초대합니다.\n\n아래 링크를 클릭하여 초대를 수락해 주세요.\n\n${inviteUrl}`;
+
+        await base44.functions.invoke('sendTwilioSMS', {
+          to_phone: unit.tenant_phone,
+          body: notificationBody,
+          building_id: buildingId,
+          event_type: "INVITATION",
+          event_ref_id: invitation.id
+        });
+        
+        successCount++;
+      } catch (err) {
+        console.error("Error sending invitation:", err);
+        failCount++;
       }
     }
+    
+    await loadData();
     setIsSending(false);
+    
+    if (failCount === 0) {
+      alert(`✅ 모든 초대 문자 전송 완료\n\n성공: ${successCount}세대`);
+    } else {
+      alert(`초대 문자 전송 완료\n\n✅ 성공: ${successCount}세대\n❌ 실패: ${failCount}세대\n\n실패한 세대는 개별 발송 버튼으로 다시 시도해주세요.`);
+    }
   };
 
   if (isLoading || isLoadingData) {
@@ -184,7 +236,7 @@ export default function RepUnitsInvite() {
                     <div className="flex items-center justify-between">
                       <div className="flex-1">
                         <div className="flex items-center gap-3 mb-2">
-                          <p className="font-bold text-slate-900">{unit.unit_name}</p>
+                          <p className="font-bold text-slate-900">{unit.ho ? `${unit.ho}호` : unit.unit_name}</p>
                           {getStatusBadge(status)}
                         </div>
                         {unit.tenant_name && (
