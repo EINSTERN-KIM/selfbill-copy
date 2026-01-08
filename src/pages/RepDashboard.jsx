@@ -18,7 +18,7 @@ export default function RepDashboard() {
   const buildingId = urlParams.get('buildingId');
   const navigate = useNavigate();
   
-  const { isLoading, user, building, membership, error } = useBuildingAuth(buildingId, "대표자");
+  const { isLoading, user, building, hasRepRole, error } = useBuildingAuth(buildingId, "대표자");
   const [stats, setStats] = useState({
     totalUnits: 0,
     invitedUnits: 0,
