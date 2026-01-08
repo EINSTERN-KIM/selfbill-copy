@@ -236,8 +236,15 @@ export default function MyBuildings() {
                         <h3 className="font-semibold text-slate-900 truncate">
                           {item.building?.name || "이름 없음"}
                         </h3>
-                        <RoleBadge role={item.role} />
-                        {item.role === "대표자" && (item.building?.status === "draft" || item.building?.setup_step < 5) && (
+                        {item.hasBothRoles ? (
+                          <>
+                            <RoleBadge role="대표자" />
+                            <RoleBadge role="입주자" />
+                          </>
+                        ) : (
+                          <RoleBadge role={item.primaryRole} />
+                        )}
+                        {item.hasRepRole && (item.building?.status === "draft" || item.building?.setup_step < 5) && (
                           <Badge className="bg-yellow-100 text-yellow-700 text-xs">
                             <AlertCircle className="w-3 h-3 mr-1" />
                             초기 설정 미완료
