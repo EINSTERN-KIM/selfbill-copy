@@ -7,6 +7,7 @@ import RepBillingMonthlyEdit from './pages/RepBillingMonthlyEdit';
 import RepBillingSend from './pages/RepBillingSend';
 import RepBillingSettings from './pages/RepBillingSettings';
 import RepBillingUnitCharges from './pages/RepBillingUnitCharges';
+import RepBuildingSetup from './pages/RepBuildingSetup';
 import RepDashboard from './pages/RepDashboard';
 import RepFeeItems from './pages/RepFeeItems';
 import RepPaymentsManage from './pages/RepPaymentsManage';
@@ -23,7 +24,6 @@ import TenantInviteCheck from './pages/TenantInviteCheck';
 import TenantMyBills from './pages/TenantMyBills';
 import TenantMyPayments from './pages/TenantMyPayments';
 import TenantMyUnit from './pages/TenantMyUnit';
-import RepBuildingSetup from './pages/RepBuildingSetup';
 import __Layout from './Layout.jsx';
 
 
@@ -37,6 +37,7 @@ export const PAGES = {
     "RepBillingSend": RepBillingSend,
     "RepBillingSettings": RepBillingSettings,
     "RepBillingUnitCharges": RepBillingUnitCharges,
+    "RepBuildingSetup": RepBuildingSetup,
     "RepDashboard": RepDashboard,
     "RepFeeItems": RepFeeItems,
     "RepPaymentsManage": RepPaymentsManage,
@@ -53,7 +54,6 @@ export const PAGES = {
     "TenantMyBills": TenantMyBills,
     "TenantMyPayments": TenantMyPayments,
     "TenantMyUnit": TenantMyUnit,
-    "RepBuildingSetup": RepBuildingSetup,
 }
 
 export const pagesConfig = {

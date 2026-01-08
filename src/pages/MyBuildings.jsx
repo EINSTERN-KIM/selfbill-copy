@@ -10,6 +10,7 @@ import LoadingSpinner from '@/components/common/LoadingSpinner';
 import EmptyState from '@/components/common/EmptyState';
 import RoleBadge from '@/components/common/RoleBadge';
 import RoleChangeRequestModal from '@/components/common/RoleChangeRequestModal';
+import RoleSelectionModal from '@/components/common/RoleSelectionModal';
 
 export default function MyBuildings() {
   const navigate = useNavigate();
@@ -19,6 +20,8 @@ export default function MyBuildings() {
   const [pendingRequest, setPendingRequest] = useState(null);
   const [showRequestModal, setShowRequestModal] = useState(false);
   const [requestsByBuilding, setRequestsByBuilding] = useState({});
+  const [selectedBuilding, setSelectedBuilding] = useState(null);
+  const [showRoleModal, setShowRoleModal] = useState(false);
 
   useEffect(() => {
     async function loadData() {
