@@ -185,8 +185,10 @@ export default function RoleChangeRequestModal({ buildingId, userId, onClose }) 
 
           <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
             <p className="text-sm text-blue-900 leading-relaxed">
-              수락하시면 즉시 대표자 권한이 이전됩니다. 
+              <strong>수락하면 기존 대표자는 대표자 권한을 잃고, 당신이 새로운 대표자가 됩니다.</strong>
+              <br /><br />
               대표자는 건물의 관리비 입력, 청구서 발송, 세대 관리 등의 업무를 담당합니다.
+              기존 입주자 권한은 그대로 유지되어 두 가지 역할을 모두 사용할 수 있습니다.
             </p>
           </div>
         </div>
