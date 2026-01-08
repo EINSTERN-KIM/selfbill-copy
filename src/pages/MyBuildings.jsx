@@ -159,6 +159,17 @@ export default function MyBuildings() {
           onClose={() => setShowRequestModal(false)}
         />
       )}
+
+      {/* Role Selection Modal */}
+      {showRoleModal && selectedBuilding && (
+        <RoleSelectionModal
+          building={selectedBuilding}
+          onClose={() => {
+            setShowRoleModal(false);
+            setSelectedBuilding(null);
+          }}
+        />
+      )}
       
       <div className="max-w-2xl mx-auto px-4 py-8">
         {/* Logout Button */}
