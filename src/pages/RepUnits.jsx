@@ -28,7 +28,6 @@ export default function RepUnits() {
   const [editingUnit, setEditingUnit] = useState(null);
   const [isSaving, setIsSaving] = useState(false);
   const [formData, setFormData] = useState({
-    dong: "",
     ho: "",
     floor: "",
     tenant_name: "",
@@ -77,7 +76,6 @@ export default function RepUnits() {
       setEditingUnit(unit);
       const phoneParts = (unit.tenant_phone || "010--").split('-');
       setFormData({
-        dong: unit.dong || "",
         ho: unit.ho || "",
         floor: unit.floor || "",
         tenant_name: unit.tenant_name || "",
@@ -89,7 +87,6 @@ export default function RepUnits() {
     } else {
       setEditingUnit(null);
       setFormData({
-        dong: "",
         ho: "",
         floor: "",
         tenant_name: "",
@@ -148,10 +145,10 @@ export default function RepUnits() {
     setIsSaving(true);
     try {
       const tenant_phone = `${formData.phone1}-${formData.phone2}-${formData.phone3}`;
-      const unit_name = [formData.dong && `${formData.dong}동`, formData.ho && `${formData.ho}호`].filter(Boolean).join(" ");
+      const unit_name = formData.ho ? `${formData.ho}호` : "";
       
       const saveData = {
-        dong: formData.dong,
+        dong: building?.name || "",
         ho: formData.ho,
         floor: formData.floor,
         unit_name: unit_name || formData.ho,
@@ -363,21 +360,13 @@ export default function RepUnits() {
             </DialogHeader>
             
             <div className="space-y-4 py-4">
-              <div className="grid grid-cols-3 gap-3">
-                <div className="space-y-2">
-                  <Label>동</Label>
-                  <Input
-                    value={formData.dong}
-                    onChange={(e) => setFormData({ ...formData, dong: e.target.value })}
-                    placeholder="101"
-                  />
-                </div>
+              <div className="grid grid-cols-2 gap-3">
                 <div className="space-y-2">
                   <Label>호수 *</Label>
                   <Input
                     value={formData.ho}
                     onChange={(e) => setFormData({ ...formData, ho: e.target.value })}
-                    placeholder="302"
+                    placeholder="302호"
                   />
                 </div>
                 <div className="space-y-2">
@@ -385,7 +374,7 @@ export default function RepUnits() {
                   <Input
                     value={formData.floor}
                     onChange={(e) => setFormData({ ...formData, floor: e.target.value })}
-                    placeholder="3"
+                    placeholder="3층"
                   />
                 </div>
               </div>

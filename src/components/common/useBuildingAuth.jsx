@@ -24,21 +24,22 @@ export function useBuildingAuth(buildingId, requiredRole = null) {
           return;
         }
 
-        // Get building
-        const buildings = await base44.entities.Building.filter({ id: buildingId });
+        // Parallel fetch for building and memberships
+        const [buildings, userMemberships] = await Promise.all([
+          base44.entities.Building.filter({ id: buildingId }),
+          base44.entities.BuildingMember.filter({
+            building_id: buildingId,
+            user_email: currentUser.email,
+            status: "활성"
+          })
+        ]);
+
         if (buildings.length === 0) {
           setError("존재하지 않는 공동주택입니다.");
           setIsLoading(false);
           return;
         }
         setBuilding(buildings[0]);
-
-        // Check all memberships (복수 역할 가능)
-        const userMemberships = await base44.entities.BuildingMember.filter({
-          building_id: buildingId,
-          user_email: currentUser.email,
-          status: "활성"
-        });
 
         if (userMemberships.length === 0) {
           setError("이 공동주택에 대한 권한이 없습니다.");

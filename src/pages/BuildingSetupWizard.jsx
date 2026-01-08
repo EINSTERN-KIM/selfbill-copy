@@ -61,7 +61,7 @@ export default function BuildingSetupWizard() {
   const [selectedRepUnit, setSelectedRepUnit] = useState(null);
   const [editingUnit, setEditingUnit] = useState(null);
   const [unitForm, setUnitForm] = useState({
-    dong: "", ho: "", floor: "",
+    ho: "", floor: "",
     tenant_name: "",
     phone1: "010", phone2: "", phone3: "",
     share_ratio: ""
@@ -239,7 +239,7 @@ export default function BuildingSetupWizard() {
     }
 
     const tenant_phone = `${unitForm.phone1}-${unitForm.phone2}-${unitForm.phone3}`;
-    const unit_name = [step1Data.name && `${step1Data.name}동`, unitForm.ho && `${unitForm.ho}호`].filter(Boolean).join(" ");
+    const unit_name = unitForm.ho ? `${unitForm.ho}호` : "";
 
     try {
       if (editingUnit) {
@@ -299,7 +299,7 @@ export default function BuildingSetupWizard() {
       }
 
       setUnitForm({
-        dong: "", ho: "", floor: "",
+        ho: "", floor: "",
         tenant_name: "",
         phone1: "010", phone2: "", phone3: "",
         share_ratio: ""
@@ -852,29 +852,19 @@ export default function BuildingSetupWizard() {
                 <div className="grid grid-cols-2 gap-3">
                   <div>
                     <Label className="text-xs">호수 *</Label>
-                    <div className="flex items-center gap-1">
-                      <Input
-                        type="number"
-                        value={unitForm.ho}
-                        onChange={(e) => setUnitForm({...unitForm, ho: e.target.value})}
-                        placeholder="302"
-                        className="flex-1"
-                      />
-                      <span className="text-sm text-slate-600">호</span>
-                    </div>
+                    <Input
+                      value={unitForm.ho}
+                      onChange={(e) => setUnitForm({...unitForm, ho: e.target.value})}
+                      placeholder="302호"
+                    />
                   </div>
                   <div>
                     <Label className="text-xs">층</Label>
-                    <div className="flex items-center gap-1">
-                      <Input
-                        type="number"
-                        value={unitForm.floor}
-                        onChange={(e) => setUnitForm({...unitForm, floor: e.target.value})}
-                        placeholder="3"
-                        className="flex-1"
-                      />
-                      <span className="text-sm text-slate-600">층</span>
-                    </div>
+                    <Input
+                      value={unitForm.floor}
+                      onChange={(e) => setUnitForm({...unitForm, floor: e.target.value})}
+                      placeholder="3층"
+                    />
                   </div>
                 </div>
 
