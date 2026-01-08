@@ -18,7 +18,10 @@ export default function TenantDashboard() {
   const buildingId = urlParams.get('buildingId');
   const navigate = useNavigate();
   
-  const { isLoading, user, building, membership, error } = useBuildingAuth(buildingId, "입주자");
+  const { isLoading, user, building, memberships, hasTenantRole, error } = useBuildingAuth(buildingId, "입주자");
+  
+  // 입주자 멤버십 찾기 (복수 역할 가능하므로 입주자 멤버십만 필터)
+  const membership = memberships?.find(m => m.role === "입주자");
   const [unit, setUnit] = useState(null);
   const [latestCharge, setLatestCharge] = useState(null);
   const [paymentStatus, setPaymentStatus] = useState(null);
