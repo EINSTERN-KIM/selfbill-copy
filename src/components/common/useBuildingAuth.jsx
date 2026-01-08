@@ -5,7 +5,9 @@ export function useBuildingAuth(buildingId, requiredRole = null) {
   const [isLoading, setIsLoading] = useState(true);
   const [user, setUser] = useState(null);
   const [building, setBuilding] = useState(null);
-  const [membership, setMembership] = useState(null);
+  const [memberships, setMemberships] = useState([]);
+  const [hasRepRole, setHasRepRole] = useState(false);
+  const [hasTenantRole, setHasTenantRole] = useState(false);
   const [error, setError] = useState(null);
 
   useEffect(() => {
@@ -31,25 +33,37 @@ export function useBuildingAuth(buildingId, requiredRole = null) {
         }
         setBuilding(buildings[0]);
 
-        // Check membership
-        const memberships = await base44.entities.BuildingMember.filter({
+        // Check all memberships (복수 역할 가능)
+        const userMemberships = await base44.entities.BuildingMember.filter({
           building_id: buildingId,
           user_email: currentUser.email,
           status: "활성"
         });
 
-        if (memberships.length === 0) {
+        if (userMemberships.length === 0) {
           setError("이 공동주택에 대한 권한이 없습니다.");
           setIsLoading(false);
           return;
         }
 
-        const member = memberships[0];
-        setMembership(member);
+        setMemberships(userMemberships);
+
+        // 역할 플래그 계산
+        const hasRep = userMemberships.some(m => m.role === "대표자");
+        const hasTenant = userMemberships.some(m => m.role === "입주자");
+        
+        setHasRepRole(hasRep);
+        setHasTenantRole(hasTenant);
 
         // Check role if required
-        if (requiredRole && member.role !== requiredRole) {
-          setError(`이 페이지는 ${requiredRole}만 접근할 수 있습니다.`);
+        if (requiredRole === "대표자" && !hasRep) {
+          setError("이 페이지는 대표자만 접근할 수 있습니다.");
+          setIsLoading(false);
+          return;
+        }
+
+        if (requiredRole === "입주자" && !hasTenant) {
+          setError("이 페이지는 입주자만 접근할 수 있습니다.");
           setIsLoading(false);
           return;
         }
@@ -69,9 +83,13 @@ export function useBuildingAuth(buildingId, requiredRole = null) {
     isLoading, 
     user, 
     building, 
-    membership, 
+    memberships,
+    hasRepRole,
+    hasTenantRole,
     error,
-    isRepresentative: membership?.role === "대표자",
-    isTenant: membership?.role === "입주자"
+    // 하위 호환성을 위한 속성들
+    membership: memberships[0],
+    isRepresentative: hasRepRole,
+    isTenant: hasTenantRole
   };
 }
