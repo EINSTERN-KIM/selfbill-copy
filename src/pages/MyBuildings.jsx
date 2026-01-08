@@ -41,16 +41,41 @@ export default function MyBuildings() {
         }
 
         // Get building details for each membership
-        const buildingIds = memberships.map(m => m.building_id);
+        const buildingIds = [...new Set(memberships.map(m => m.building_id))];
         const buildings = await base44.entities.Building.list();
         const filteredBuildings = buildings.filter(b => buildingIds.includes(b.id));
 
-        // Combine data
-        const combined = memberships.map(m => {
-          const building = filteredBuildings.find(b => b.id === m.building_id);
+        // Group memberships by building
+        const buildingRoles = {};
+        memberships.forEach(m => {
+          if (!buildingRoles[m.building_id]) {
+            buildingRoles[m.building_id] = {
+              building_id: m.building_id,
+              roles: [],
+              memberships: []
+            };
+          }
+          buildingRoles[m.building_id].roles.push(m.role);
+          buildingRoles[m.building_id].memberships.push(m);
+        });
+
+        // Combine data - 건물별로 통합
+        const combined = Object.values(buildingRoles).map(br => {
+          const building = filteredBuildings.find(b => b.id === br.building_id);
+          const hasRepRole = br.roles.includes("대표자");
+          const hasTenantRole = br.roles.includes("입주자");
+          const hasBothRoles = hasRepRole && hasTenantRole;
+          
           return {
-            ...m,
-            building
+            building_id: br.building_id,
+            building,
+            roles: br.roles,
+            memberships: br.memberships,
+            hasRepRole,
+            hasTenantRole,
+            hasBothRoles,
+            // 하나의 역할만 가진 경우 그 역할 표시
+            primaryRole: hasBothRoles ? null : br.roles[0]
           };
         }).filter(item => item.building);
 
