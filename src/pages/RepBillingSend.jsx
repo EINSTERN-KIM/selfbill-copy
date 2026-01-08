@@ -6,7 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { AlertCircle, Loader2, Send, Home, Check, Phone, Calendar } from 'lucide-react';
+import { AlertCircle, Loader2, Send, Home, Check, Phone, Calendar, Info } from 'lucide-react';
 import LoadingSpinner from '@/components/common/LoadingSpinner';
 import PageHeader from '@/components/common/PageHeader';
 import EmptyState from '@/components/common/EmptyState';
@@ -33,6 +33,7 @@ export default function RepBillingSend() {
   const [units, setUnits] = useState([]);
   const [unitCharges, setUnitCharges] = useState([]);
   const [selectedUnits, setSelectedUnits] = useState([]);
+  const [daysUntilDue, setDaysUntilDue] = useState(7); // 기본 7일 후
 
   useEffect(() => {
     loadData();
@@ -124,6 +125,23 @@ export default function RepBillingSend() {
       return;
     }
 
+    // 납기일 계산 (발송일로부터 N일 후)
+    const sendDate = new Date();
+    const dueDate = new Date(sendDate);
+    dueDate.setDate(dueDate.getDate() + parseInt(daysUntilDue));
+    const dueDateStr = `${dueDate.getFullYear()}-${String(dueDate.getMonth() + 1).padStart(2, '0')}-${String(dueDate.getDate()).padStart(2, '0')}`;
+    const dueDateDisplay = dueDate.toLocaleDateString('ko-KR', { month: 'long', day: 'numeric' });
+
+    // 부과기간 문자열 생성
+    let billingPeriodText;
+    if (billingPeriodStart > billingPeriodEnd) {
+      // 익월 걸침 (예: 21일 ~ 익월 20일)
+      billingPeriodText = `${month}월 ${billingPeriodStart}일 ~ ${month + 1}월 ${billingPeriodEnd}일`;
+    } else {
+      // 동월 (예: 1일 ~ 31일)
+      billingPeriodText = `${month}월 ${billingPeriodStart}일 ~ ${month}월 ${billingPeriodEnd}일`;
+    }
+
     setIsSending(true);
     let successCount = 0;
     let failCount = 0;
@@ -145,7 +163,7 @@ export default function RepBillingSend() {
           });
 
           const billDetailUrl = `${window.location.origin}${createPageUrl(`TenantMyBills?buildingId=${buildingId}`)}`;
-          const notificationBody = `[${building?.name}]\n${selectedYearMonth} 관리비 청구\n\n청구금액: ${charge.amount_total?.toLocaleString()}원\n납기일: 매월 ${building?.billing_due_day || 25}일\n\n입금계좌\n${building?.bank_name} ${building?.bank_account}\n예금주: ${building?.bank_holder}\n\n상세내역은 셀프빌 링크에서 확인하세요.\n${billDetailUrl}`;
+          const notificationBody = `[${building?.name}]\n${selectedYearMonth} 관리비 청구\n\n부과기간: ${billingPeriodText}\n청구금액: ${charge.amount_total?.toLocaleString()}원\n납기일: ${dueDateDisplay}\n\n입금계좌\n${building?.bank_name} ${building?.bank_account}\n예금주: ${building?.bank_holder}\n\n상세내역은 셀프빌 링크에서 확인하세요.\n${billDetailUrl}`;
 
           await base44.functions.invoke('sendTwilioSMS', {
             to_phone: unit.tenant_phone,
@@ -179,7 +197,8 @@ export default function RepBillingSend() {
       }
 
       await base44.entities.BillCycle.update(billCycle.id, {
-        status: "sent"
+        status: "sent",
+        due_date: dueDateStr
       });
 
       if (failCount === 0) {
@@ -261,7 +280,7 @@ export default function RepBillingSend() {
 
         {/* Month Selector */}
         <Card className="mb-6">
-          <CardContent className="pt-4 pb-4">
+          <CardContent className="pt-4 pb-4 space-y-4">
             <div className="flex items-center gap-3">
               <Calendar className="w-5 h-5 text-primary" />
               <Select value={selectedYearMonth} onValueChange={setSelectedYearMonth}>
@@ -275,6 +294,58 @@ export default function RepBillingSend() {
                 </SelectContent>
               </Select>
             </div>
+
+            {/* 납기일 설정 */}
+            <div className="border-t pt-4">
+              <label className="text-sm font-medium text-slate-700 block mb-2">
+                납기일 설정
+              </label>
+              <div className="flex items-center gap-3">
+                <span className="text-sm text-slate-600">발송일로부터</span>
+                <Select 
+                  value={String(daysUntilDue)} 
+                  onValueChange={(val) => setDaysUntilDue(parseInt(val))}
+                >
+                  <SelectTrigger className="w-32">
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {[3, 5, 7, 10, 14].map(days => (
+                      <SelectItem key={days} value={String(days)}>
+                        {days}일 후
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+                <span className="text-sm text-slate-500">
+                  ({(() => {
+                    const dueDate = new Date();
+                    dueDate.setDate(dueDate.getDate() + parseInt(daysUntilDue));
+                    return dueDate.toLocaleDateString('ko-KR', { month: 'long', day: 'numeric' });
+                  })()})
+                </span>
+              </div>
+            </div>
+
+            {/* 부과기간 표시 */}
+            {building && (
+              <div className="bg-blue-50 border border-blue-200 rounded-lg p-3">
+                <p className="text-xs font-medium text-blue-900 mb-1">부과기간</p>
+                <p className="text-sm text-blue-800">
+                  {(() => {
+                    const [year, month] = selectedYearMonth.split('-').map(Number);
+                    const start = building.billing_period_start || 1;
+                    const end = building.billing_period_end || 31;
+                    
+                    if (start > end) {
+                      return `${month}월 ${start}일 ~ ${month + 1}월 ${end}일`;
+                    } else {
+                      return `${month}월 ${start}일 ~ ${month}월 ${end}일`;
+                    }
+                  })()}
+                </p>
+              </div>
+            )}
           </CardContent>
         </Card>
 
