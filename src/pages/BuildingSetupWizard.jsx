@@ -474,7 +474,7 @@ export default function BuildingSetupWizard() {
     setIsSaving(true);
     try {
       const unitCount = units.length;
-      const monthlyFee = unitCount * 2900;
+      const monthlyFee = unitCount * 3900;
       
       // Save auto payment account info if provided
       const updateData = {
@@ -1203,21 +1203,21 @@ export default function BuildingSetupWizard() {
                 <div className="text-center mb-4">
                   <p className="text-sm text-slate-600 mb-2">이 건물의 셀프빌 요금</p>
                   <div className="text-5xl font-bold text-slate-900">
-                    {(units.length * 2900).toLocaleString()}<span className="text-2xl text-slate-600">원/월</span>
+                    {(units.length * 3900).toLocaleString()}<span className="text-2xl text-slate-600">원/월</span>
                   </div>
                 </div>
 
                 <div className="bg-white rounded-lg p-4 mt-4">
                   <div className="text-sm space-y-2">
                     <div className="flex justify-between">
-                      <span className="text-slate-600">{units.length}세대 × 2,900원</span>
-                      <span className="font-medium">{(units.length * 2900).toLocaleString()}원</span>
+                      <span className="text-slate-600">{units.length}세대 × 3,900원</span>
+                      <span className="font-medium">{(units.length * 3900).toLocaleString()}원</span>
                     </div>
                     <Separator />
                     <div className="flex justify-between font-bold">
                       <span>합계</span>
                       <span className="text-primary">
-                        {(units.length * 2900).toLocaleString()}원/월
+                        {(units.length * 3900).toLocaleString()}원/월
                       </span>
                     </div>
                   </div>
