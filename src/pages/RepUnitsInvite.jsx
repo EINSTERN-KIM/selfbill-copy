@@ -22,6 +22,7 @@ export default function RepUnitsInvite() {
   const [invitations, setInvitations] = useState([]);
   const [isLoadingData, setIsLoadingData] = useState(true);
   const [isSending, setIsSending] = useState(false);
+  const [sendingUnitIds, setSendingUnitIds] = useState(new Set());
 
   useEffect(() => {
     loadData();
@@ -95,8 +96,13 @@ export default function RepUnitsInvite() {
     } catch (err) {
       console.error("Error sending invitation:", err);
       alert(`❌ ${unit.ho ? `${unit.ho}호` : unit.unit_name} 초대 문자 전송에 실패했습니다.\n잠시 후 다시 시도해주세요.`);
+    } finally {
+      setSendingUnitIds(prev => {
+        const newSet = new Set(prev);
+        newSet.delete(unit.id);
+        return newSet;
+      });
     }
-    setIsSending(false);
   };
 
   const handleSendAll = async () => {
@@ -255,11 +261,11 @@ export default function RepUnitsInvite() {
                       </div>
                       <Button
                         onClick={() => handleSendInvitation(unit)}
-                        disabled={!canSend || isSending}
+                        disabled={!canSend || sendingUnitIds.has(unit.id) || isSending}
                         size="sm"
                         className="bg-primary hover:bg-primary-dark text-white rounded-full"
                       >
-                        {isSending ? (
+                        {sendingUnitIds.has(unit.id) ? (
                           <Loader2 className="w-4 h-4 animate-spin" />
                         ) : (
                           <>

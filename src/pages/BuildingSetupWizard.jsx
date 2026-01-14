@@ -189,7 +189,7 @@ export default function BuildingSetupWizard() {
           planned_units_count: parseInt(step1Data.planned_units_count),
           setup_step: 2
         });
-        await init();
+        setBuilding(prev => ({ ...prev, setup_step: 2 }));
         setCurrentStep(2);
       }
     } catch (err) {
@@ -208,9 +208,9 @@ export default function BuildingSetupWizard() {
     try {
       await base44.entities.Building.update(buildingId, {
         ...step2Data,
-        setup_step: 2
+        setup_step: 3
       });
-      await init();
+      setBuilding(prev => ({ ...prev, setup_step: 3 }));
       setCurrentStep(3);
     } catch (err) {
       console.error("Error saving step 2:", err);
@@ -381,10 +381,9 @@ export default function BuildingSetupWizard() {
     try {
       await base44.entities.Building.update(buildingId, {
         building_units_count: units.length,
-        setup_step: 3
+        setup_step: 4
       });
-
-      await init();
+      setBuilding(prev => ({ ...prev, setup_step: 4 }));
       setCurrentStep(4);
     } catch (err) {
       console.error("Error saving step 3:", err);
@@ -461,9 +460,9 @@ export default function BuildingSetupWizard() {
     setIsSaving(true);
     try {
       await base44.entities.Building.update(buildingId, {
-        setup_step: 4
+        setup_step: 5
       });
-      await init();
+      setBuilding(prev => ({ ...prev, setup_step: 5 }));
       setCurrentStep(5);
     } catch (err) {
       console.error("Error saving step 4:", err);
