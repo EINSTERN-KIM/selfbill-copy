@@ -187,8 +187,9 @@ export default function BuildingSetupWizard() {
         await base44.entities.Building.update(bldgId, {
           ...step1Data,
           planned_units_count: parseInt(step1Data.planned_units_count),
-          setup_step: 1
+          setup_step: 2
         });
+        await init();
         setCurrentStep(2);
       }
     } catch (err) {
