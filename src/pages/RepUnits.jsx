@@ -226,8 +226,15 @@ export default function RepUnits() {
     <RepLayout buildingId={buildingId} building={building} currentPage="RepUnits">
       <div className="max-w-2xl mx-auto px-4 py-6">
         <PageHeader
-          title="세대 목록"
-          subtitle={`총 ${units.length}세대`}
+          title={`세대 목록 (${units.length})`}
+          subtitle={
+            <div className="flex items-center gap-3">
+              <span>세대 정보를 관리합니다</span>
+              <span className={`text-sm font-semibold ${Math.abs(totalShareRatio - 100) < 0.1 ? 'text-green-600' : 'text-red-600'}`}>
+                지분율 합계: {totalShareRatio.toFixed(1)}%
+              </span>
+            </div>
+          }
           backUrl={createPageUrl(`RepDashboard?buildingId=${buildingId}`)}
           actions={
             <Button onClick={() => handleOpenDialog()}>
@@ -294,9 +301,9 @@ export default function RepUnits() {
                           <p className="text-xs text-slate-400">{unit.tenant_email}</p>
                         )}
                         {unit.floor && (
-                          <p className="text-xs text-slate-400">층: {unit.floor}</p>
+                          <p className="text-xs text-slate-400">{unit.floor}층</p>
                         )}
-                        {building?.billing_method === "지분율에 의거 부과" && unit.share_ratio !== undefined && (
+                        {unit.share_ratio !== null && unit.share_ratio !== undefined && (
                           <p className="text-xs text-primary font-semibold">지분율: {unit.share_ratio}%</p>
                         )}
                         {unit.residents_count && (
@@ -379,21 +386,17 @@ export default function RepUnits() {
                 </div>
               </div>
 
-              {building?.billing_method === "지분율에 의거 부과" && (
-                <div className="space-y-2">
-                  <Label>관리비 배분 비율 (%) *</Label>
-                  <Input
-                    type="number"
-                    step="0.1"
-                    value={formData.share_ratio}
-                    onChange={(e) => setFormData({ ...formData, share_ratio: e.target.value })}
-                    placeholder="예: 10.5"
-                  />
-                  <p className="text-xs text-slate-500">
-                    모든 세대의 배분 비율 합계가 100%가 되어야 합니다
-                  </p>
-                </div>
-              )}
+              <div className="space-y-2">
+                <Label>지분율 (%)</Label>
+                <Input
+                  type="number"
+                  step="0.01"
+                  value={formData.share_ratio}
+                  onChange={(e) => setFormData({ ...formData, share_ratio: e.target.value })}
+                  placeholder="예: 10.5"
+                />
+                <p className="text-xs text-slate-500">관리비 배분 비율을 입력하세요</p>
+              </div>
 
               <div className="border-t pt-4">
                 <p className="text-sm font-medium text-slate-700 mb-3">입주자 정보</p>
