@@ -34,6 +34,8 @@ export default function RepBillingMonthlyEdit() {
   const [units, setUnits] = useState([]);
   const [unitAmounts, setUnitAmounts] = useState({}); // itemId -> { unitId: amount }
   const [monthlyExtraItems, setMonthlyExtraItems] = useState([]);
+  const [isEditable, setIsEditable] = useState(true);
+  const [isTempSaved, setIsTempSaved] = useState(false);
 
   useEffect(() => {
     loadData();
@@ -73,6 +75,10 @@ export default function RepBillingMonthlyEdit() {
       }
       
       setBillCycle(cycle);
+      
+      // Set edit state based on cycle status
+      setIsEditable(cycle.status === "draft" && !cycle.is_locked);
+      setIsTempSaved(cycle.is_locked || false);
 
       let items = await base44.entities.BillItem.filter({
         bill_cycle_id: cycle.id
@@ -286,10 +292,10 @@ export default function RepBillingMonthlyEdit() {
     }
   };
 
-  const handleSave = async () => {
+  const handleTempSave = async () => {
     setIsSaving(true);
     try {
-      // 기존 템플릿 기반 항목 저장
+      // Save all items
       for (const item of billItems) {
         const updateData = {
           name: item.name,
@@ -299,7 +305,6 @@ export default function RepBillingMonthlyEdit() {
           target_unit_ids: item.target_unit_ids || []
         };
         
-        // 세대별 항목인 경우 세대별 금액 저장
         if (item.type === "세대별" && unitAmounts[item.id]) {
           updateData.unit_amounts = JSON.stringify(unitAmounts[item.id]);
         }
@@ -307,7 +312,6 @@ export default function RepBillingMonthlyEdit() {
         await base44.entities.BillItem.update(item.id, updateData);
       }
 
-      // 월별 추가 항목 저장
       for (const item of monthlyExtraItems) {
         if (!item.name || !item.category) continue;
         
@@ -332,13 +336,49 @@ export default function RepBillingMonthlyEdit() {
       const extraItemsTotal = monthlyExtraItems.reduce((sum, item) => sum + (parseFloat(item.amount_total) || 0), 0);
       const total = allItemsTotal + extraItemsTotal;
       
+      // Lock for editing
       await base44.entities.BillCycle.update(billCycle.id, {
-        total_amount: total
+        total_amount: total,
+        is_locked: true
+      });
+      
+      setIsEditable(false);
+      setIsTempSaved(true);
+      alert("임시저장이 완료되었습니다. 수정 버튼을 눌러 수정할 수 있습니다.");
+    } catch (err) {
+      console.error("Error temp saving:", err);
+    }
+    setIsSaving(false);
+  };
+
+  const handleUnlock = async () => {
+    try {
+      await base44.entities.BillCycle.update(billCycle.id, {
+        is_locked: false
+      });
+      setIsEditable(true);
+      setIsTempSaved(false);
+    } catch (err) {
+      console.error("Error unlocking:", err);
+    }
+  };
+
+  const handleFinalConfirm = async () => {
+    if (!isTempSaved) {
+      alert("먼저 임시저장을 해주세요.");
+      return;
+    }
+    
+    setIsSaving(true);
+    try {
+      await base44.entities.BillCycle.update(billCycle.id, {
+        status: "confirmed",
+        is_locked: true
       });
 
       navigate(createPageUrl(`RepBillingUnitCharges?buildingId=${buildingId}&yearMonth=${selectedYearMonth}`));
     } catch (err) {
-      console.error("Error saving:", err);
+      console.error("Error confirming:", err);
     }
     setIsSaving(false);
   };
@@ -678,6 +718,7 @@ export default function RepBillingMonthlyEdit() {
               variant="outline"
               size="sm"
               onClick={addMonthlyExtraItem}
+              disabled={!isEditable}
               className="gap-2"
             >
               <Plus className="w-4 h-4" />
@@ -730,6 +771,7 @@ export default function RepBillingMonthlyEdit() {
                               value={item.name}
                               onChange={(e) => handleExtraItemChange(item.id, 'name', e.target.value)}
                               placeholder="예: 엘리베이터 수리"
+                              disabled={!isEditable}
                               className="mt-1"
                             />
                           </div>
@@ -739,7 +781,9 @@ export default function RepBillingMonthlyEdit() {
                               type="number"
                               value={item.amount_total}
                               onChange={(e) => handleExtraItemChange(item.id, 'amount_total', e.target.value)}
+                              onWheel={(e) => e.target.blur()}
                               placeholder="0"
+                              disabled={!isEditable}
                               className="mt-1"
                             />
                           </div>
@@ -797,18 +841,26 @@ export default function RepBillingMonthlyEdit() {
                 {totalAmount.toLocaleString()}원
               </span>
             </div>
-            <div className="flex gap-3">
+            <div className="flex gap-2">
               <Button
                 variant="outline"
                 onClick={() => navigate(createPageUrl(`RepDashboard?buildingId=${buildingId}`))}
-                className="flex-1"
               >
-                취소
+                이전
               </Button>
+              {!isEditable && (
+                <Button
+                  variant="outline"
+                  onClick={handleUnlock}
+                >
+                  수정
+                </Button>
+              )}
               <Button
-                onClick={handleSave}
-                disabled={isSaving}
-                className="flex-1 bg-primary hover:bg-primary-dark text-white"
+                onClick={handleTempSave}
+                disabled={isSaving || !isEditable}
+                variant="outline"
+                className="flex-1"
               >
                 {isSaving ? (
                   <>
@@ -816,10 +868,21 @@ export default function RepBillingMonthlyEdit() {
                     저장 중...
                   </>
                 ) : (
+                  "임시저장"
+                )}
+              </Button>
+              <Button
+                onClick={handleFinalConfirm}
+                disabled={isSaving || !isTempSaved}
+                className="flex-1 bg-primary hover:bg-primary-dark text-white"
+              >
+                {isSaving ? (
                   <>
-                    <Save className="w-4 h-4 mr-2" />
-                    저장 후 세대별 확인
+                    <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                    처리 중...
                   </>
+                ) : (
+                  "최종확인"
                 )}
               </Button>
             </div>

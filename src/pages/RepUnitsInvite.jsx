@@ -54,7 +54,7 @@ export default function RepUnitsInvite() {
       return;
     }
 
-    setIsSending(true);
+    setSendingUnitIds(prev => new Set(prev).add(unit.id));
     try {
       const existingInvitation = invitations.find(inv => inv.unit_id === unit.id);
       

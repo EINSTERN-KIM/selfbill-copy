@@ -46,6 +46,28 @@ export default function RepBillingSettings() {
     setIsSaving(true);
     try {
       await base44.entities.Building.update(buildingId, formData);
+      
+      // If billing method changed to 균등 배분, recalculate share ratios
+      if (formData.billing_method === "균등 배분") {
+        const units = await base44.entities.Unit.filter({
+          building_id: buildingId,
+          status: "active"
+        });
+        
+        if (units.length > 0) {
+          const equalShare = 100 / units.length;
+          for (let i = 0; i < units.length; i++) {
+            const share = i === units.length - 1 
+              ? 100 - (equalShare * (units.length - 1))
+              : equalShare;
+            
+            await base44.entities.Unit.update(units[i].id, {
+              share_ratio: parseFloat(share.toFixed(2))
+            });
+          }
+        }
+      }
+      
       navigate(createPageUrl(`RepDashboard?buildingId=${buildingId}`));
     } catch (err) {
       console.error("Error saving:", err);
@@ -96,8 +118,8 @@ export default function RepBillingSettings() {
                   <input
                     type="radio"
                     name="billing_method"
-                    value="per_unit_equal"
-                    checked={formData.billing_method === "per_unit_equal"}
+                    value="균등 배분"
+                    checked={formData.billing_method === "균등 배분"}
                     onChange={(e) => setFormData({...formData, billing_method: e.target.value})}
                     className="w-4 h-4 mt-1 text-primary"
                   />
@@ -110,8 +132,8 @@ export default function RepBillingSettings() {
                   <input
                     type="radio"
                     name="billing_method"
-                    value="by_share_ratio"
-                    checked={formData.billing_method === "by_share_ratio"}
+                    value="지분율에 의거 부과"
+                    checked={formData.billing_method === "지분율에 의거 부과"}
                     onChange={(e) => setFormData({...formData, billing_method: e.target.value})}
                     className="w-4 h-4 mt-1 text-primary"
                   />
