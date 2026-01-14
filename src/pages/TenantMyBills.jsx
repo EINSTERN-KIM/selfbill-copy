@@ -22,6 +22,7 @@ export default function TenantMyBills() {
   const [unitCharge, setUnitCharge] = useState(null);
   const [billCycle, setBillCycle] = useState(null);
   const [billItems, setBillItems] = useState([]);
+  const [unit, setUnit] = useState(null);
   const [isLoadingData, setIsLoadingData] = useState(true);
 
   useEffect(() => {
@@ -34,7 +35,7 @@ export default function TenantMyBills() {
     try {
       const yearMonth = `${selectedDate.getFullYear()}-${String(selectedDate.getMonth() + 1).padStart(2, '0')}`;
       
-      const [charges, cycles, items] = await Promise.all([
+      const [charges, cycles, items, units] = await Promise.all([
         base44.entities.UnitCharge.filter({
           building_id: buildingId,
           unit_id: membership.unit_id,
@@ -46,6 +47,9 @@ export default function TenantMyBills() {
         }),
         base44.entities.BillItem.filter({
           building_id: buildingId
+        }),
+        base44.entities.Unit.filter({
+          id: membership.unit_id
         })
       ]);
 
@@ -59,6 +63,7 @@ export default function TenantMyBills() {
         const cycleMatch = cycles[0] && item.bill_cycle_id === cycles[0].id;
         return cycleMatch;
       }));
+      setUnit(units[0] || null);
       setIsLoadingData(false);
     } catch (err) {
       console.error("Error loading data:", err);
@@ -152,6 +157,10 @@ export default function TenantMyBills() {
                   <p className="text-4xl font-bold text-slate-900 tracking-tight">
                     {unitCharge.amount_total?.toLocaleString()}<span className="text-2xl text-slate-600">원</span>
                   </p>
+                  {(() => {
+                    const unit = membership?.unit_id ? base44.entities.Unit.filter({ id: membership.unit_id }).then(u => u[0]) : null;
+                    return null;
+                  })()}
                 </div>
                 <div className="grid grid-cols-3 gap-3 pt-4 border-t">
                   <div className="text-center">
@@ -188,7 +197,14 @@ export default function TenantMyBills() {
             {/* Items List */}
             <Card className="card-rounded">
               <CardHeader>
-                <CardTitle>항목별 내역</CardTitle>
+                <div className="flex items-center justify-between">
+                  <CardTitle>항목별 내역</CardTitle>
+                  {unit?.share_ratio !== null && unit?.share_ratio !== undefined && (
+                    <Badge className="bg-primary-light text-primary">
+                      지분율: {unit.share_ratio}%
+                    </Badge>
+                  )}
+                </div>
               </CardHeader>
               <CardContent>
                 {(() => {

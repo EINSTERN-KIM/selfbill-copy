@@ -853,17 +853,19 @@ export default function BuildingSetupWizard() {
                   <div>
                     <Label className="text-xs">호수 *</Label>
                     <Input
+                      type="number"
                       value={unitForm.ho}
                       onChange={(e) => setUnitForm({...unitForm, ho: e.target.value})}
-                      placeholder="302호"
+                      placeholder="302"
                     />
                   </div>
                   <div>
                     <Label className="text-xs">층</Label>
                     <Input
+                      type="number"
                       value={unitForm.floor}
                       onChange={(e) => setUnitForm({...unitForm, floor: e.target.value})}
-                      placeholder="3층"
+                      placeholder="3"
                     />
                   </div>
                 </div>

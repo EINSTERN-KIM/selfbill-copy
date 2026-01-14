@@ -371,17 +371,19 @@ export default function RepUnits() {
                 <div className="space-y-2">
                   <Label>호수 *</Label>
                   <Input
+                    type="number"
                     value={formData.ho}
                     onChange={(e) => setFormData({ ...formData, ho: e.target.value })}
-                    placeholder="302호"
+                    placeholder="302"
                   />
                 </div>
                 <div className="space-y-2">
                   <Label>층</Label>
                   <Input
+                    type="number"
                     value={formData.floor}
                     onChange={(e) => setFormData({ ...formData, floor: e.target.value })}
-                    placeholder="3층"
+                    placeholder="3"
                   />
                 </div>
               </div>

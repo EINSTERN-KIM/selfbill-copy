@@ -414,7 +414,14 @@ export default function RepBillingUnitCharges() {
                       
                       {isExpanded && charge && breakdown.length > 0 && (
                         <div className="mt-4 pt-4 border-t space-y-2">
-                          <p className="text-sm font-semibold text-slate-700 mb-3">상세 내역</p>
+                          <div className="flex items-center justify-between mb-3">
+                            <p className="text-sm font-semibold text-slate-700">상세 내역</p>
+                            {unit.share_ratio !== null && unit.share_ratio !== undefined && (
+                              <p className="text-xs font-semibold text-primary bg-primary-light/20 px-2 py-1 rounded">
+                                지분율: {unit.share_ratio}%
+                              </p>
+                            )}
+                          </div>
                           {breakdown.map((item, idx) => (
                             <div key={idx} className="flex items-center justify-between py-2">
                               <span className="text-sm text-slate-600">{item.name}</span>
