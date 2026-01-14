@@ -63,7 +63,7 @@ export default function RepUnits() {
       status: "active"
     });
     const count = activeUnits.length;
-    const monthlyFee = count * 2900;
+    const monthlyFee = count * 3900;
     
     await base44.entities.Building.update(buildingId, {
       building_units_count: count,

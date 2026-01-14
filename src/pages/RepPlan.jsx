@@ -120,7 +120,7 @@ export default function RepPlan() {
   }
 
   const unitCount = building?.building_units_count || 0;
-  const monthlyFee = unitCount * 2900;
+  const monthlyFee = unitCount * 3900;
 
   return (
     <RepLayout buildingId={buildingId} building={building} currentPage="RepPlan">
@@ -158,7 +158,7 @@ export default function RepPlan() {
               <div className="space-y-2 text-sm text-slate-600">
                 <div className="flex justify-between">
                   <span>• 세대당 요금:</span>
-                  <span className="font-medium">2,900원</span>
+                  <span className="font-medium">3,900원</span>
                 </div>
                 <div className="flex justify-between">
                   <span>• 총 세대 수:</span>
