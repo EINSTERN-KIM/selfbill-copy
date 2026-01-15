@@ -475,26 +475,42 @@ export default function BuildingSetupWizard() {
   };
 
   const getAutoStartDate = () => {
-    if (!building?.created_date) return null;
-    const subscriptionDate = new Date(building.created_date);
+    // 이미 저장된 자동이체 시작일이 있으면 그것을 사용
+    if (building?.selfbill_auto_start_date) {
+      return building.selfbill_auto_start_date;
+    }
     
-    const year = subscriptionDate.getFullYear();
-    const month = subscriptionDate.getMonth();
-    const day = subscriptionDate.getDate();
+    const baseDate = building?.created_date;
+    if (!baseDate) return null;
     
-    // 다음 달 계산
-    const nextMonth = month + 1;
-    const nextYear = nextMonth > 11 ? year + 1 : year;
-    const targetMonth = nextMonth > 11 ? 0 : nextMonth;
+    return addMonthsClamped(baseDate, 1);
+  };
+
+  // addMonthsClamped: 정확히 1개월 후 같은 일자 (말일 보정 포함, 하루 앞당김 금지)
+  const addMonthsClamped = (dateStr, months) => {
+    const base = new Date(dateStr);
+    const y = base.getFullYear();
+    const m = base.getMonth();
+    const d = base.getDate();
     
-    // 다음 달의 마지막 날 구하기
-    const lastDayOfNextMonth = new Date(nextYear, targetMonth + 1, 0).getDate();
+    const baseAtNoon = new Date(y, m, d, 12, 0, 0);
     
-    // 구독일의 일자가 다음 달에 존재하면 그대로, 없으면 마지막 날로
-    const targetDay = day > lastDayOfNextMonth ? lastDayOfNextMonth : day;
+    const targetYear = baseAtNoon.getFullYear();
+    const targetMonth = baseAtNoon.getMonth() + months;
+    const targetDay = baseAtNoon.getDate();
     
-    const autoStartDate = new Date(nextYear, targetMonth, targetDay);
-    return autoStartDate.toISOString().split('T')[0];
+    const tempDate = new Date(targetYear, targetMonth + 1, 0, 12, 0, 0);
+    const lastDay = tempDate.getDate();
+    
+    const clampedDay = targetDay > lastDay ? lastDay : targetDay;
+    
+    const result = new Date(targetYear, targetMonth, clampedDay, 12, 0, 0);
+    
+    const yyyy = result.getFullYear();
+    const mm = String(result.getMonth() + 1).padStart(2, '0');
+    const dd = String(result.getDate()).padStart(2, '0');
+    
+    return `${yyyy}-${mm}-${dd}`;
   };
 
   const completeSetup = async () => {
@@ -504,20 +520,21 @@ export default function BuildingSetupWizard() {
       const monthlyFee = unitCount * 3900;
       
       // Save auto payment account info if provided
+      const today = new Date();
+      const todayStr = `${today.getFullYear()}-${String(today.getMonth() + 1).padStart(2, '0')}-${String(today.getDate()).padStart(2, '0')}`;
+      
       const updateData = {
         billing_monthly_fee_krw: monthlyFee,
-        selfbill_plan_confirmed_at: new Date().toISOString(),
+        selfbill_plan_confirmed_at: todayStr,
         setup_step: 5,
         status: "active"
       };
       
       if (step2Data.bank_name && step2Data.bank_account && step2Data.bank_holder) {
-        const autoStartDate = getAutoStartDate();
-        
         updateData.selfbill_auto_bank_name = step2Data.bank_name;
         updateData.selfbill_auto_bank_account = step2Data.bank_account;
         updateData.selfbill_auto_bank_holder = step2Data.bank_holder;
-        updateData.selfbill_auto_start_date = autoStartDate;
+        updateData.selfbill_auto_start_date = addMonthsClamped(todayStr, 1);
       }
 
       await base44.entities.Building.update(buildingId, updateData);

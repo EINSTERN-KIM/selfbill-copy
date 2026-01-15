@@ -50,39 +50,47 @@ export default function RepPlan() {
   };
 
   const getAutoStartDate = () => {
-    if (!building?.created_date) return null;
-    const subscriptionDate = new Date(building.created_date);
-    
-    const year = subscriptionDate.getFullYear();
-    const month = subscriptionDate.getMonth();
-    const day = subscriptionDate.getDate();
-    
-    // 다음 달 계산
-    const nextMonth = month + 1;
-    const nextYear = nextMonth > 11 ? year + 1 : year;
-    const targetMonth = nextMonth > 11 ? 0 : nextMonth;
-    
-    // 다음 달의 마지막 날 구하기
-    const lastDayOfNextMonth = new Date(nextYear, targetMonth + 1, 0).getDate();
-    
-    // 구독일의 일자가 다음 달에 존재하면 그대로, 없으면 마지막 날로
-    const targetDay = day > lastDayOfNextMonth ? lastDayOfNextMonth : day;
-    
-    const autoStartDate = new Date(nextYear, targetMonth, targetDay);
-    return autoStartDate.toISOString().split('T')[0];
-  };
-
-  const calculateAutoStartDate = () => {
-    const today = new Date();
-    const threeMonthsLater = new Date(today);
-    threeMonthsLater.setMonth(threeMonthsLater.getMonth() + 3);
-    
-    // Handle month overflow (e.g., Jan 31 + 1 month = Feb 28/29)
-    if (threeMonthsLater.getDate() < today.getDate()) {
-      threeMonthsLater.setDate(0); // Set to last day of previous month
+    // 이미 저장된 자동이체 시작일이 있으면 그것을 사용 (덮어쓰기 금지)
+    if (building?.selfbill_auto_start_date) {
+      return building.selfbill_auto_start_date;
     }
     
-    return threeMonthsLater.toISOString().split('T')[0];
+    // 구독 확정일(selfbill_plan_confirmed_at)이 있으면 그것 기준으로 계산
+    const baseDate = building?.selfbill_plan_confirmed_at || building?.created_date;
+    if (!baseDate) return null;
+    
+    return addMonthsClamped(baseDate, 1);
+  };
+
+  // addMonthsClamped: 정확히 1개월 후 같은 일자 (말일 보정 포함, 하루 앞당김 금지)
+  const addMonthsClamped = (dateStr, months) => {
+    // 정오(12:00) 기준으로 Date 생성하여 시간대/자정 이슈 방지
+    const base = new Date(dateStr);
+    const y = base.getFullYear();
+    const m = base.getMonth();
+    const d = base.getDate();
+    
+    const baseAtNoon = new Date(y, m, d, 12, 0, 0);
+    
+    const targetYear = baseAtNoon.getFullYear();
+    const targetMonth = baseAtNoon.getMonth() + months;
+    const targetDay = baseAtNoon.getDate();
+    
+    // 목표 월의 마지막 날 구하기
+    const tempDate = new Date(targetYear, targetMonth + 1, 0, 12, 0, 0);
+    const lastDay = tempDate.getDate();
+    
+    // 목표 일자가 목표 월에 존재하면 그대로, 없으면 말일로 보정
+    const clampedDay = targetDay > lastDay ? lastDay : targetDay;
+    
+    const result = new Date(targetYear, targetMonth, clampedDay, 12, 0, 0);
+    
+    // YYYY-MM-DD 형식으로 반환 (시간 정보 제거)
+    const yyyy = result.getFullYear();
+    const mm = String(result.getMonth() + 1).padStart(2, '0');
+    const dd = String(result.getDate()).padStart(2, '0');
+    
+    return `${yyyy}-${mm}-${dd}`;
   };
 
   const init = async () => {
@@ -100,9 +108,18 @@ export default function RepPlan() {
     setIsSaving(true);
     try {
       const updateData = {
-        ...formData,
-        selfbill_auto_start_date: getAutoStartDate()
+        ...formData
       };
+      
+      // 처음 저장하는 경우에만 확정일과 자동이체 시작일 설정 (덮어쓰기 금지)
+      if (!building?.selfbill_plan_confirmed_at) {
+        const today = new Date();
+        const todayStr = `${today.getFullYear()}-${String(today.getMonth() + 1).padStart(2, '0')}-${String(today.getDate()).padStart(2, '0')}`;
+        
+        updateData.selfbill_plan_confirmed_at = todayStr;
+        updateData.selfbill_auto_start_date = addMonthsClamped(todayStr, 1);
+      }
+      
       await base44.entities.Building.update(buildingId, updateData);
       alert("저장되었습니다.");
       setIsEditing(false);
