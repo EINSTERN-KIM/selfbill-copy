@@ -176,7 +176,17 @@ export default function RepPlan() {
               </div>
             </div>
 
-            <div className="bg-white rounded-xl p-4 border border-slate-200">
+            <div className="bg-white rounded-xl p-4 mb-4 border border-slate-200">
+              <div className="space-y-2 text-sm mb-3 pb-3 border-b">
+                <div className="flex justify-between">
+                  <span className="text-slate-600">구독일</span>
+                  <span className="font-semibold text-slate-900">{getSubscriptionDate() || "-"}</span>
+                </div>
+                <div className="flex justify-between">
+                  <span className="text-slate-600">자동이체 시작일</span>
+                  <span className="font-semibold text-primary">{getAutoStartDate() || "-"}</span>
+                </div>
+              </div>
               <p className="text-xs font-semibold text-slate-700 mb-3">셀프빌 입금 계좌</p>
               <div className="space-y-1 text-sm">
                 <div className="flex justify-between">
@@ -235,12 +245,6 @@ export default function RepPlan() {
                     <span className="text-sm text-slate-600">계좌번호</span>
                     <span className="text-sm font-medium text-slate-900">
                       {formData.selfbill_auto_bank_account || "-"}
-                    </span>
-                  </div>
-                  <div className="flex justify-between">
-                    <span className="text-sm text-slate-600">구독일</span>
-                    <span className="text-sm font-medium text-slate-900">
-                      {getSubscriptionDate() || "-"}
                     </span>
                   </div>
                   <div className="flex justify-between">
