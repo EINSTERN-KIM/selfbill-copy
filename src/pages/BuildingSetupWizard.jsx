@@ -40,7 +40,8 @@ export default function BuildingSetupWizard() {
     name: "",
     address: "",
     address_detail: "",
-    planned_units_count: ""
+    planned_units_count: "",
+    total_floors: ""
   });
 
   // Step 2: 관리비 설정

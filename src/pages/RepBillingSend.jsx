@@ -168,17 +168,20 @@ export default function RepBillingSend() {
       for (const unitId of selectedUnits) {
         const unit = units.find(u => u.id === unitId);
         const charge = unitCharges.find(c => c.unit_id === unitId);
-        
+
         if (!unit || !charge) {
           failCount++;
           continue;
         }
 
         try {
-          await base44.entities.UnitCharge.update(charge.id, {
-            is_sent: true,
-            sent_at: new Date().toISOString()
-          });
+          // Mark as sent (even for resend)
+          if (!charge.is_sent) {
+            await base44.entities.UnitCharge.update(charge.id, {
+              is_sent: true,
+              sent_at: new Date().toISOString()
+            });
+          }
 
           const billDetailUrl = `${window.location.origin}${createPageUrl(`TenantMyBills?buildingId=${buildingId}`)}`;
           const notificationBody = `[${building?.name}]\n${selectedYearMonth} 관리비 청구\n\n부과기간: ${billingPeriodText}\n청구금액: ${charge.amount_total?.toLocaleString()}원\n납기일: ${dueDateDisplay}\n\n입금계좌\n${building?.bank_name} ${building?.bank_account}\n예금주: ${building?.bank_holder}\n\n상세내역은 셀프빌 링크에서 확인하세요.\n${billDetailUrl}`;
@@ -408,7 +411,7 @@ export default function RepBillingSend() {
                         <Checkbox
                           checked={isSelected}
                           onCheckedChange={() => handleToggleUnit(unit.id)}
-                          disabled={!canSend || isSent}
+                          disabled={!canSend}
                         />
                         <div className="w-10 h-10 rounded-lg bg-blue-100 flex items-center justify-center">
                           <Home className="w-5 h-5 text-blue-600" />
@@ -434,7 +437,7 @@ export default function RepBillingSend() {
                             </p>
                           )}
                           {isSent && (
-                            <span className="text-xs text-green-600 flex items-center gap-1">
+                            <span className="text-xs text-green-600 flex items-center gap-1 mt-1">
                               <Check className="w-3 h-3" />
                               발송완료
                             </span>

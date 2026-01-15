@@ -22,7 +22,9 @@ export default function RepBuildingSetup() {
   const [formData, setFormData] = useState({
     name: "",
     address: "",
-    address_detail: ""
+    address_detail: "",
+    planned_units_count: 0,
+    total_floors: 0
   });
 
   useEffect(() => {
@@ -30,7 +32,9 @@ export default function RepBuildingSetup() {
       setFormData({
         name: building.name || "",
         address: building.address || "",
-        address_detail: building.address_detail || ""
+        address_detail: building.address_detail || "",
+        planned_units_count: building.planned_units_count || 0,
+        total_floors: building.total_floors || 0
       });
     }
   }, [building]);
@@ -106,6 +110,26 @@ export default function RepBuildingSetup() {
                 value={formData.address_detail}
                 onChange={(e) => setFormData({ ...formData, address_detail: e.target.value })}
                 placeholder="예: A동 전체"
+              />
+            </div>
+
+            <div className="space-y-2">
+              <Label>총 세대 수</Label>
+              <Input
+                type="number"
+                value={formData.planned_units_count || ""}
+                onChange={(e) => setFormData({ ...formData, planned_units_count: parseInt(e.target.value) || 0 })}
+                placeholder="예: 50"
+              />
+            </div>
+
+            <div className="space-y-2">
+              <Label>총 층수</Label>
+              <Input
+                type="number"
+                value={formData.total_floors || ""}
+                onChange={(e) => setFormData({ ...formData, total_floors: parseInt(e.target.value) || 0 })}
+                placeholder="예: 5"
               />
             </div>
 

@@ -257,6 +257,21 @@ export default function RepPaymentsManage() {
           </Button>
         </div>
 
+        {/* 청구 총액 표시 */}
+        {unitCharges.length > 0 && (
+          <Card className="mb-6 bg-gradient-to-br from-blue-50 to-indigo-50 border-blue-100">
+            <CardContent className="pt-4 pb-4">
+              <div className="text-center">
+                <p className="text-sm text-blue-600 mb-1">이번 달 청구 총액</p>
+                <p className="text-3xl font-bold text-slate-900">
+                  {unitCharges.reduce((sum, c) => sum + (c.amount_total || 0), 0).toLocaleString()}원
+                </p>
+                <p className="text-xs text-slate-500 mt-1">총 {unitCharges.length}세대</p>
+              </div>
+            </CardContent>
+          </Card>
+        )}
+
         {unitCharges.length === 0 ? (
           <EmptyState
             icon={AlertCircle}
@@ -421,7 +436,7 @@ export default function RepPaymentsManage() {
                 ) : (
                   <>
                     <Save className="w-5 h-5 mr-2" />
-                    최종 저장
+                    저장
                   </>
                 )}
               </Button>
