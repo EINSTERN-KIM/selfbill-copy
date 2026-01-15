@@ -52,8 +52,23 @@ export default function RepPlan() {
   const getAutoStartDate = () => {
     if (!building?.created_date) return null;
     const subscriptionDate = new Date(building.created_date);
-    const autoStartDate = new Date(subscriptionDate);
-    autoStartDate.setMonth(autoStartDate.getMonth() + 1);
+    
+    const year = subscriptionDate.getFullYear();
+    const month = subscriptionDate.getMonth();
+    const day = subscriptionDate.getDate();
+    
+    // 다음 달 계산
+    const nextMonth = month + 1;
+    const nextYear = nextMonth > 11 ? year + 1 : year;
+    const targetMonth = nextMonth > 11 ? 0 : nextMonth;
+    
+    // 다음 달의 마지막 날 구하기
+    const lastDayOfNextMonth = new Date(nextYear, targetMonth + 1, 0).getDate();
+    
+    // 구독일의 일자가 다음 달에 존재하면 그대로, 없으면 마지막 날로
+    const targetDay = day > lastDayOfNextMonth ? lastDayOfNextMonth : day;
+    
+    const autoStartDate = new Date(nextYear, targetMonth, targetDay);
     return autoStartDate.toISOString().split('T')[0];
   };
 
@@ -182,10 +197,6 @@ export default function RepPlan() {
                   <span className="text-slate-600">구독일</span>
                   <span className="font-semibold text-slate-900">{getSubscriptionDate() || "-"}</span>
                 </div>
-                <div className="flex justify-between">
-                  <span className="text-slate-600">자동이체 시작일</span>
-                  <span className="font-semibold text-primary">{getAutoStartDate() || "-"}</span>
-                </div>
               </div>
               <p className="text-xs font-semibold text-slate-700 mb-3">셀프빌 입금 계좌</p>
               <div className="space-y-1 text-sm">
@@ -259,11 +270,10 @@ export default function RepPlan() {
               <>
                 <div className="bg-blue-50 border border-blue-200 rounded-lg p-3 mb-4">
                   <p className="text-sm text-blue-800">
-                    구독일: <strong>{getSubscriptionDate()}</strong><br />
-                    자동이체 시작일(구독일+1개월): <strong>{getAutoStartDate()}</strong>
+                    <strong>자동이체 시작일: {getAutoStartDate()}</strong>
                   </p>
                   <p className="text-sm text-blue-700 mt-2">
-                    ※ 자동이체 시작일은 구독일 기준으로 고정되며 변경되지 않습니다.
+                    ※ 자동이체 시작일은 구독일({getSubscriptionDate()}) 기준 1개월 후로 고정되며 변경되지 않습니다.
                   </p>
                 </div>
                 <p className="text-sm text-slate-600">

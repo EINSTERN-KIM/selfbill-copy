@@ -470,6 +470,33 @@ export default function BuildingSetupWizard() {
     setIsSaving(false);
   };
 
+  const getSubscriptionDate = () => {
+    return building?.created_date ? building.created_date.split('T')[0] : null;
+  };
+
+  const getAutoStartDate = () => {
+    if (!building?.created_date) return null;
+    const subscriptionDate = new Date(building.created_date);
+    
+    const year = subscriptionDate.getFullYear();
+    const month = subscriptionDate.getMonth();
+    const day = subscriptionDate.getDate();
+    
+    // 다음 달 계산
+    const nextMonth = month + 1;
+    const nextYear = nextMonth > 11 ? year + 1 : year;
+    const targetMonth = nextMonth > 11 ? 0 : nextMonth;
+    
+    // 다음 달의 마지막 날 구하기
+    const lastDayOfNextMonth = new Date(nextYear, targetMonth + 1, 0).getDate();
+    
+    // 구독일의 일자가 다음 달에 존재하면 그대로, 없으면 마지막 날로
+    const targetDay = day > lastDayOfNextMonth ? lastDayOfNextMonth : day;
+    
+    const autoStartDate = new Date(nextYear, targetMonth, targetDay);
+    return autoStartDate.toISOString().split('T')[0];
+  };
+
   const completeSetup = async () => {
     setIsSaving(true);
     try {
@@ -485,14 +512,12 @@ export default function BuildingSetupWizard() {
       };
       
       if (step2Data.bank_name && step2Data.bank_account && step2Data.bank_holder) {
-        const today = new Date();
-        const threeMonthsLater = new Date(today);
-        threeMonthsLater.setMonth(threeMonthsLater.getMonth() + 3);
+        const autoStartDate = getAutoStartDate();
         
         updateData.selfbill_auto_bank_name = step2Data.bank_name;
         updateData.selfbill_auto_bank_account = step2Data.bank_account;
         updateData.selfbill_auto_bank_holder = step2Data.bank_holder;
-        updateData.selfbill_auto_start_date = threeMonthsLater.toISOString().split('T')[0];
+        updateData.selfbill_auto_start_date = autoStartDate;
       }
 
       await base44.entities.Building.update(buildingId, updateData);
@@ -1226,6 +1251,12 @@ export default function BuildingSetupWizard() {
                 </div>
 
                 <div className="bg-white rounded-lg p-4 mt-4 border border-slate-200">
+                  <div className="space-y-2 text-sm mb-3 pb-3 border-b">
+                    <div className="flex justify-between">
+                      <span className="text-slate-600">구독일</span>
+                      <span className="font-semibold text-slate-900">{getSubscriptionDate() || "-"}</span>
+                    </div>
+                  </div>
                   <p className="text-xs font-semibold text-slate-700 mb-3">셀프빌 입금 계좌</p>
                   <div className="space-y-1 text-sm">
                     <div className="flex justify-between">
@@ -1259,11 +1290,7 @@ export default function BuildingSetupWizard() {
                     <div className="text-sm text-slate-700 space-y-1">
                       <p>• 위 요금제 내용을 확인했으며 동의합니다.</p>
                       <p>• 공동주택 등록일로부터 1개월은 무료입니다.</p>
-                      <p>• {(() => {
-                        const today = new Date();
-                        const nextMonth = new Date(today.setMonth(today.getMonth() + 1));
-                        return `${nextMonth.getFullYear()}-${String(nextMonth.getMonth() + 1).padStart(2, '0')}-${String(nextMonth.getDate()).padStart(2, '0')}`;
-                      })()}부터는 자동이체가 정상 처리되어야 셀프빌을 계속 이용하실 수 있습니다.</p>
+                      <p>• {getAutoStartDate() || "-"}부터는 자동이체가 정상 처리되어야 셀프빌을 계속 이용하실 수 있습니다.</p>
                       <p>• 자동이체는 대표님이 직접 등록해 주십시오.</p>
                     </div>
                   </div>
@@ -1277,11 +1304,10 @@ export default function BuildingSetupWizard() {
                 <h3 className="text-lg font-semibold text-slate-900">자동이체 계좌 등록</h3>
                 <div className="bg-blue-50 border border-blue-200 rounded-lg p-3">
                   <p className="text-sm text-blue-800">
-                    건물 등록일로부터 1개월 후인 <strong>{(() => {
-                      const today = new Date();
-                      const nextMonth = new Date(today.setMonth(today.getMonth() + 1));
-                      return `${nextMonth.getFullYear()}-${String(nextMonth.getMonth() + 1).padStart(2, '0')}-${String(nextMonth.getDate()).padStart(2, '0')}`;
-                    })()}</strong>부터 요금이 부과됩니다.
+                    <strong>자동이체 시작일: {getAutoStartDate() || "-"}</strong>
+                  </p>
+                  <p className="text-sm text-blue-700 mt-2">
+                    ※ 자동이체 시작일은 구독일({getSubscriptionDate() || "-"}) 기준 1개월 후로 고정되며 변경되지 않습니다.
                   </p>
                 </div>
                 <p className="text-sm text-slate-600">
