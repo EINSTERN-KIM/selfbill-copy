@@ -380,7 +380,14 @@ export default function RepBillingUnitCharges() {
                             <Home className="w-5 h-5 text-blue-600" />
                           </div>
                           <div>
-                            <p className="font-medium text-slate-900">{getUnitDisplay(unit)}</p>
+                            <div className="flex items-center gap-2">
+                              <p className="font-medium text-slate-900">{getUnitDisplay(unit)}</p>
+                              {unit.share_ratio !== null && unit.share_ratio !== undefined && (
+                                <span className="text-xs font-semibold text-primary bg-primary-light/20 px-2 py-0.5 rounded">
+                                  {unit.share_ratio}%
+                                </span>
+                              )}
+                            </div>
                             {unit.tenant_name && (
                               <p className="text-sm text-slate-500">{unit.tenant_name}</p>
                             )}
@@ -413,14 +420,7 @@ export default function RepBillingUnitCharges() {
                       
                       {isExpanded && charge && breakdown.length > 0 && (
                         <div className="mt-4 pt-4 border-t space-y-2">
-                          <div className="flex items-center justify-between mb-3">
-                            <p className="text-sm font-semibold text-slate-700">상세 내역</p>
-                            {unit.share_ratio !== null && unit.share_ratio !== undefined && (
-                              <p className="text-xs font-semibold text-primary bg-primary-light/20 px-2 py-1 rounded">
-                                지분율: {unit.share_ratio}%
-                              </p>
-                            )}
-                          </div>
+                          <p className="text-sm font-semibold text-slate-700 mb-3">상세 내역</p>
                           {breakdown.map((item, idx) => (
                             <div key={idx} className="flex items-center justify-between py-2">
                               <span className="text-sm text-slate-600">{item.name}</span>

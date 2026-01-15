@@ -36,10 +36,29 @@ export default function RepBillingMonthlyEdit() {
   const [monthlyExtraItems, setMonthlyExtraItems] = useState([]);
   const [isEditable, setIsEditable] = useState(true);
   const [isTempSaved, setIsTempSaved] = useState(false);
+  const [isMonthLocked, setIsMonthLocked] = useState(false);
 
   useEffect(() => {
     loadData();
   }, [buildingId, selectedYearMonth]);
+
+  useEffect(() => {
+    checkIfMonthLocked();
+  }, [buildingId, selectedYearMonth]);
+
+  const checkIfMonthLocked = async () => {
+    if (!buildingId) return;
+    try {
+      const charges = await base44.entities.UnitCharge.filter({
+        building_id: buildingId,
+        year_month: selectedYearMonth,
+        is_sent: true
+      });
+      setIsMonthLocked(charges.length > 0);
+    } catch (err) {
+      console.error("Error checking lock status:", err);
+    }
+  };
 
   const loadData = async () => {
     if (!buildingId) return;
@@ -76,8 +95,15 @@ export default function RepBillingMonthlyEdit() {
       
       setBillCycle(cycle);
       
-      // Set edit state based on cycle status
-      setIsEditable(cycle.status === "draft" && !cycle.is_locked);
+      // Set edit state based on cycle status and month lock
+      const charges = await base44.entities.UnitCharge.filter({
+        building_id: buildingId,
+        year_month: selectedYearMonth,
+        is_sent: true
+      });
+      const monthLocked = charges.length > 0;
+      setIsMonthLocked(monthLocked);
+      setIsEditable(!monthLocked && cycle.status === "draft" && !cycle.is_locked);
       setIsTempSaved(cycle.is_locked || false);
 
       let items = await base44.entities.BillItem.filter({
@@ -447,6 +473,12 @@ export default function RepBillingMonthlyEdit() {
                 </SelectContent>
               </Select>
             </div>
+            {isMonthLocked && (
+              <div className="mt-3 bg-red-50 border border-red-200 rounded-lg p-3">
+                <p className="text-sm text-red-900 font-semibold">⚠️ 청구서가 발송된 월입니다</p>
+                <p className="text-xs text-red-700 mt-1">이미 청구서가 발송되어 수정할 수 없습니다.</p>
+              </div>
+            )}
           </CardContent>
         </Card>
 
@@ -850,7 +882,7 @@ export default function RepBillingMonthlyEdit() {
               >
                 이전
               </Button>
-              {!isEditable && (
+              {!isEditable && !isMonthLocked && (
                 <Button
                   variant="outline"
                   onClick={handleUnlock}
@@ -860,7 +892,7 @@ export default function RepBillingMonthlyEdit() {
               )}
               <Button
                 onClick={handleTempSave}
-                disabled={isSaving || !isEditable}
+                disabled={isSaving || !isEditable || isMonthLocked}
                 variant="outline"
                 className="flex-1"
               >
@@ -875,7 +907,7 @@ export default function RepBillingMonthlyEdit() {
               </Button>
               <Button
                 onClick={handleFinalConfirm}
-                disabled={isSaving || !isTempSaved}
+                disabled={isSaving || !isTempSaved || isMonthLocked}
                 className="flex-1 bg-primary hover:bg-primary-dark text-white"
               >
                 {isSaving ? (

@@ -33,7 +33,6 @@ export default function RepBillingSend() {
   const [units, setUnits] = useState([]);
   const [unitCharges, setUnitCharges] = useState([]);
   const [selectedUnits, setSelectedUnits] = useState([]);
-  const [daysUntilDue, setDaysUntilDue] = useState(7); // 기본 7일 후
 
   useEffect(() => {
     loadData();
@@ -102,6 +101,11 @@ export default function RepBillingSend() {
   };
 
   const handleSend = async () => {
+    // 청구서 발송 확인 경고
+    if (!confirm("청구서를 한 세대에라도 발송하면 더 이상 수정이 어렵습니다. 그래도 발송하시겠습니까?")) {
+      return;
+    }
+
     // 부과기간 종료일 체크
     const [year, month] = selectedYearMonth.split('-').map(Number);
     const billingPeriodStart = building?.billing_period_start || 1;
@@ -125,11 +129,25 @@ export default function RepBillingSend() {
       return;
     }
 
-    // 납기일 계산 (발송일로부터 N일 후)
+    // 납기일 계산 (관리비 설정의 납입기일 사용)
+    const billingDueDay = building?.billing_due_day || 25;
     const sendDate = new Date();
-    const dueDate = new Date(sendDate);
-    dueDate.setDate(dueDate.getDate() + parseInt(daysUntilDue));
-    const dueDateStr = `${dueDate.getFullYear()}-${String(dueDate.getMonth() + 1).padStart(2, '0')}-${String(dueDate.getDate()).padStart(2, '0')}`;
+    let dueYear = year;
+    let dueMonth = month;
+    
+    // 익월 납기일로 설정 (예: 1월 청구서는 2월 N일이 납기일)
+    dueMonth++;
+    if (dueMonth > 12) {
+      dueMonth = 1;
+      dueYear++;
+    }
+    
+    // 해당 월의 마지막 날 확인
+    const lastDayOfMonth = new Date(dueYear, dueMonth, 0).getDate();
+    const dueDateDay = billingDueDay > lastDayOfMonth ? lastDayOfMonth : billingDueDay;
+    
+    const dueDate = new Date(dueYear, dueMonth - 1, dueDateDay);
+    const dueDateStr = `${dueYear}-${String(dueMonth).padStart(2, '0')}-${String(dueDateDay).padStart(2, '0')}`;
     const dueDateDisplay = dueDate.toLocaleDateString('ko-KR', { month: 'long', day: 'numeric' });
 
     // 부과기간 문자열 생성
@@ -295,35 +313,26 @@ export default function RepBillingSend() {
               </Select>
             </div>
 
-            {/* 납기일 설정 */}
+            {/* 납기일 표시 */}
             <div className="border-t pt-4">
-              <label className="text-sm font-medium text-slate-700 block mb-2">
-                납기일 설정
-              </label>
-              <div className="flex items-center gap-3">
-                <span className="text-sm text-slate-600">발송일로부터</span>
-                <Select 
-                  value={String(daysUntilDue)} 
-                  onValueChange={(val) => setDaysUntilDue(parseInt(val))}
-                >
-                  <SelectTrigger className="w-32">
-                    <SelectValue />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {[3, 5, 7, 10, 14].map(days => (
-                      <SelectItem key={days} value={String(days)}>
-                        {days}일 후
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-                <span className="text-sm text-slate-500">
-                  ({(() => {
-                    const dueDate = new Date();
-                    dueDate.setDate(dueDate.getDate() + parseInt(daysUntilDue));
-                    return dueDate.toLocaleDateString('ko-KR', { month: 'long', day: 'numeric' });
-                  })()})
-                </span>
+              <div className="bg-amber-50 border border-amber-200 rounded-lg p-3">
+                <p className="text-xs font-medium text-amber-900 mb-1">납기일</p>
+                <p className="text-sm text-amber-800">
+                  {(() => {
+                    const [year, month] = selectedYearMonth.split('-').map(Number);
+                    const billingDueDay = building?.billing_due_day || 25;
+                    let dueYear = year;
+                    let dueMonth = month + 1;
+                    if (dueMonth > 12) {
+                      dueMonth = 1;
+                      dueYear++;
+                    }
+                    const lastDayOfMonth = new Date(dueYear, dueMonth, 0).getDate();
+                    const dueDateDay = billingDueDay > lastDayOfMonth ? lastDayOfMonth : billingDueDay;
+                    return `${dueYear}년 ${dueMonth}월 ${dueDateDay}일`;
+                  })()}
+                </p>
+                <p className="text-xs text-amber-700 mt-1">※ 관리비 설정에서 변경 가능</p>
               </div>
             </div>
 
