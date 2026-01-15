@@ -292,10 +292,15 @@ export default function RepUnits() {
                           )}
                         </div>
                         {unit.tenant_name && (
-                          <p className="text-sm text-slate-500">
-                            {unit.tenant_name}
-                            {unit.tenant_phone && ` · ${unit.tenant_phone}`}
-                          </p>
+                          <div className="flex items-center gap-2">
+                            <p className="text-sm text-slate-500">
+                              {unit.tenant_name}
+                              {unit.tenant_phone && ` · ${unit.tenant_phone}`}
+                            </p>
+                            {unit.is_owner && (
+                              <Badge className="bg-green-100 text-green-700 text-xs">자가</Badge>
+                            )}
+                          </div>
                         )}
                         {unit.tenant_email && (
                           <p className="text-xs text-slate-400">{unit.tenant_email}</p>
