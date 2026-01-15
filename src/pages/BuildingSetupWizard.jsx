@@ -104,7 +104,8 @@ export default function BuildingSetupWizard() {
               name: bldg.name || "",
               address: bldg.address || "",
               address_detail: bldg.address_detail || "",
-              planned_units_count: bldg.planned_units_count || ""
+              planned_units_count: bldg.planned_units_count || "",
+              total_floors: bldg.total_floors || ""
             });
           }
           if (bldg.setup_step >= 2) {
@@ -155,8 +156,8 @@ export default function BuildingSetupWizard() {
   };
 
   const saveStep1 = async () => {
-    if (!step1Data.name || !step1Data.address || !step1Data.planned_units_count) {
-      alert("건물명, 주소, 전체 세대수를 모두 입력해 주세요.");
+    if (!step1Data.name || !step1Data.address || !step1Data.planned_units_count || !step1Data.total_floors) {
+      alert("건물명, 주소, 전체 세대수, 총 층수를 모두 입력해 주세요.");
       return;
     }
 
@@ -167,6 +168,7 @@ export default function BuildingSetupWizard() {
         const newBuilding = await base44.entities.Building.create({
           ...step1Data,
           planned_units_count: parseInt(step1Data.planned_units_count),
+          total_floors: parseInt(step1Data.total_floors),
           status: "draft",
           setup_step: 1,
           building_units_count: 0
@@ -188,6 +190,7 @@ export default function BuildingSetupWizard() {
         await base44.entities.Building.update(bldgId, {
           ...step1Data,
           planned_units_count: parseInt(step1Data.planned_units_count),
+          total_floors: parseInt(step1Data.total_floors),
           setup_step: 2
         });
         setBuilding(prev => ({ ...prev, setup_step: 2 }));
@@ -675,6 +678,16 @@ export default function BuildingSetupWizard() {
                   value={step1Data.planned_units_count}
                   onChange={(e) => setStep1Data({...step1Data, planned_units_count: e.target.value})}
                   placeholder="예: 10"
+                />
+              </div>
+              <div className="space-y-2">
+                <Label>총 층수 *</Label>
+                <Input
+                  type="number"
+                  min="1"
+                  value={step1Data.total_floors}
+                  onChange={(e) => setStep1Data({...step1Data, total_floors: e.target.value})}
+                  placeholder="예: 5"
                 />
               </div>
               <div className="pt-4 flex justify-end">
