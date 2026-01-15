@@ -13,7 +13,7 @@ export default function TenantLayout({ buildingId, building, currentPage, childr
   const navigate = useNavigate();
 
   const menuItems = [
-    { id: 'TenantDashboard', label: '대시보드', icon: Home },
+    { id: 'TenantDashboard', label: '대시보드', icon: Home, isBold: true },
     { id: 'TenantMyUnit', label: '나의 입주 현황', icon: Home },
     { id: 'TenantMyBills', label: '나의 관리비 청구서', icon: Receipt },
     { id: 'TenantMyPayments', label: '나의 납부 현황', icon: CreditCard }
@@ -30,15 +30,18 @@ export default function TenantLayout({ buildingId, building, currentPage, childr
       <div className="flex-1 overflow-y-auto">
         {/* Building Header */}
         <div className="p-4 border-b">
-          <div className="flex items-center gap-3">
+          <button
+            onClick={() => navigate(createPageUrl("MyBuildings"))}
+            className="flex items-center gap-3 w-full hover:bg-slate-50 rounded-lg p-2 -m-2 transition-colors"
+          >
             <div className="w-10 h-10 rounded-xl bg-primary flex items-center justify-center">
               <Building2 className="w-5 h-5 text-white" />
             </div>
-            <div className="flex-1 min-w-0">
+            <div className="flex-1 min-w-0 text-left">
               <p className="font-semibold text-slate-900 truncate">{building?.name || '공동주택'}</p>
               <p className="text-xs text-slate-500">입주자</p>
             </div>
-          </div>
+          </button>
         </div>
 
         {/* Menu Items */}
@@ -59,7 +62,7 @@ export default function TenantLayout({ buildingId, building, currentPage, childr
                 onClick={() => setSidebarOpen(false)}
               >
                 <Icon className="w-5 h-5" />
-                <span className="text-sm font-medium">{item.label}</span>
+                <span className={`text-sm ${item.isBold ? 'font-bold' : 'font-medium'}`}>{item.label}</span>
               </Link>
             );
           })}

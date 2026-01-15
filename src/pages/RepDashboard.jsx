@@ -47,11 +47,16 @@ export default function RepDashboard() {
         ]);
 
         const currentDate = new Date();
-        const yearMonth = `${currentDate.getFullYear()}-${String(currentDate.getMonth() + 1).padStart(2, '0')}`;
+        const currentYearMonth = `${currentDate.getFullYear()}-${String(currentDate.getMonth() + 1).padStart(2, '0')}`;
+
+        // Get last month's year-month for display
+        const lastMonthDate = new Date(currentDate);
+        lastMonthDate.setMonth(lastMonthDate.getMonth() - 1);
+        const lastYearMonth = `${lastMonthDate.getFullYear()}-${String(lastMonthDate.getMonth() + 1).padStart(2, '0')}`;
 
         const payments = await base44.entities.PaymentStatus.filter({
           building_id: buildingId,
-          year_month: yearMonth
+          year_month: currentYearMonth
         });
 
         const unpaid = payments.filter(p => p.status === "미납").length;
@@ -59,7 +64,8 @@ export default function RepDashboard() {
         const cycles = await base44.entities.BillCycle.filter({
           building_id: buildingId
         });
-        const currentCycle = cycles.find(c => c.year_month === yearMonth);
+        // Display last month's sent cycle, not current month's draft
+        const displayCycle = cycles.find(c => c.year_month === lastYearMonth && c.status === "sent");
 
         // Count only completed invitations
         const completedInvites = invitationsData.filter(inv => inv.status === "가입 완료").length;
@@ -68,7 +74,7 @@ export default function RepDashboard() {
           totalUnits: unitsData.length,
           invitedUnits: completedInvites,
           unpaidCount: unpaid,
-          currentMonthTotal: currentCycle?.total_amount || 0
+          currentMonthTotal: displayCycle?.total_amount || 0
         });
       } catch (err) {
         console.error("Error loading stats:", err);

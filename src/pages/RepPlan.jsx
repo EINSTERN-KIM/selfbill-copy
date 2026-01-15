@@ -45,11 +45,16 @@ export default function RepPlan() {
     }
   }, [building]);
   
-  const getNextMonthDate = () => {
-    const today = new Date();
-    const nextMonth = new Date(today);
-    nextMonth.setMonth(nextMonth.getMonth() + 1);
-    return nextMonth.toISOString().split('T')[0];
+  const getSubscriptionDate = () => {
+    return building?.created_date ? building.created_date.split('T')[0] : null;
+  };
+
+  const getAutoStartDate = () => {
+    if (!building?.created_date) return null;
+    const subscriptionDate = new Date(building.created_date);
+    const autoStartDate = new Date(subscriptionDate);
+    autoStartDate.setMonth(autoStartDate.getMonth() + 1);
+    return autoStartDate.toISOString().split('T')[0];
   };
 
   const calculateAutoStartDate = () => {
@@ -81,7 +86,7 @@ export default function RepPlan() {
     try {
       const updateData = {
         ...formData,
-        selfbill_auto_start_date: getNextMonthDate()
+        selfbill_auto_start_date: getAutoStartDate()
       };
       await base44.entities.Building.update(buildingId, updateData);
       alert("저장되었습니다.");
@@ -233,9 +238,15 @@ export default function RepPlan() {
                     </span>
                   </div>
                   <div className="flex justify-between">
+                    <span className="text-sm text-slate-600">구독일</span>
+                    <span className="text-sm font-medium text-slate-900">
+                      {getSubscriptionDate() || "-"}
+                    </span>
+                  </div>
+                  <div className="flex justify-between">
                     <span className="text-sm text-slate-600">자동이체 시작일</span>
                     <span className="text-sm font-medium text-slate-900">
-                      {building?.selfbill_auto_start_date || "-"}
+                      {getAutoStartDate() || "-"}
                     </span>
                   </div>
                 </div>
@@ -244,7 +255,11 @@ export default function RepPlan() {
               <>
                 <div className="bg-blue-50 border border-blue-200 rounded-lg p-3 mb-4">
                   <p className="text-sm text-blue-800">
-                    건물 등록일로부터 1개월 후인 <strong>{getNextMonthDate()}</strong>부터 요금이 부과됩니다.
+                    구독일: <strong>{getSubscriptionDate()}</strong><br />
+                    자동이체 시작일(구독일+1개월): <strong>{getAutoStartDate()}</strong>
+                  </p>
+                  <p className="text-sm text-blue-700 mt-2">
+                    ※ 자동이체 시작일은 구독일 기준으로 고정되며 변경되지 않습니다.
                   </p>
                 </div>
                 <p className="text-sm text-slate-600">
