@@ -1,6 +1,41 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 
 export default function Layout({ children, currentPageName }) {
+  useEffect(() => {
+    const pageTitles = {
+      'Home': '홈',
+      'MyBuildings': '내 건물 목록',
+      'BuildingSetupWizard': '건물 등록',
+      'RepDashboard': '대표자 대시보드',
+      'RepUnits': '세대 목록',
+      'RepUnitsInvite': '입주자 초대',
+      'RepUnitsReview': '세대 정보 확인',
+      'RepFeeItems': '관리비 항목',
+      'RepBillingMonthlyEdit': '월별 관리비 입력',
+      'RepBillingUnitCharges': '세대별 청구 확인',
+      'RepBillingSend': '청구서 발송',
+      'RepPaymentsManage': '납부 현황 관리',
+      'RepBuildingSetup': '건물 기본정보',
+      'RepBillingSettings': '관리비 설정',
+      'RepBankAccount': '입금 계좌',
+      'RepReportsTotalFee': '전체 관리비 현황',
+      'RepReportsUnitFee': '세대별 관리비',
+      'RepReportsUnitPayments': '세대별 납부 현황',
+      'RepPlan': '요금제 확인',
+      'RepRoleChange': '대표자 변경',
+      'TenantDashboard': '입주자 대시보드',
+      'TenantMyBills': '나의 관리비',
+      'TenantMyPayments': '나의 납부 현황',
+      'TenantMyUnit': '나의 입주 현황',
+      'TenantInviteCheck': '초대 확인',
+      'TenantAdditionalInfo': '추가 정보 입력',
+      'Onboarding': '온보딩'
+    };
+
+    const pageTitle = pageTitles[currentPageName] || '셀프빌';
+    document.title = `셀프빌 | ${pageTitle}`;
+  }, [currentPageName]);
+
   return (
     <div className="min-h-screen" style={{ backgroundColor: 'var(--color-background)' }}>
       <style>{`
