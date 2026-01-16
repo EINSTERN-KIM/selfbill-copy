@@ -687,7 +687,7 @@ export default function BuildingSetupWizard() {
                   min="1"
                   value={step1Data.total_floors}
                   onChange={(e) => setStep1Data({...step1Data, total_floors: e.target.value})}
-                  placeholder="예: 5"
+                  placeholder="예: 지하1층, 지상1,2,3층이면 총 층수는 4입니다."
                 />
               </div>
               <div className="pt-4 flex justify-end">
