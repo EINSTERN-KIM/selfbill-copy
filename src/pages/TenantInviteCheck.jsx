@@ -64,23 +64,15 @@ export default function TenantInviteCheck() {
       
       const invitation = invitations[0];
       
-      // Create BuildingMember
-      await base44.entities.BuildingMember.create({
-        building_id: invitation.building_id,
-        user_id: user.id,
-        user_email: user.email,
-        role: "입주자",
-        unit_id: invitation.unit_id,
-        status: "활성"
-      });
+      // Store invitation data and navigate to additional info page
+      sessionStorage.setItem('pendingInvitation', JSON.stringify({
+        invitationId: invitation.id,
+        buildingId: invitation.building_id,
+        unitId: invitation.unit_id,
+        invitePhone: invitePhone
+      }));
       
-      // Update invitation status
-      await base44.entities.Invitation.update(invitation.id, {
-        status: "가입 완료",
-        accepted_at: new Date().toISOString()
-      });
-      
-      navigate(createPageUrl("MyBuildings"));
+      navigate(createPageUrl("TenantAdditionalInfo"));
     } catch (err) {
       setInviteError("초대 확인 중 오류가 발생했습니다.");
     }
