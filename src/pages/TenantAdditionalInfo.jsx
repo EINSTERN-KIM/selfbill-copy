@@ -22,6 +22,7 @@ export default function TenantAdditionalInfo() {
   
   const [formData, setFormData] = useState({
     tenant_name: "",
+    tenant_email: "",
     is_owner: false,
     residents_count: 1,
     move_in_date: "",
@@ -102,12 +103,14 @@ export default function TenantAdditionalInfo() {
       // Update unit with additional info
       await base44.entities.Unit.update(pendingInvitation.unitId, {
         tenant_name: formData.tenant_name,
+        tenant_email: formData.tenant_email || null,
         is_owner: formData.is_owner,
         residents_count: formData.residents_count,
         move_in_date: formData.move_in_date || null,
         move_out_date: formData.move_out_date || null,
         car_count: formData.car_count,
-        car_numbers: formData.car_numbers.filter(cn => cn.trim() !== "")
+        car_numbers: formData.car_numbers.filter(cn => cn.trim() !== ""),
+        needs_review: true
       });
       
       // Create BuildingMember
@@ -129,7 +132,10 @@ export default function TenantAdditionalInfo() {
       // Clear sessionStorage
       sessionStorage.removeItem('pendingInvitation');
       
-      navigate(createPageUrl("MyBuildings"));
+      // Show confirmation alert
+      alert("정보가 입력되었습니다. 대표자 확인 후 최종 반영됩니다.");
+      
+      navigate(createPageUrl(`TenantDashboard?buildingId=${pendingInvitation.buildingId}`));
     } catch (err) {
       console.error("Error saving:", err);
       alert("정보 저장 중 오류가 발생했습니다.");
@@ -182,6 +188,16 @@ export default function TenantAdditionalInfo() {
                   value={formData.tenant_name}
                   onChange={(e) => setFormData({...formData, tenant_name: e.target.value})}
                   placeholder="이름을 입력해주세요"
+                />
+              </div>
+
+              <div className="space-y-2">
+                <Label>이메일</Label>
+                <Input
+                  type="email"
+                  value={formData.tenant_email}
+                  onChange={(e) => setFormData({...formData, tenant_email: e.target.value})}
+                  placeholder="example@email.com"
                 />
               </div>
 
