@@ -271,7 +271,7 @@ export default function RepDashboard() {
                     {stats.currentMonthTotal > 0 ? `${(stats.currentMonthTotal / 10000).toFixed(0)}만` : '-'}
                   </p>
                   <p className="text-xs text-slate-500 mt-0.5">
-                    {stats.displayMonth ? `${stats.displayMonth} 관리비 총액` : '청구 총액'}
+                    {stats.displayMonth ? `${stats.displayMonth} 청구 총액` : '청구 총액'}
                   </p>
                 </div>
               </div>
