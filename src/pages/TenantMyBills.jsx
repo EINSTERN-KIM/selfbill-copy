@@ -166,15 +166,15 @@ export default function TenantMyBills() {
                   <div className="text-center">
                     <p className="text-xs text-slate-500">부과 기간</p>
                     <p className="text-sm font-medium text-slate-900 mt-1">
-                      {billCycle.period_start && billCycle.period_end 
-                        ? `${billCycle.period_start.split('T')[0].slice(5)} ~ ${billCycle.period_end.split('T')[0].slice(5)}`
+                      {building?.billing_period_start && building?.billing_period_end
+                        ? `${building.billing_period_start}일~${building.billing_period_end}일`
                         : '-'}
                     </p>
                   </div>
                   <div className="text-center">
                     <p className="text-xs text-slate-500">납기일</p>
                     <p className="text-sm font-medium text-primary mt-1">
-                      {billCycle.due_date ? new Date(billCycle.due_date).toLocaleDateString('ko-KR', { month: 'short', day: 'numeric' }) : '-'}
+                      {billCycle.due_date ? new Date(billCycle.due_date).toLocaleDateString('ko-KR', { month: 'short', day: 'numeric' }) + '까지' : '-'}
                     </p>
                   </div>
                   <div className="text-center">

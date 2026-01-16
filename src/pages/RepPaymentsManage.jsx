@@ -32,6 +32,7 @@ export default function RepPaymentsManage() {
   const [partialPaymentData, setPartialPaymentData] = useState({
     chargeId: null,
     amount: "",
+    paid_at: "",
     memo: ""
   });
 
@@ -93,7 +94,8 @@ export default function RepPaymentsManage() {
   };
 
   const handleMarkAsPaid = async (chargeId, chargeAmount) => {
-    if (!confirm("완납 처리하시겠습니까?")) return;
+    const paidDate = prompt("입금일자를 입력하세요 (YYYY-MM-DD):", new Date().toISOString().split('T')[0]);
+    if (!paidDate) return;
     
     setFormData(prev => ({
       ...prev,
@@ -101,7 +103,7 @@ export default function RepPaymentsManage() {
         ...prev[chargeId],
         status: "완납",
         paid_amount: chargeAmount,
-        paid_at: new Date().toISOString().split('T')[0]
+        paid_at: paidDate
       }
     }));
   };
@@ -110,6 +112,7 @@ export default function RepPaymentsManage() {
     setPartialPaymentData({
       chargeId: chargeId,
       amount: "",
+      paid_at: new Date().toISOString().split('T')[0],
       memo: formData[chargeId]?.memo || ""
     });
     setShowPartialDialog(true);
@@ -127,6 +130,11 @@ export default function RepPaymentsManage() {
       alert("부분납 금액은 청구 금액보다 작아야 합니다. 완납 처리하려면 X 아이콘을 클릭하세요.");
       return;
     }
+
+    if (!partialPaymentData.paid_at) {
+      alert("입금일자를 입력해주세요.");
+      return;
+    }
     
     setFormData(prev => ({
       ...prev,
@@ -134,7 +142,7 @@ export default function RepPaymentsManage() {
         ...prev[partialPaymentData.chargeId],
         status: "부분납",
         paid_amount: paidAmount,
-        paid_at: new Date().toISOString().split('T')[0],
+        paid_at: partialPaymentData.paid_at,
         memo: partialPaymentData.memo
       }
     }));
@@ -421,6 +429,24 @@ export default function RepPaymentsManage() {
               </div>
             )}
 
+            {/* 총 납입금액 표시 */}
+            <Card className="mb-4 bg-gradient-to-br from-green-50 to-emerald-50 border-green-200">
+              <CardContent className="pt-4 pb-4">
+                <div className="text-center">
+                  <p className="text-sm text-green-600 mb-1">총 납입 금액</p>
+                  <p className="text-3xl font-bold text-slate-900">
+                    {unitCharges.reduce((sum, charge) => {
+                      const data = formData[charge.id] || {};
+                      return sum + (parseFloat(data.paid_amount) || 0);
+                    }, 0).toLocaleString()}원
+                  </p>
+                  <p className="text-xs text-slate-500 mt-1">
+                    완납: {paidCharges.length}세대 / 부분납: {partialCharges.length}세대
+                  </p>
+                </div>
+              </CardContent>
+            </Card>
+
             <div className="sticky bottom-6 flex justify-end">
               <Button
                 onClick={handleSave}
@@ -465,6 +491,14 @@ export default function RepPaymentsManage() {
                   청구 금액: {unitCharges.find(c => c.id === partialPaymentData.chargeId)?.amount_total?.toLocaleString()}원
                 </p>
               )}
+            </div>
+            <div className="space-y-2">
+              <Label>입금일자 *</Label>
+              <Input
+                type="date"
+                value={partialPaymentData.paid_at}
+                onChange={(e) => setPartialPaymentData({...partialPaymentData, paid_at: e.target.value})}
+              />
             </div>
             <div className="space-y-2">
               <Label>메모</Label>
