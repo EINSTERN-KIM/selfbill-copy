@@ -6,7 +6,8 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Checkbox } from "@/components/ui/checkbox";
+import { Switch } from "@/components/ui/switch";
+import { Separator } from "@/components/ui/separator";
 import { Building2, Users, Loader2 } from 'lucide-react';
 import LoadingSpinner from '@/components/common/LoadingSpinner';
 
@@ -24,6 +25,7 @@ export default function TenantAdditionalInfo() {
     is_owner: false,
     residents_count: 1,
     move_in_date: "",
+    move_out_date: "",
     car_count: 0,
     car_numbers: []
   });
@@ -103,6 +105,7 @@ export default function TenantAdditionalInfo() {
         is_owner: formData.is_owner,
         residents_count: formData.residents_count,
         move_in_date: formData.move_in_date || null,
+        move_out_date: formData.move_out_date || null,
         car_count: formData.car_count,
         car_numbers: formData.car_numbers.filter(cn => cn.trim() !== "")
       });
@@ -182,15 +185,12 @@ export default function TenantAdditionalInfo() {
                 />
               </div>
 
-              <div className="space-y-2">
-                <div className="flex items-center gap-2">
-                  <Checkbox
-                    id="is_owner"
-                    checked={formData.is_owner}
-                    onCheckedChange={(checked) => setFormData({...formData, is_owner: checked})}
-                  />
-                  <Label htmlFor="is_owner" className="cursor-pointer">자가 여부</Label>
-                </div>
+              <div className="flex items-center justify-between">
+                <Label>자가 여부</Label>
+                <Switch
+                  checked={formData.is_owner}
+                  onCheckedChange={(checked) => setFormData({...formData, is_owner: checked})}
+                />
               </div>
 
               <div className="space-y-2">
@@ -212,6 +212,17 @@ export default function TenantAdditionalInfo() {
                   onChange={(e) => setFormData({...formData, move_in_date: e.target.value})}
                 />
               </div>
+
+              <div className="space-y-2">
+                <Label>퇴거 예정일</Label>
+                <Input
+                  type="date"
+                  value={formData.move_out_date}
+                  onChange={(e) => setFormData({...formData, move_out_date: e.target.value})}
+                />
+              </div>
+
+              <Separator />
 
               <div className="space-y-2">
                 <Label>차량 대수</Label>
