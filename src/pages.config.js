@@ -19,12 +19,12 @@ import RepRoleChange from './pages/RepRoleChange';
 import RepUnits from './pages/RepUnits';
 import RepUnitsInvite from './pages/RepUnitsInvite';
 import RepUnitsReview from './pages/RepUnitsReview';
+import TenantAdditionalInfo from './pages/TenantAdditionalInfo';
 import TenantDashboard from './pages/TenantDashboard';
 import TenantInviteCheck from './pages/TenantInviteCheck';
 import TenantMyBills from './pages/TenantMyBills';
 import TenantMyPayments from './pages/TenantMyPayments';
 import TenantMyUnit from './pages/TenantMyUnit';
-import TenantAdditionalInfo from './pages/TenantAdditionalInfo';
 import __Layout from './Layout.jsx';
 
 
@@ -50,12 +50,12 @@ export const PAGES = {
     "RepUnits": RepUnits,
     "RepUnitsInvite": RepUnitsInvite,
     "RepUnitsReview": RepUnitsReview,
+    "TenantAdditionalInfo": TenantAdditionalInfo,
     "TenantDashboard": TenantDashboard,
     "TenantInviteCheck": TenantInviteCheck,
     "TenantMyBills": TenantMyBills,
     "TenantMyPayments": TenantMyPayments,
     "TenantMyUnit": TenantMyUnit,
-    "TenantAdditionalInfo": TenantAdditionalInfo,
 }
 
 export const pagesConfig = {

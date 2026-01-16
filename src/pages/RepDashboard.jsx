@@ -23,7 +23,8 @@ export default function RepDashboard() {
     totalUnits: 0,
     invitedUnits: 0,
     unpaidCount: 0,
-    currentMonthTotal: 0
+    currentMonthTotal: 0,
+    displayMonth: ""
   });
   const [isUploadingIcon, setIsUploadingIcon] = useState(false);
   const fileInputRef = React.useRef(null);
@@ -49,11 +50,6 @@ export default function RepDashboard() {
         const currentDate = new Date();
         const currentYearMonth = `${currentDate.getFullYear()}-${String(currentDate.getMonth() + 1).padStart(2, '0')}`;
 
-        // Get last month's year-month for display
-        const lastMonthDate = new Date(currentDate);
-        lastMonthDate.setMonth(lastMonthDate.getMonth() - 1);
-        const lastYearMonth = `${lastMonthDate.getFullYear()}-${String(lastMonthDate.getMonth() + 1).padStart(2, '0')}`;
-
         const payments = await base44.entities.PaymentStatus.filter({
           building_id: buildingId,
           year_month: currentYearMonth
@@ -62,10 +58,20 @@ export default function RepDashboard() {
         const unpaid = payments.filter(p => p.status === "미납").length;
 
         const cycles = await base44.entities.BillCycle.filter({
-          building_id: buildingId
+          building_id: buildingId,
+          status: "sent"
         });
-        // Display last month's sent cycle, not current month's draft
-        const displayCycle = cycles.find(c => c.year_month === lastYearMonth && c.status === "sent");
+
+        // Get the most recently sent bill cycle
+        const sortedCycles = cycles.sort((a, b) => b.year_month.localeCompare(a.year_month));
+        const latestSentCycle = sortedCycles[0];
+
+        // Extract month from year_month (e.g., "2025-11" -> "11월")
+        let displayMonth = "";
+        if (latestSentCycle?.year_month) {
+          const [year, month] = latestSentCycle.year_month.split('-');
+          displayMonth = `${parseInt(month)}월`;
+        }
 
         // Count only completed invitations
         const completedInvites = invitationsData.filter(inv => inv.status === "가입 완료").length;
@@ -74,7 +80,8 @@ export default function RepDashboard() {
           totalUnits: unitsData.length,
           invitedUnits: completedInvites,
           unpaidCount: unpaid,
-          currentMonthTotal: displayCycle?.total_amount || 0
+          currentMonthTotal: latestSentCycle?.total_amount || 0,
+          displayMonth: displayMonth
         });
       } catch (err) {
         console.error("Error loading stats:", err);
@@ -263,7 +270,9 @@ export default function RepDashboard() {
                   <p className="text-2xl font-bold text-slate-900 tracking-tight">
                     {stats.currentMonthTotal > 0 ? `${(stats.currentMonthTotal / 10000).toFixed(0)}만` : '-'}
                   </p>
-                  <p className="text-xs text-slate-500 mt-0.5">이번달 총액</p>
+                  <p className="text-xs text-slate-500 mt-0.5">
+                    {stats.displayMonth ? `${stats.displayMonth} 관리비 총액` : '청구 총액'}
+                  </p>
                 </div>
               </div>
             </CardContent>
