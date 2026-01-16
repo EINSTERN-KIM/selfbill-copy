@@ -129,7 +129,7 @@ export default function RepBuildingSetup() {
                 type="number"
                 value={formData.total_floors || ""}
                 onChange={(e) => setFormData({ ...formData, total_floors: parseInt(e.target.value) || 0 })}
-                placeholder="예: 5"
+                placeholder="예: 지하1층, 지상1,2,3층이면 총 층수는 4입니다."
               />
             </div>
 
