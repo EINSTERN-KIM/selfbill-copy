@@ -156,7 +156,7 @@ export default function TenantMyBills() {
                     {unitCharge.year_month} 관리비
                   </p>
                   <p className="text-4xl font-bold text-slate-900 tracking-tight">
-                    {unitCharge.amount_total?.toLocaleString()}<span className="text-2xl text-slate-600">원</span>
+                    {formatWon(unitCharge.amount_total)}
                   </p>
                   {(() => {
                     const unit = membership?.unit_id ? base44.entities.Unit.filter({ id: membership.unit_id }).then(u => u[0]) : null;
@@ -181,14 +181,14 @@ export default function TenantMyBills() {
                   <div className="text-center">
                     <p className="text-xs text-slate-500">납기후 금액</p>
                     <p className="text-sm font-medium text-amber-600 mt-1">
-                      {unitCharge.after_due_amount?.toLocaleString() || 0}원
+                      {formatWon(unitCharge.after_due_amount || 0)}
                     </p>
                   </div>
                 </div>
                 {unitCharge.late_fee_amount > 0 && (
                   <div className="mt-3 pt-3 border-t">
                     <p className="text-xs text-center text-slate-500">
-                      연체 시 연체료 {unitCharge.late_fee_amount?.toLocaleString()}원 ({building?.late_fee_rate_percent || 0}%)이 추가됩니다
+                      연체 시 연체료 {formatWon(unitCharge.late_fee_amount)} ({building?.late_fee_rate_percent || 0}%)이 추가됩니다
                     </p>
                   </div>
                 )}
@@ -228,14 +228,14 @@ export default function TenantMyBills() {
                         <div key={idx} className="flex items-center justify-between py-3 border-b last:border-0">
                           <p className="font-medium text-slate-900">{item.name}</p>
                           <p className="font-semibold text-slate-900">
-                            {item.amount?.toLocaleString()}원
+                            {formatWon(item.amount)}
                           </p>
                         </div>
                       ))}
                       <div className="flex items-center justify-between pt-4 border-t-2">
                         <p className="font-bold text-slate-900">합계</p>
                         <p className="text-2xl font-bold text-primary">
-                          {unitCharge.amount_total?.toLocaleString()}원
+                          {formatWon(unitCharge.amount_total)}
                         </p>
                       </div>
                     </div>

@@ -11,6 +11,7 @@ import PageHeader from '@/components/common/PageHeader';
 import EmptyState from '@/components/common/EmptyState';
 import { useBuildingAuth } from '@/components/common/useBuildingAuth';
 import RepLayout from '@/components/common/RepLayout';
+import { formatWon } from '@/components/utils/formatters';
 
 export default function RepBillingUnitCharges() {
   const urlParams = new URLSearchParams(window.location.search);
@@ -337,7 +338,7 @@ export default function RepBillingUnitCharges() {
                     <div>
                       <p className="text-sm text-blue-600">총 청구 금액</p>
                       <p className="text-2xl font-bold text-slate-900">
-                        {unitCharges.reduce((sum, c) => sum + (c.amount_total || 0), 0).toLocaleString()}원
+                        {formatWon(unitCharges.reduce((sum, c) => sum + (c.amount_total || 0), 0))}
                       </p>
                     </div>
                     <div>
@@ -398,11 +399,11 @@ export default function RepBillingUnitCharges() {
                             {charge ? (
                               <>
                                 <p className="text-lg font-bold text-slate-900">
-                                  {charge.amount_total?.toLocaleString()}원
+                                  {formatWon(charge.amount_total)}
                                 </p>
                                 {charge.late_fee_amount > 0 && (
                                   <p className="text-xs text-slate-500">
-                                    (연체 시: {charge.after_due_amount?.toLocaleString()}원)
+                                    (연체 시: {formatWon(charge.after_due_amount)})
                                   </p>
                                 )}
                               </>
@@ -425,14 +426,14 @@ export default function RepBillingUnitCharges() {
                             <div key={idx} className="flex items-center justify-between py-2">
                               <span className="text-sm text-slate-600">{item.name}</span>
                               <span className="text-sm font-medium text-slate-900">
-                                {item.amount?.toLocaleString()}원
+                                {formatWon(item.amount)}
                               </span>
                             </div>
                           ))}
                           <div className="pt-2 border-t flex items-center justify-between">
                             <span className="text-sm font-bold text-slate-900">합계</span>
                             <span className="text-lg font-bold text-primary">
-                              {charge.amount_total?.toLocaleString()}원
+                              {formatWon(charge.amount_total)}
                             </span>
                           </div>
                           {charge.late_fee_amount > 0 && (
@@ -440,13 +441,13 @@ export default function RepBillingUnitCharges() {
                               <div className="flex items-center justify-between text-sm mb-2">
                                 <span className="text-amber-900">연체료 ({building?.late_fee_rate_percent || 0}%)</span>
                                 <span className="font-medium text-amber-900">
-                                  +{charge.late_fee_amount?.toLocaleString()}원
+                                  +{formatWon(charge.late_fee_amount)}
                                 </span>
                               </div>
                               <div className="flex items-center justify-between">
                                 <span className="text-sm font-bold text-amber-900">납기후 금액</span>
                                 <span className="text-lg font-bold text-amber-900">
-                                  {charge.after_due_amount?.toLocaleString()}원
+                                  {formatWon(charge.after_due_amount)}
                                 </span>
                               </div>
                             </div>
