@@ -49,7 +49,12 @@ export default function RepBillingUnitCharges() {
         base44.entities.Unit.filter({ building_id: buildingId, status: "active" })
       ]);
 
-      setUnits(unitsData);
+      const sortedUnits = unitsData.sort((a, b) => {
+        const hoA = parseInt(a.ho) || 0;
+        const hoB = parseInt(b.ho) || 0;
+        return hoA - hoB;
+      });
+      setUnits(sortedUnits);
 
       if (cyclesData.length === 0) {
         setBillCycle(null);
