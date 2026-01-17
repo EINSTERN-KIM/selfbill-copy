@@ -218,61 +218,61 @@ export default function RepDashboard() {
         </div>
 
         {/* Stats Cards */}
-        <div className="mb-8">
+        <div className="mb-6">
           {/* Primary Card - Billing Amount */}
-          <Card className="card-rounded border-0 shadow-lg mb-4 bg-gradient-to-br from-primary to-primary-dark overflow-hidden relative">
-            <CardContent className="pt-8 pb-8 px-6">
+          <Card className="card-rounded border-0 shadow-md mb-3 overflow-hidden relative" style={{ background: 'linear-gradient(135deg, #2F6F4F 0%, #1E5A3A 100%)' }}>
+            <CardContent className="pt-5 pb-5 px-5">
               <div className="relative z-10">
-                <p className="text-white/90 text-base mb-2">
+                <p className="text-white/90 text-sm mb-2">
                   {stats.displayMonth ? `${stats.displayMonth} 관리비 청구` : '이번 달 관리비 청구'}
                 </p>
-                <div className="bg-white rounded-3xl p-6 shadow-xl">
-                  <p className="text-sm text-slate-600 mb-2">
+                <div className="bg-white rounded-2xl p-4 shadow-lg">
+                  <p className="text-xs text-slate-600 mb-1">
                     {stats.displayMonth ? `${new Date().getFullYear()}년 ${stats.displayMonth} 관리비 청구서` : '관리비 청구서'}
                   </p>
-                  <p className="text-5xl font-bold text-slate-900 mb-2 tracking-tight">
+                  <p className="text-3xl font-bold text-slate-900 mb-1 tracking-tight">
                     {stats.currentMonthTotal > 0 ? formatWon(stats.currentMonthTotal) : '-'}
                   </p>
-                  <p className="text-sm text-slate-500">
+                  <p className="text-xs text-slate-500">
                     납부 기한: {building?.billing_due_day ? `매월 ${building.billing_due_day}일` : '-'}
                   </p>
                 </div>
               </div>
-              <div className="absolute right-6 top-6 opacity-20">
-                <Receipt className="w-32 h-32 text-white" />
+              <div className="absolute right-4 top-4 opacity-15">
+                <Receipt className="w-20 h-20 text-white" />
               </div>
             </CardContent>
           </Card>
 
           {/* Secondary Stats Grid */}
-          <div className="grid grid-cols-3 gap-4">
-            <Card className="card-rounded border-0 shadow-md hover:shadow-lg transition-shadow">
-              <CardContent className="pt-6 pb-6 text-center">
-                <div className="w-14 h-14 rounded-2xl bg-primary-light flex items-center justify-center mx-auto mb-3">
-                  <Users className="w-7 h-7 text-primary" />
+          <div className="grid grid-cols-3 gap-3">
+            <Card className="card-rounded border-0 shadow-sm hover:shadow-md transition-shadow">
+              <CardContent className="pt-4 pb-4 text-center">
+                <div className="w-11 h-11 rounded-xl bg-blue-50 flex items-center justify-center mx-auto mb-2">
+                  <Users className="w-5 h-5" style={{ color: '#2F6F4F' }} />
                 </div>
-                <p className="text-3xl font-bold text-slate-900 tracking-tight mb-1">{stats.totalUnits}</p>
-                <p className="text-sm text-slate-500">총 세대</p>
+                <p className="text-2xl font-bold text-slate-900 tracking-tight mb-0.5">{stats.totalUnits}</p>
+                <p className="text-xs text-slate-500">총 세대</p>
               </CardContent>
             </Card>
             
-            <Card className="card-rounded border-0 shadow-md hover:shadow-lg transition-shadow">
-              <CardContent className="pt-6 pb-6 text-center">
-                <div className="w-14 h-14 rounded-2xl bg-green-100 flex items-center justify-center mx-auto mb-3">
-                  <CheckCircle2 className="w-7 h-7 text-green-600" />
+            <Card className="card-rounded border-0 shadow-sm hover:shadow-md transition-shadow">
+              <CardContent className="pt-4 pb-4 text-center">
+                <div className="w-11 h-11 rounded-xl bg-green-50 flex items-center justify-center mx-auto mb-2">
+                  <CheckCircle2 className="w-5 h-5 text-green-600" />
                 </div>
-                <p className="text-3xl font-bold text-slate-900 tracking-tight mb-1">{stats.invitedUnits}</p>
-                <p className="text-sm text-slate-500">초대 완료</p>
+                <p className="text-2xl font-bold text-slate-900 tracking-tight mb-0.5">{stats.invitedUnits}</p>
+                <p className="text-xs text-slate-500">초대 완료</p>
               </CardContent>
             </Card>
             
-            <Card className="card-rounded border-0 shadow-md hover:shadow-lg transition-shadow">
-              <CardContent className="pt-6 pb-6 text-center">
-                <div className="w-14 h-14 rounded-2xl bg-red-100 flex items-center justify-center mx-auto mb-3">
-                  <Clock className="w-7 h-7 text-red-600" />
+            <Card className="card-rounded border-0 shadow-sm hover:shadow-md transition-shadow">
+              <CardContent className="pt-4 pb-4 text-center">
+                <div className="w-11 h-11 rounded-xl bg-red-50 flex items-center justify-center mx-auto mb-2">
+                  <Clock className="w-5 h-5 text-red-600" />
                 </div>
-                <p className="text-3xl font-bold text-slate-900 tracking-tight mb-1">{stats.unpaidCount}</p>
-                <p className="text-sm text-slate-500">미납 세대</p>
+                <p className="text-2xl font-bold text-slate-900 tracking-tight mb-0.5">{stats.unpaidCount}</p>
+                <p className="text-xs text-slate-500">미납 세대</p>
               </CardContent>
             </Card>
           </div>
