@@ -49,7 +49,13 @@ export default function RepUnits() {
       const data = await base44.entities.Unit.filter({
         building_id: buildingId
       });
-      setUnits(data.filter(u => u.status !== "inactive"));
+      const activeUnits = data.filter(u => u.status !== "inactive");
+      const sortedUnits = activeUnits.sort((a, b) => {
+        const hoA = parseInt(a.ho) || 0;
+        const hoB = parseInt(b.ho) || 0;
+        return hoA - hoB;
+      });
+      setUnits(sortedUnits);
       setIsLoadingUnits(false);
     } catch (err) {
       console.error("Error loading units:", err);

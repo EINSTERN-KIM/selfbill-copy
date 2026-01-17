@@ -35,7 +35,12 @@ export default function RepUnitsInvite() {
         base44.entities.Unit.filter({ building_id: buildingId, status: "active" }),
         base44.entities.Invitation.filter({ building_id: buildingId })
       ]);
-      setUnits(unitsData);
+      const sortedUnits = unitsData.sort((a, b) => {
+        const hoA = parseInt(a.ho) || 0;
+        const hoB = parseInt(b.ho) || 0;
+        return hoA - hoB;
+      });
+      setUnits(sortedUnits);
       setInvitations(invitationsData);
       setIsLoadingData(false);
     } catch (err) {

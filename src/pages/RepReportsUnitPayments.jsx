@@ -37,7 +37,13 @@ export default function RepReportsUnitPayments() {
         base44.entities.PaymentStatus.filter({ building_id: buildingId })
       ]);
 
-      setUnits(unitsData);
+      const sortedUnits = unitsData.sort((a, b) => {
+        const hoA = parseInt(a.ho) || 0;
+        const hoB = parseInt(b.ho) || 0;
+        return hoA - hoB;
+      });
+
+      setUnits(sortedUnits);
       setPayments(paymentsData.filter(p => p.year_month?.startsWith(String(selectedYear))));
       setIsLoadingData(false);
     } catch (err) {
@@ -72,7 +78,10 @@ export default function RepReportsUnitPayments() {
   }
 
   const getUnitDisplay = (unit) => {
-    return [unit.dong, unit.floor, unit.ho].filter(Boolean).join(" ") || "호수 미입력";
+    const parts = [];
+    if (unit.floor) parts.push(`${unit.floor}층`);
+    if (unit.ho) parts.push(`${unit.ho}호`);
+    return parts.length > 0 ? parts.join(" ") : "호수 미입력";
   };
 
   const getPaymentForUnitMonth = (unitId, month) => {

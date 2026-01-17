@@ -45,7 +45,13 @@ export default function RepRoleChange() {
 
       setMembers(membersData.filter(m => m.role === "입주자"));
       setRequests(requestsData.sort((a, b) => new Date(b.requested_at) - new Date(a.requested_at)));
-      setUnits(unitsData);
+      
+      const sortedUnits = unitsData.sort((a, b) => {
+        const hoA = parseInt(a.ho) || 0;
+        const hoB = parseInt(b.ho) || 0;
+        return hoA - hoB;
+      });
+      setUnits(sortedUnits);
       
       // Get current representative's unit
       const repMember = membersData.find(m => m.user_email === user.email && m.role === "대표자");

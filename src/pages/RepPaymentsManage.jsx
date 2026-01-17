@@ -64,7 +64,13 @@ export default function RepPaymentsManage() {
 
       setUnitCharges(charges);
       setPaymentStatuses(statuses);
-      setUnits(unitsData);
+      
+      const sortedUnits = unitsData.sort((a, b) => {
+        const hoA = parseInt(a.ho) || 0;
+        const hoB = parseInt(b.ho) || 0;
+        return hoA - hoB;
+      });
+      setUnits(sortedUnits);
 
       const initialFormData = {};
       charges.forEach(charge => {
@@ -94,19 +100,39 @@ export default function RepPaymentsManage() {
     }));
   };
 
-  const handleMarkAsPaid = async (chargeId, chargeAmount) => {
-    const paidDate = prompt("입금일자를 입력하세요 (YYYY-MM-DD):", new Date().toISOString().split('T')[0]);
-    if (!paidDate) return;
-    
+  const [showCompleteDateDialog, setShowCompleteDateDialog] = useState(false);
+  const [completePaymentData, setCompletePaymentData] = useState({
+    chargeId: null,
+    chargeAmount: 0,
+    paid_at: ""
+  });
+
+  const handleMarkAsPaid = (chargeId, chargeAmount) => {
+    setCompletePaymentData({
+      chargeId: chargeId,
+      chargeAmount: chargeAmount,
+      paid_at: new Date().toISOString().split('T')[0]
+    });
+    setShowCompleteDateDialog(true);
+  };
+
+  const confirmCompletePaid = () => {
+    if (!completePaymentData.paid_at) {
+      alert("입금일자를 선택해주세요.");
+      return;
+    }
+
     setFormData(prev => ({
       ...prev,
-      [chargeId]: {
-        ...prev[chargeId],
+      [completePaymentData.chargeId]: {
+        ...prev[completePaymentData.chargeId],
         status: "완납",
-        paid_amount: chargeAmount,
-        paid_at: paidDate
+        paid_amount: completePaymentData.chargeAmount,
+        paid_at: completePaymentData.paid_at
       }
     }));
+    
+    setShowCompleteDateDialog(false);
   };
 
   const handlePartialPayment = (chargeId) => {
@@ -471,6 +497,33 @@ export default function RepPaymentsManage() {
           </>
         )}
       </div>
+
+      {/* Complete Payment Dialog */}
+      <Dialog open={showCompleteDateDialog} onOpenChange={setShowCompleteDateDialog}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>완납 처리</DialogTitle>
+          </DialogHeader>
+          <div className="space-y-4 py-4">
+            <div className="space-y-2">
+              <Label>입금일자 *</Label>
+              <Input
+                type="date"
+                value={completePaymentData.paid_at}
+                onChange={(e) => setCompletePaymentData({...completePaymentData, paid_at: e.target.value})}
+              />
+            </div>
+          </div>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setShowCompleteDateDialog(false)}>
+              취소
+            </Button>
+            <Button onClick={confirmCompletePaid}>
+              확인
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
 
       {/* Partial Payment Dialog */}
       <Dialog open={showPartialDialog} onOpenChange={setShowPartialDialog}>
