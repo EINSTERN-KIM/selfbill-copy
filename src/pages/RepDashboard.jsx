@@ -218,66 +218,64 @@ export default function RepDashboard() {
         </div>
 
         {/* Stats Cards */}
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
-          <Card className="card-rounded border-0 shadow-sm">
-            <CardContent className="pt-5 pb-5">
-              <div className="flex items-center gap-3">
-                <div className="w-12 h-12 rounded-2xl bg-primary-light flex items-center justify-center">
-                  <Users className="w-6 h-6 text-primary" />
-                </div>
-                <div>
-                  <p className="text-2xl font-bold text-slate-900 tracking-tight">{stats.totalUnits}</p>
-                  <p className="text-xs text-slate-500 mt-0.5">총 세대</p>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-          
-          <Card className="card-rounded border-0 shadow-sm">
-            <CardContent className="pt-5 pb-5">
-              <div className="flex items-center gap-3">
-                <div className="w-12 h-12 rounded-2xl bg-green-100 flex items-center justify-center">
-                  <CheckCircle2 className="w-6 h-6 text-green-600" />
-                </div>
-                <div>
-                  <p className="text-2xl font-bold text-slate-900 tracking-tight">{stats.invitedUnits}</p>
-                  <p className="text-xs text-slate-500 mt-0.5">초대 완료</p>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-          
-          <Card className="card-rounded border-0 shadow-sm">
-            <CardContent className="pt-5 pb-5">
-              <div className="flex items-center gap-3">
-                <div className="w-12 h-12 rounded-2xl bg-yellow-100 flex items-center justify-center">
-                  <Clock className="w-6 h-6 text-yellow-600" />
-                </div>
-                <div>
-                  <p className="text-2xl font-bold text-slate-900 tracking-tight">{stats.unpaidCount}</p>
-                  <p className="text-xs text-slate-500 mt-0.5">미납 세대</p>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-          
-          <Card className="card-rounded border-0 shadow-sm">
-            <CardContent className="pt-5 pb-5">
-              <div className="flex items-center gap-3">
-                <div className="w-12 h-12 rounded-2xl bg-indigo-100 flex items-center justify-center">
-                  <Receipt className="w-6 h-6 text-indigo-600" />
-                </div>
-                <div>
-                  <p className="text-2xl font-bold text-slate-900 tracking-tight">
+        <div className="mb-8">
+          {/* Primary Card - Billing Amount */}
+          <Card className="card-rounded border-0 shadow-lg mb-4 bg-gradient-to-br from-primary to-primary-dark overflow-hidden relative">
+            <CardContent className="pt-8 pb-8 px-6">
+              <div className="relative z-10">
+                <p className="text-white/90 text-base mb-2">
+                  {stats.displayMonth ? `${stats.displayMonth} 관리비 청구` : '이번 달 관리비 청구'}
+                </p>
+                <div className="bg-white rounded-3xl p-6 shadow-xl">
+                  <p className="text-sm text-slate-600 mb-2">
+                    {stats.displayMonth ? `${new Date().getFullYear()}년 ${stats.displayMonth} 관리비 청구서` : '관리비 청구서'}
+                  </p>
+                  <p className="text-5xl font-bold text-slate-900 mb-2 tracking-tight">
                     {stats.currentMonthTotal > 0 ? formatWon(stats.currentMonthTotal) : '-'}
                   </p>
-                  <p className="text-xs text-slate-500 mt-0.5">
-                    {stats.displayMonth ? `${stats.displayMonth} 청구 총액` : '청구 총액'}
+                  <p className="text-sm text-slate-500">
+                    납부 기한: {building?.billing_due_day ? `매월 ${building.billing_due_day}일` : '-'}
                   </p>
                 </div>
               </div>
+              <div className="absolute right-6 top-6 opacity-20">
+                <Receipt className="w-32 h-32 text-white" />
+              </div>
             </CardContent>
           </Card>
+
+          {/* Secondary Stats Grid */}
+          <div className="grid grid-cols-3 gap-4">
+            <Card className="card-rounded border-0 shadow-md hover:shadow-lg transition-shadow">
+              <CardContent className="pt-6 pb-6 text-center">
+                <div className="w-14 h-14 rounded-2xl bg-primary-light flex items-center justify-center mx-auto mb-3">
+                  <Users className="w-7 h-7 text-primary" />
+                </div>
+                <p className="text-3xl font-bold text-slate-900 tracking-tight mb-1">{stats.totalUnits}</p>
+                <p className="text-sm text-slate-500">총 세대</p>
+              </CardContent>
+            </Card>
+            
+            <Card className="card-rounded border-0 shadow-md hover:shadow-lg transition-shadow">
+              <CardContent className="pt-6 pb-6 text-center">
+                <div className="w-14 h-14 rounded-2xl bg-green-100 flex items-center justify-center mx-auto mb-3">
+                  <CheckCircle2 className="w-7 h-7 text-green-600" />
+                </div>
+                <p className="text-3xl font-bold text-slate-900 tracking-tight mb-1">{stats.invitedUnits}</p>
+                <p className="text-sm text-slate-500">초대 완료</p>
+              </CardContent>
+            </Card>
+            
+            <Card className="card-rounded border-0 shadow-md hover:shadow-lg transition-shadow">
+              <CardContent className="pt-6 pb-6 text-center">
+                <div className="w-14 h-14 rounded-2xl bg-red-100 flex items-center justify-center mx-auto mb-3">
+                  <Clock className="w-7 h-7 text-red-600" />
+                </div>
+                <p className="text-3xl font-bold text-slate-900 tracking-tight mb-1">{stats.unpaidCount}</p>
+                <p className="text-sm text-slate-500">미납 세대</p>
+              </CardContent>
+            </Card>
+          </div>
         </div>
 
         {/* Quick Actions */}
