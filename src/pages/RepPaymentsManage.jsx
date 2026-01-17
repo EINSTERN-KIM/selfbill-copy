@@ -14,6 +14,7 @@ import LoadingSpinner from '@/components/common/LoadingSpinner';
 import EmptyState from '@/components/common/EmptyState';
 import { useBuildingAuth } from '@/components/common/useBuildingAuth';
 import RepLayout from '@/components/common/RepLayout';
+import { formatWon } from '@/components/utils/formatters';
 
 export default function RepPaymentsManage() {
   const urlParams = new URLSearchParams(window.location.search);
@@ -272,7 +273,7 @@ export default function RepPaymentsManage() {
               <div className="text-center">
                 <p className="text-sm text-blue-600 mb-1">이번 달 청구 총액</p>
                 <p className="text-3xl font-bold text-slate-900">
-                  {unitCharges.reduce((sum, c) => sum + (c.amount_total || 0), 0).toLocaleString()}원
+                  {formatWon(unitCharges.reduce((sum, c) => sum + (c.amount_total || 0), 0))}
                 </p>
                 <p className="text-xs text-slate-500 mt-1">총 {unitCharges.length}세대</p>
               </div>
@@ -308,7 +309,7 @@ export default function RepPaymentsManage() {
                               <p className="font-bold text-slate-900 mb-1">{unitInfo.name}</p>
                               <p className="text-sm text-slate-600">{unitInfo.tenant}</p>
                               <p className="text-sm text-green-700 mt-1 font-semibold">
-                                완납: {data.paid_amount?.toLocaleString()}원
+                                완납: {formatWon(data.paid_amount)}
                               </p>
                               {data.paid_at && (
                                 <p className="text-xs text-slate-500 mt-1">
@@ -347,13 +348,13 @@ export default function RepPaymentsManage() {
                               <p className="font-bold text-slate-900 mb-1">{unitInfo.name}</p>
                               <p className="text-sm text-slate-600">{unitInfo.tenant}</p>
                               <p className="text-sm text-slate-500 mt-1">
-                                청구: {charge.amount_total?.toLocaleString()}원
+                                청구: {formatWon(charge.amount_total)}
                               </p>
                               <p className="text-sm text-amber-700 font-semibold">
-                                납부: {data.paid_amount?.toLocaleString()}원
+                                납부: {formatWon(data.paid_amount)}
                               </p>
                               <p className="text-sm text-red-600 font-semibold">
-                                잔액: {remainingAmount.toLocaleString()}원
+                                잔액: {formatWon(remainingAmount)}
                               </p>
                               {data.paid_at && (
                                 <p className="text-xs text-slate-500 mt-1">
@@ -400,7 +401,7 @@ export default function RepPaymentsManage() {
                               <p className="font-bold text-slate-900 mb-1">{unitInfo.name}</p>
                               <p className="text-sm text-slate-600">{unitInfo.tenant}</p>
                               <p className="text-sm text-red-600 font-semibold mt-1">
-                                청구: {charge.amount_total?.toLocaleString()}원
+                                청구: {formatWon(charge.amount_total)}
                               </p>
                             </div>
                             <div className="flex flex-col gap-2">
@@ -435,10 +436,10 @@ export default function RepPaymentsManage() {
                 <div className="text-center">
                   <p className="text-sm text-green-600 mb-1">총 납입 금액</p>
                   <p className="text-3xl font-bold text-slate-900">
-                    {unitCharges.reduce((sum, charge) => {
+                    {formatWon(unitCharges.reduce((sum, charge) => {
                       const data = formData[charge.id] || {};
                       return sum + (parseFloat(data.paid_amount) || 0);
-                    }, 0).toLocaleString()}원
+                    }, 0))}
                   </p>
                   <p className="text-xs text-slate-500 mt-1">
                     완납: {paidCharges.length}세대 / 부분납: {partialCharges.length}세대
@@ -488,7 +489,7 @@ export default function RepPaymentsManage() {
               />
               {partialPaymentData.chargeId && (
                 <p className="text-xs text-slate-500">
-                  청구 금액: {unitCharges.find(c => c.id === partialPaymentData.chargeId)?.amount_total?.toLocaleString()}원
+                  청구 금액: {formatWon(unitCharges.find(c => c.id === partialPaymentData.chargeId)?.amount_total)}
                 </p>
               )}
             </div>
