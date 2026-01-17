@@ -226,14 +226,22 @@ export default function RepRoleChange() {
                         <SelectValue placeholder="입주자 선택" />
                       </SelectTrigger>
                       <SelectContent>
-                        {members.map(member => {
-                          const unit = units.find(u => u.id === member.unit_id);
-                          return (
-                            <SelectItem key={member.id} value={member.id}>
-                              {unit ? `${unit.unit_name} - ${unit.tenant_name}` : member.user_email}
-                            </SelectItem>
-                          );
-                        })}
+                        {members
+                          .sort((a, b) => {
+                            const unitA = units.find(u => u.id === a.unit_id);
+                            const unitB = units.find(u => u.id === b.unit_id);
+                            const hoA = unitA ? (parseInt(unitA.ho) || 0) : 0;
+                            const hoB = unitB ? (parseInt(unitB.ho) || 0) : 0;
+                            return hoA - hoB;
+                          })
+                          .map(member => {
+                            const unit = units.find(u => u.id === member.unit_id);
+                            return (
+                              <SelectItem key={member.id} value={member.id}>
+                                {unit ? `${unit.unit_name} - ${unit.tenant_name}` : member.user_email}
+                              </SelectItem>
+                            );
+                          })}
                       </SelectContent>
                     </Select>
                   </div>

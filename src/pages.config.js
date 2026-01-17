@@ -14,8 +14,6 @@ import RepPaymentsManage from './pages/RepPaymentsManage';
 import RepPlan from './pages/RepPlan';
 import RepReportsTotalFee from './pages/RepReportsTotalFee';
 import RepReportsUnitFee from './pages/RepReportsUnitFee';
-import RepReportsUnitPayments from './pages/RepReportsUnitPayments';
-import RepRoleChange from './pages/RepRoleChange';
 import RepUnits from './pages/RepUnits';
 import RepUnitsInvite from './pages/RepUnitsInvite';
 import RepUnitsReview from './pages/RepUnitsReview';
@@ -25,6 +23,8 @@ import TenantInviteCheck from './pages/TenantInviteCheck';
 import TenantMyBills from './pages/TenantMyBills';
 import TenantMyPayments from './pages/TenantMyPayments';
 import TenantMyUnit from './pages/TenantMyUnit';
+import RepReportsUnitPayments from './pages/RepReportsUnitPayments';
+import RepRoleChange from './pages/RepRoleChange';
 import __Layout from './Layout.jsx';
 
 
@@ -45,8 +45,6 @@ export const PAGES = {
     "RepPlan": RepPlan,
     "RepReportsTotalFee": RepReportsTotalFee,
     "RepReportsUnitFee": RepReportsUnitFee,
-    "RepReportsUnitPayments": RepReportsUnitPayments,
-    "RepRoleChange": RepRoleChange,
     "RepUnits": RepUnits,
     "RepUnitsInvite": RepUnitsInvite,
     "RepUnitsReview": RepUnitsReview,
@@ -56,6 +54,8 @@ export const PAGES = {
     "TenantMyBills": TenantMyBills,
     "TenantMyPayments": TenantMyPayments,
     "TenantMyUnit": TenantMyUnit,
+    "RepReportsUnitPayments": RepReportsUnitPayments,
+    "RepRoleChange": RepRoleChange,
 }
 
 export const pagesConfig = {

@@ -104,11 +104,24 @@ export default function RepReportsUnitPayments() {
 
   const getUnitStats = (unitId) => {
     const unitPayments = payments.filter(p => p.unit_id === unitId);
+    
+    // 완납률 계산: 완납 + (부분납 비율)
+    let totalPaidScore = 0;
+    unitPayments.forEach(p => {
+      if (p.status === "완납") {
+        totalPaidScore += 1;
+      } else if (p.status === "부분납") {
+        const paidRatio = (p.paid_amount || 0) / (p.charged_amount || 1);
+        totalPaidScore += paidRatio;
+      }
+    });
+    
     return {
       total: unitPayments.length,
       paid: unitPayments.filter(p => p.status === "완납").length,
       partial: unitPayments.filter(p => p.status === "부분납").length,
-      unpaid: unitPayments.filter(p => p.status === "미납").length
+      unpaid: unitPayments.filter(p => p.status === "미납").length,
+      paidScore: totalPaidScore
     };
   };
 
@@ -181,7 +194,7 @@ export default function RepReportsUnitPayments() {
                 <TableBody>
                   {units.map((unit) => {
                     const stats = getUnitStats(unit.id);
-                    const paidRate = stats.total > 0 ? (stats.paid / stats.total * 100) : 0;
+                    const paidRate = stats.total > 0 ? (stats.paidScore / stats.total * 100) : 0;
                     
                     return (
                       <TableRow key={unit.id}>
