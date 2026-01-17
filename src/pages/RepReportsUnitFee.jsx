@@ -11,7 +11,7 @@ import PageHeader from '@/components/common/PageHeader';
 import EmptyState from '@/components/common/EmptyState';
 import { useBuildingAuth } from '@/components/common/useBuildingAuth';
 import RepLayout from '@/components/common/RepLayout';
-import { formatWon } from '@/utils/formatters';
+import { formatWon } from '@/components/utils/formatters';
 
 export default function RepReportsUnitFee() {
   const urlParams = new URLSearchParams(window.location.search);

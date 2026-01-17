@@ -11,6 +11,7 @@ import PageHeader from '@/components/common/PageHeader';
 import EmptyState from '@/components/common/EmptyState';
 import { useBuildingAuth } from '@/components/common/useBuildingAuth';
 import TenantLayout from '@/components/common/TenantLayout';
+import { formatWon } from '@/components/utils/formatters';
 
 export default function TenantMyBills() {
   const urlParams = new URLSearchParams(window.location.search);

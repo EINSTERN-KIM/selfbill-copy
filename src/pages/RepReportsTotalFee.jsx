@@ -10,7 +10,7 @@ import LoadingSpinner from '@/components/common/LoadingSpinner';
 import PageHeader from '@/components/common/PageHeader';
 import { useBuildingAuth } from '@/components/common/useBuildingAuth';
 import RepLayout from '@/components/common/RepLayout';
-import { formatWon } from '@/utils/formatters';
+import { formatWon } from '@/components/utils/formatters';
 
 export default function RepReportsTotalFee() {
   const urlParams = new URLSearchParams(window.location.search);

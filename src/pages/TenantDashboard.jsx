@@ -12,7 +12,7 @@ import {
 import LoadingSpinner from '@/components/common/LoadingSpinner';
 import { useBuildingAuth } from '@/components/common/useBuildingAuth';
 import TenantLayout from '@/components/common/TenantLayout';
-import { formatWon } from '@/utils/formatters';
+import { formatWon } from '@/components/utils/formatters';
 
 export default function TenantDashboard() {
   const urlParams = new URLSearchParams(window.location.search);
@@ -166,7 +166,7 @@ export default function TenantDashboard() {
                 )}
               </div>
               <p className="text-3xl font-bold text-slate-900 tracking-tight">
-                {latestCharge.amount_total?.toLocaleString()}<span className="text-2xl text-slate-600">원</span>
+                {formatWon(latestCharge.amount_total)}
               </p>
               {building?.due_day && (
                 <p className="text-sm text-slate-600 mt-3">
