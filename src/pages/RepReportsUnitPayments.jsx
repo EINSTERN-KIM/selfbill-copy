@@ -104,29 +104,11 @@ export default function RepReportsUnitPayments() {
 
   const getUnitStats = (unitId) => {
     const unitPayments = payments.filter(p => p.unit_id === unitId);
-    
-    // 완납률 계산: 완납 100% + 부분납은 납부비율만큼 반영
-    let totalScore = 0;
-    unitPayments.forEach(payment => {
-      if (payment.status === "완납") {
-        totalScore += 100;
-      } else if (payment.status === "부분납") {
-        const chargedAmount = payment.charged_amount || 0;
-        const paidAmount = payment.paid_amount || 0;
-        const partialRate = chargedAmount > 0 ? (paidAmount / chargedAmount * 100) : 0;
-        totalScore += partialRate;
-      }
-      // 미납은 0%이므로 더하지 않음
-    });
-    
-    const paidRate = unitPayments.length > 0 ? totalScore / unitPayments.length : 0;
-    
     return {
       total: unitPayments.length,
       paid: unitPayments.filter(p => p.status === "완납").length,
       partial: unitPayments.filter(p => p.status === "부분납").length,
-      unpaid: unitPayments.filter(p => p.status === "미납").length,
-      paidRate: paidRate
+      unpaid: unitPayments.filter(p => p.status === "미납").length
     };
   };
 
@@ -199,6 +181,7 @@ export default function RepReportsUnitPayments() {
                 <TableBody>
                   {units.map((unit) => {
                     const stats = getUnitStats(unit.id);
+                    const paidRate = stats.total > 0 ? (stats.paid / stats.total * 100) : 0;
                     
                     return (
                       <TableRow key={unit.id}>
@@ -223,10 +206,10 @@ export default function RepReportsUnitPayments() {
                         })}
                         <TableCell className="text-center">
                           <span className={`font-bold ${
-                            stats.paidRate >= 80 ? 'text-green-600' : 
-                            stats.paidRate >= 50 ? 'text-yellow-600' : 'text-red-500'
+                            paidRate >= 80 ? 'text-green-600' : 
+                            paidRate >= 50 ? 'text-yellow-600' : 'text-red-500'
                           }`}>
-                            {stats.paidRate.toFixed(0)}%
+                            {paidRate.toFixed(0)}%
                           </span>
                         </TableCell>
                       </TableRow>
