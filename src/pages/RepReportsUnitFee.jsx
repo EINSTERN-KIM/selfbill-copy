@@ -11,6 +11,7 @@ import PageHeader from '@/components/common/PageHeader';
 import EmptyState from '@/components/common/EmptyState';
 import { useBuildingAuth } from '@/components/common/useBuildingAuth';
 import RepLayout from '@/components/common/RepLayout';
+import { formatWon } from '@/utils/formatters';
 
 export default function RepReportsUnitFee() {
   const urlParams = new URLSearchParams(window.location.search);
@@ -147,7 +148,7 @@ export default function RepReportsUnitFee() {
                           <TableCell key={month} className="text-center text-sm">
                             {charge ? (
                               <span className="text-slate-700">
-                                {(charge.amount_total / 1000).toFixed(0)}천
+                                {formatWon(charge.amount_total)}
                               </span>
                             ) : (
                               <span className="text-slate-300">-</span>
@@ -156,7 +157,7 @@ export default function RepReportsUnitFee() {
                         );
                       })}
                       <TableCell className="text-center font-bold text-blue-600">
-                        {(getUnitYearTotal(unit.id) / 10000).toFixed(1)}만
+                        {formatWon(getUnitYearTotal(unit.id))}
                       </TableCell>
                     </TableRow>
                   ))}

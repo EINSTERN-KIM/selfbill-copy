@@ -12,6 +12,7 @@ import {
 import LoadingSpinner from '@/components/common/LoadingSpinner';
 import { useBuildingAuth } from '@/components/common/useBuildingAuth';
 import TenantLayout from '@/components/common/TenantLayout';
+import { formatWon } from '@/utils/formatters';
 
 export default function TenantDashboard() {
   const urlParams = new URLSearchParams(window.location.search);

@@ -12,6 +12,7 @@ import {
 import LoadingSpinner from '@/components/common/LoadingSpinner';
 import { useBuildingAuth } from '@/components/common/useBuildingAuth';
 import RepLayout from '@/components/common/RepLayout';
+import { formatWon } from '@/utils/formatters';
 
 export default function RepDashboard() {
   const urlParams = new URLSearchParams(window.location.search);
@@ -268,7 +269,7 @@ export default function RepDashboard() {
                 </div>
                 <div>
                   <p className="text-2xl font-bold text-slate-900 tracking-tight">
-                    {stats.currentMonthTotal > 0 ? `${(stats.currentMonthTotal / 10000).toFixed(0)}만` : '-'}
+                    {stats.currentMonthTotal > 0 ? formatWon(stats.currentMonthTotal) : '-'}
                   </p>
                   <p className="text-xs text-slate-500 mt-0.5">
                     {stats.displayMonth ? `${stats.displayMonth} 청구 총액` : '청구 총액'}

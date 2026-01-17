@@ -10,6 +10,7 @@ import LoadingSpinner from '@/components/common/LoadingSpinner';
 import PageHeader from '@/components/common/PageHeader';
 import { useBuildingAuth } from '@/components/common/useBuildingAuth';
 import RepLayout from '@/components/common/RepLayout';
+import { formatWon } from '@/utils/formatters';
 
 export default function RepReportsTotalFee() {
   const urlParams = new URLSearchParams(window.location.search);
@@ -134,7 +135,7 @@ export default function RepReportsTotalFee() {
             <CardContent className="pt-4 pb-4">
               <p className="text-sm text-slate-500 mb-1">총 청구액</p>
               <p className="text-xl font-bold text-slate-900">
-                {(totalCharged / 10000).toFixed(0)}만원
+                {formatWon(totalCharged)}
               </p>
             </CardContent>
           </Card>
@@ -142,7 +143,7 @@ export default function RepReportsTotalFee() {
             <CardContent className="pt-4 pb-4">
               <p className="text-sm text-slate-500 mb-1">총 수납액</p>
               <p className="text-xl font-bold text-green-600">
-                {(totalPaid / 10000).toFixed(0)}만원
+                {formatWon(totalPaid)}
               </p>
             </CardContent>
           </Card>
@@ -183,10 +184,10 @@ export default function RepReportsTotalFee() {
                   <CartesianGrid strokeDasharray="3 3" />
                   <XAxis dataKey="month" />
                   <YAxis 
-                    tickFormatter={(value) => `${(value / 10000).toFixed(0)}만`}
+                    tickFormatter={(value) => formatWon(value)}
                   />
                   <Tooltip 
-                    formatter={(value) => `${value.toLocaleString()}원`}
+                    formatter={(value) => formatWon(value)}
                   />
                   <Legend />
                   <Bar dataKey="청구액" fill="#3b82f6" />
