@@ -88,6 +88,37 @@ export default function RepUnitsInvite() {
       const inviteUrl = `${window.location.origin}${createPageUrl(`AcceptInvite?inviteId=${invitation.id}`)}`;
       const notificationBody = `[셀프빌 입주자 초대]\n\n${building.name}\n${unit.ho ? `${unit.ho}호` : unit.unit_name}\n\n${unit.tenant_name}님을 입주자로 초대합니다.\n\n아래 링크를 클릭하여 초대를 수락해 주세요.\n\n${inviteUrl}`;
 
+      // 웹훅 전송 (입주자 초대)
+      const repMembership = await base44.entities.BuildingMember.filter({
+        building_id: buildingId,
+        user_email: user.email,
+        role: "대표자"
+      });
+      
+      let repUnit = null;
+      if (repMembership.length > 0 && repMembership[0].unit_id) {
+        const repUnits = await base44.entities.Unit.filter({ id: repMembership[0].unit_id });
+        if (repUnits.length > 0) repUnit = repUnits[0];
+      }
+
+      const webhookResponse = await fetch('https://primary-production-0c80.up.railway.app/webhook-test/6e73f22c-ad5f-4f41-b6ad-b031811729d1', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          buildingName: building.name,
+          representativeName: repUnit ? repUnit.tenant_name : user.full_name,
+          representativeUnit: repUnit ? `${repUnit.floor}층 ${repUnit.ho}호` : '-',
+          tenantName: unit.tenant_name,
+          tenantUnit: unit.floor && unit.ho ? `${unit.floor}층 ${unit.ho}호` : (unit.unit_name || '-'),
+          selfbillLink: inviteUrl
+        })
+      });
+
+      if (!webhookResponse.ok) {
+        throw new Error('웹훅 전송 실패');
+      }
+
+      // SMS 전송
       await base44.functions.invoke('sendTwilioSMS', {
         to_phone: unit.tenant_phone,
         body: notificationBody,
@@ -95,36 +126,6 @@ export default function RepUnitsInvite() {
         event_type: "INVITATION",
         event_ref_id: invitation.id
       });
-
-      // 웹훅 전송 (입주자 초대)
-      try {
-        const repMembership = await base44.entities.BuildingMember.filter({
-          building_id: buildingId,
-          user_email: user.email,
-          role: "대표자"
-        });
-        
-        let repUnit = null;
-        if (repMembership.length > 0 && repMembership[0].unit_id) {
-          const repUnits = await base44.entities.Unit.filter({ id: repMembership[0].unit_id });
-          if (repUnits.length > 0) repUnit = repUnits[0];
-        }
-
-        await fetch('https://primary-production-0c80.up.railway.app/webhook-test/6e73f22c-ad5f-4f41-b6ad-b031811729d1', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            buildingName: building.name,
-            representativeName: repUnit ? repUnit.tenant_name : user.full_name,
-            representativeUnit: repUnit ? `${repUnit.floor}층 ${repUnit.ho}호` : '-',
-            tenantName: unit.tenant_name,
-            tenantUnit: unit.floor && unit.ho ? `${unit.floor}층 ${unit.ho}호` : (unit.unit_name || '-'),
-            selfbillLink: inviteUrl
-          })
-        });
-      } catch (webhookErr) {
-        console.error('Webhook error:', webhookErr);
-      }
 
       await loadData();
       alert(`✅ ${unit.ho ? `${unit.ho}호` : unit.unit_name} (${unit.tenant_name}님)에게 초대 문자를 전송했습니다.`);
@@ -177,6 +178,37 @@ export default function RepUnitsInvite() {
         const inviteUrl = `${window.location.origin}${createPageUrl(`AcceptInvite?inviteId=${invitation.id}`)}`;
         const notificationBody = `[셀프빌 입주자 초대]\n\n${building.name}\n${unit.ho ? `${unit.ho}호` : unit.unit_name}\n\n${unit.tenant_name}님을 입주자로 초대합니다.\n\n아래 링크를 클릭하여 초대를 수락해 주세요.\n\n${inviteUrl}`;
 
+        // 웹훅 전송 (입주자 초대)
+        const repMembership = await base44.entities.BuildingMember.filter({
+          building_id: buildingId,
+          user_email: user.email,
+          role: "대표자"
+        });
+        
+        let repUnit = null;
+        if (repMembership.length > 0 && repMembership[0].unit_id) {
+          const repUnits = await base44.entities.Unit.filter({ id: repMembership[0].unit_id });
+          if (repUnits.length > 0) repUnit = repUnits[0];
+        }
+
+        const webhookResponse = await fetch('https://primary-production-0c80.up.railway.app/webhook-test/6e73f22c-ad5f-4f41-b6ad-b031811729d1', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            buildingName: building.name,
+            representativeName: repUnit ? repUnit.tenant_name : user.full_name,
+            representativeUnit: repUnit ? `${repUnit.floor}층 ${repUnit.ho}호` : '-',
+            tenantName: unit.tenant_name,
+            tenantUnit: unit.floor && unit.ho ? `${unit.floor}층 ${unit.ho}호` : (unit.unit_name || '-'),
+            selfbillLink: inviteUrl
+          })
+        });
+
+        if (!webhookResponse.ok) {
+          throw new Error('웹훅 전송 실패');
+        }
+
+        // SMS 전송
         await base44.functions.invoke('sendTwilioSMS', {
           to_phone: unit.tenant_phone,
           body: notificationBody,
@@ -184,36 +216,6 @@ export default function RepUnitsInvite() {
           event_type: "INVITATION",
           event_ref_id: invitation.id
         });
-
-        // 웹훅 전송 (입주자 초대)
-        try {
-          const repMembership = await base44.entities.BuildingMember.filter({
-            building_id: buildingId,
-            user_email: user.email,
-            role: "대표자"
-          });
-          
-          let repUnit = null;
-          if (repMembership.length > 0 && repMembership[0].unit_id) {
-            const repUnits = await base44.entities.Unit.filter({ id: repMembership[0].unit_id });
-            if (repUnits.length > 0) repUnit = repUnits[0];
-          }
-
-          await fetch('https://primary-production-0c80.up.railway.app/webhook-test/6e73f22c-ad5f-4f41-b6ad-b031811729d1', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({
-              buildingName: building.name,
-              representativeName: repUnit ? repUnit.tenant_name : user.full_name,
-              representativeUnit: repUnit ? `${repUnit.floor}층 ${repUnit.ho}호` : '-',
-              tenantName: unit.tenant_name,
-              tenantUnit: unit.floor && unit.ho ? `${unit.floor}층 ${unit.ho}호` : (unit.unit_name || '-'),
-              selfbillLink: inviteUrl
-            })
-          });
-        } catch (webhookErr) {
-          console.error('Webhook error:', webhookErr);
-        }
         
         successCount++;
       } catch (err) {

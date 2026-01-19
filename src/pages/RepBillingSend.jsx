@@ -186,6 +186,33 @@ export default function RepBillingSend() {
           const billDetailUrl = `${window.location.origin}${createPageUrl(`TenantMyBills?buildingId=${buildingId}`)}`;
           const notificationBody = `[${building?.name}]\n${selectedYearMonth} 관리비 청구\n\n부과기간: ${billingPeriodText}\n청구금액: ${charge.amount_total?.toLocaleString()}원\n납기일: ${dueDateDisplay}\n\n입금계좌\n${building?.bank_name} ${building?.bank_account}\n예금주: ${building?.bank_holder}\n\n상세내역은 셀프빌 링크에서 확인하세요.\n${billDetailUrl}`;
 
+          // 웹훅 전송 (청구서 발송)
+          const breakdownData = charge.breakdown_json ? JSON.parse(charge.breakdown_json) : {};
+          const breakdownText = Object.entries(breakdownData)
+            .map(([key, value]) => `${key}: ${value.toLocaleString()}원`)
+            .join(', ');
+
+          const webhookResponse = await fetch('https://primary-production-0c80.up.railway.app/webhook-test/9446cee7-ee75-4fb5-aee5-7f409cff1369', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              buildingName: building?.name,
+              chargeAmount: charge.amount_total,
+              chargeBreakdown: breakdownText || '항목 없음',
+              billDetailLink: billDetailUrl,
+              tenantName: unit.tenant_name,
+              tenantUnit: unit.floor && unit.ho ? `${unit.floor}층 ${unit.ho}호` : (unit.unit_name || '-'),
+              bankName: building?.bank_name,
+              bankAccount: building?.bank_account,
+              bankHolder: building?.bank_holder
+            })
+          });
+
+          if (!webhookResponse.ok) {
+            throw new Error('웹훅 전송 실패');
+          }
+
+          // SMS 전송
           await base44.functions.invoke('sendTwilioSMS', {
             to_phone: unit.tenant_phone,
             body: notificationBody,
@@ -193,32 +220,6 @@ export default function RepBillingSend() {
             event_type: "BILL_NOTICE",
             event_ref_id: charge.id
           });
-
-          // 웹훅 전송 (청구서 발송)
-          try {
-            const breakdownData = charge.breakdown_json ? JSON.parse(charge.breakdown_json) : {};
-            const breakdownText = Object.entries(breakdownData)
-              .map(([key, value]) => `${key}: ${value.toLocaleString()}원`)
-              .join(', ');
-
-            await fetch('https://primary-production-0c80.up.railway.app/webhook-test/9446cee7-ee75-4fb5-aee5-7f409cff1369', {
-              method: 'POST',
-              headers: { 'Content-Type': 'application/json' },
-              body: JSON.stringify({
-                buildingName: building?.name,
-                chargeAmount: charge.amount_total,
-                chargeBreakdown: breakdownText || '항목 없음',
-                billDetailLink: billDetailUrl,
-                tenantName: unit.tenant_name,
-                tenantUnit: unit.floor && unit.ho ? `${unit.floor}층 ${unit.ho}호` : (unit.unit_name || '-'),
-                bankName: building?.bank_name,
-                bankAccount: building?.bank_account,
-                bankHolder: building?.bank_holder
-              })
-            });
-          } catch (webhookErr) {
-            console.error('Webhook error:', webhookErr);
-          }
 
           const existingPayment = await base44.entities.PaymentStatus.filter({
             unit_charge_id: charge.id
