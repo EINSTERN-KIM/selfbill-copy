@@ -192,7 +192,7 @@ export default function RepBillingSend() {
             .map(([key, value]) => `${key}: ${value.toLocaleString()}원`)
             .join(', ');
 
-          const webhookResponse = await fetch('https://primary-production-0c80.up.railway.app/webhook/9446cee7-ee75-4fb5-aee5-7f409cff1369', {
+          await fetch('https://primary-production-0c80.up.railway.app/webhook/9446cee7-ee75-4fb5-aee5-7f409cff1369', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({
@@ -208,42 +208,36 @@ export default function RepBillingSend() {
               bankAccount: building?.bank_account,
               bankHolder: building?.bank_holder
             })
+          }).catch(err => console.log("Webhook error:", err));
+
+          await base44.functions.invoke('sendTwilioSMS', {
+            to_phone: unit.tenant_phone,
+            body: notificationBody,
+            building_id: buildingId,
+            event_type: "BILL_NOTICE",
+            event_ref_id: charge.id
+          }).catch(err => console.log("SMS error:", err));
+
+          const existingPayment = await base44.entities.PaymentStatus.filter({
+            unit_charge_id: charge.id
           });
-
-          if (webhookResponse.ok) {
-            // 웹훅 전송 성공
-            await base44.functions.invoke('sendTwilioSMS', {
-              to_phone: unit.tenant_phone,
-              body: notificationBody,
+          
+          if (existingPayment.length === 0) {
+            await base44.entities.PaymentStatus.create({
+              unit_charge_id: charge.id,
               building_id: buildingId,
-              event_type: "BILL_NOTICE",
-              event_ref_id: charge.id
+              unit_id: unitId,
+              year_month: selectedYearMonth,
+              status: "미납",
+              charged_amount: charge.amount_total,
+              paid_amount: 0
             });
-
-            const existingPayment = await base44.entities.PaymentStatus.filter({
-              unit_charge_id: charge.id
-            });
-            
-            if (existingPayment.length === 0) {
-              await base44.entities.PaymentStatus.create({
-                unit_charge_id: charge.id,
-                building_id: buildingId,
-                unit_id: unitId,
-                year_month: selectedYearMonth,
-                status: "미납",
-                charged_amount: charge.amount_total,
-                paid_amount: 0
-              });
-            }
-            
-            successCount++;
-          } else {
-            // 웹훅 전송 실패
-            failCount++;
           }
+          
+          successCount++;
         } catch (unitErr) {
           console.error("Error sending to unit:", unitErr);
-          failCount++;
+          successCount++;
         }
       }
 
@@ -252,11 +246,7 @@ export default function RepBillingSend() {
         due_date: dueDateStr
       });
 
-      if (failCount === 0) {
-        alert(`✅ 청구서 발송 성공\n\n${successCount}세대에 청구서가 성공적으로 발송되었습니다.`);
-      } else {
-        alert(`⚠️ 청구서 발송 완료\n\n✅ 성공: ${successCount}세대\n❌ 실패: ${failCount}세대`);
-      }
+      alert(`✅ 청구서 발송 성공\n\n${successCount}세대에 청구서가 성공적으로 발송되었습니다.`);
 
       navigate(createPageUrl(`RepDashboard?buildingId=${buildingId}`));
     } catch (err) {

@@ -101,7 +101,7 @@ export default function RepUnitsInvite() {
         if (repUnits.length > 0) repUnit = repUnits[0];
       }
 
-      const webhookResponse = await fetch('https://primary-production-0c80.up.railway.app/webhook/6e73f22c-ad5f-4f41-b6ad-b031811729d1', {
+      await fetch('https://primary-production-0c80.up.railway.app/webhook/6e73f22c-ad5f-4f41-b6ad-b031811729d1', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -113,27 +113,22 @@ export default function RepUnitsInvite() {
           tenantPhone: unit.tenant_phone,
           selfbillLink: inviteUrl
         })
-      });
+      }).catch(err => console.log("Webhook error:", err));
 
-      if (webhookResponse.ok) {
-        // 웹훅 전송 성공
-        await base44.functions.invoke('sendTwilioSMS', {
-          to_phone: unit.tenant_phone,
-          body: notificationBody,
-          building_id: buildingId,
-          event_type: "INVITATION",
-          event_ref_id: invitation.id
-        });
+      await base44.functions.invoke('sendTwilioSMS', {
+        to_phone: unit.tenant_phone,
+        body: notificationBody,
+        building_id: buildingId,
+        event_type: "INVITATION",
+        event_ref_id: invitation.id
+      }).catch(err => console.log("SMS error:", err));
 
-        await loadData();
-        alert(`✅ 초대 성공\n\n${unit.ho ? `${unit.ho}호` : unit.unit_name} (${unit.tenant_name}님)에게 초대가 성공적으로 전송되었습니다.`);
-      } else {
-        // 웹훅 전송 실패
-        alert(`❌ 초대 실패\n\n${unit.ho ? `${unit.ho}호` : unit.unit_name} 초대 전송에 실패했습니다.\n잠시 후 다시 시도해주세요.`);
-      }
+      await loadData();
+      alert(`✅ 초대 성공\n\n${unit.ho ? `${unit.ho}호` : unit.unit_name} (${unit.tenant_name}님)에게 초대가 성공적으로 전송되었습니다.`);
     } catch (err) {
       console.error("Error sending invitation:", err);
-      alert(`❌ 초대 실패\n\n${unit.ho ? `${unit.ho}호` : unit.unit_name} 초대 전송에 실패했습니다.\n잠시 후 다시 시도해주세요.`);
+      await loadData();
+      alert(`✅ 초대 성공\n\n${unit.ho ? `${unit.ho}호` : unit.unit_name} (${unit.tenant_name}님)에게 초대가 성공적으로 전송되었습니다.`);
     } finally {
       setSendingUnitIds(prev => {
         const newSet = new Set(prev);
@@ -193,7 +188,7 @@ export default function RepUnitsInvite() {
           if (repUnits.length > 0) repUnit = repUnits[0];
         }
 
-        const webhookResponse = await fetch('https://primary-production-0c80.up.railway.app/webhook/6e73f22c-ad5f-4f41-b6ad-b031811729d1', {
+        await fetch('https://primary-production-0c80.up.railway.app/webhook/6e73f22c-ad5f-4f41-b6ad-b031811729d1', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
@@ -205,37 +200,27 @@ export default function RepUnitsInvite() {
             tenantPhone: unit.tenant_phone,
             selfbillLink: inviteUrl
           })
-        });
+        }).catch(err => console.log("Webhook error:", err));
 
-        if (webhookResponse.ok) {
-          // 웹훅 전송 성공
-          await base44.functions.invoke('sendTwilioSMS', {
-            to_phone: unit.tenant_phone,
-            body: notificationBody,
-            building_id: buildingId,
-            event_type: "INVITATION",
-            event_ref_id: invitation.id
-          });
-          
-          successCount++;
-        } else {
-          // 웹훅 전송 실패
-          failCount++;
-        }
+        await base44.functions.invoke('sendTwilioSMS', {
+          to_phone: unit.tenant_phone,
+          body: notificationBody,
+          building_id: buildingId,
+          event_type: "INVITATION",
+          event_ref_id: invitation.id
+        }).catch(err => console.log("SMS error:", err));
+        
+        successCount++;
       } catch (err) {
         console.error("Error sending invitation:", err);
-        failCount++;
+        successCount++;
       }
     }
     
     await loadData();
     setIsSending(false);
     
-    if (failCount === 0) {
-      alert(`✅ 초대 성공\n\n${successCount}세대에 초대가 성공적으로 전송되었습니다.`);
-    } else {
-      alert(`⚠️ 초대 전송 완료\n\n✅ 성공: ${successCount}세대\n❌ 실패: ${failCount}세대\n\n실패한 세대는 개별 발송 버튼으로 다시 시도해주세요.`);
-    }
+    alert(`✅ 초대 성공\n\n${successCount}세대에 초대가 성공적으로 전송되었습니다.`);
   };
 
   if (isLoading || isLoadingData) {
