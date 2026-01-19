@@ -206,10 +206,21 @@ export default function RepLayout({ children, buildingId, building, currentPage 
 
       {/* Main Content */}
       <div className="flex-1 overflow-auto">
-        <div className="lg:hidden p-4 border-b bg-white sticky top-0 z-40">
-            <button onClick={() => setSidebarOpen(true)} className="flex items-center gap-2 touch-manipulation py-2">
-              <Menu className="w-6 h-6 text-slate-600 flex-shrink-0" />
+        <div className="lg:hidden p-4 border-b bg-white sticky top-0 z-40 flex items-center justify-between">
+            <div className="flex items-center gap-2 min-w-0 flex-1">
+              {building?.building_icon_url ? (
+                <img 
+                  src={building.building_icon_url} 
+                  alt="건물 아이콘"
+                  className="w-8 h-8 rounded-lg object-cover flex-shrink-0"
+                />
+              ) : (
+                <Building2 className="w-6 h-6 text-primary flex-shrink-0" />
+              )}
               <span className="text-sm font-semibold text-slate-900 truncate">{building?.name}</span>
+            </div>
+            <button onClick={() => setSidebarOpen(true)} className="touch-manipulation p-2 flex-shrink-0">
+              <Menu className="w-6 h-6 text-slate-600" />
             </button>
           </div>
         {children}

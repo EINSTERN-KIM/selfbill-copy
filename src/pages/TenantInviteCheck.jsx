@@ -50,6 +50,21 @@ export default function TenantInviteCheck() {
     setInviteError("");
     
     try {
+      // Check if user already registered with this phone
+      const existingMembers = await base44.entities.BuildingMember.filter({
+        user_email: user?.email,
+        status: "활성"
+      });
+      
+      for (const member of existingMembers) {
+        const units = await base44.entities.Unit.filter({ id: member.unit_id });
+        if (units.length > 0 && units[0].tenant_phone === invitePhone) {
+          setInviteError("이미 이 휴대폰 번호로 등록된 입주자입니다.");
+          setCheckingInvite(false);
+          return;
+        }
+      }
+      
       // Search for invitation by phone
       const invitations = await base44.entities.Invitation.filter({
         tenant_phone: invitePhone,
@@ -63,6 +78,35 @@ export default function TenantInviteCheck() {
       }
       
       const invitation = invitations[0];
+      
+      // Check if this invitation is already used by the current user
+      const alreadyCompleted = existingMembers.some(m => 
+        m.building_id === invitation.building_id && m.unit_id === invitation.unit_id
+      );
+      
+      if (alreadyCompleted) {
+        setInviteError("이미 가입 완료한 초대입니다.");
+        setCheckingInvite(false);
+        return;
+      }
+      
+      // Check if building has capacity
+      const [buildingUnits, buildingInvites] = await Promise.all([
+        base44.entities.Unit.filter({ 
+          building_id: invitation.building_id,
+          status: "active"
+        }),
+        base44.entities.Invitation.filter({ 
+          building_id: invitation.building_id,
+          status: "가입 완료"
+        })
+      ]);
+      
+      if (buildingInvites.length >= buildingUnits.length) {
+        setInviteError("해당 건물의 초대 가능한 세대 수를 초과했습니다.");
+        setCheckingInvite(false);
+        return;
+      }
       
       // Store invitation data and navigate to additional info page
       sessionStorage.setItem('pendingInvitation', JSON.stringify({
