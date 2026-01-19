@@ -55,6 +55,26 @@ export default function Layout({ children, currentPageName }) {
         body {
           font-family: 'Pretendard', -apple-system, BlinkMacSystemFont, 'Noto Sans KR', 'Segoe UI', sans-serif;
           background-color: var(--color-background);
+          -webkit-font-smoothing: antialiased;
+          -moz-osx-font-smoothing: grayscale;
+          touch-action: manipulation;
+        }
+        
+        /* 모바일 최적화 */
+        @media (max-width: 640px) {
+          * {
+            -webkit-tap-highlight-color: transparent;
+          }
+          
+          button, a, [role="button"] {
+            min-height: 44px;
+          }
+        }
+        
+        /* 텍스트 줄바꿈 유틸리티 */
+        .break-keep {
+          word-break: keep-all;
+          overflow-wrap: break-word;
         }
         
         /* Primary Green System */
