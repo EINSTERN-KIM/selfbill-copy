@@ -197,6 +197,7 @@ export default function RepBillingSend() {
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({
               buildingName: building?.name,
+              billingYearMonth: selectedYearMonth,
               chargeAmount: charge.amount_total,
               chargeBreakdown: breakdownText || '항목 없음',
               billDetailLink: billDetailUrl,
