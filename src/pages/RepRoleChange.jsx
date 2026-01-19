@@ -84,13 +84,34 @@ export default function RepRoleChange() {
       if (!selectedMember) return;
 
       // Create role change request - DO NOT modify building_members
-      await base44.entities.RoleChangeRequest.create({
+      const newRequest = await base44.entities.RoleChangeRequest.create({
         building_id: buildingId,
         from_user_id: user.id,
         to_user_id: selectedMember.user_id,
         status: "요청",
         requested_at: new Date().toISOString()
       });
+
+      // 웹훅 전송 (대표자 변경 요청)
+      try {
+        const toUnit = units.find(u => u.id === selectedMember.unit_id);
+        const selfbillLink = `${window.location.origin}${createPageUrl(`TenantDashboard?buildingId=${buildingId}`)}`;
+
+        await fetch('https://primary-production-0c80.up.railway.app/webhook-test/64e67674-a581-43fd-81fb-f22120d86f3d', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            buildingName: building?.name,
+            currentRepName: currentRepUnit?.tenant_name || user.full_name,
+            currentRepUnit: currentRepUnit ? `${currentRepUnit.floor}층 ${currentRepUnit.ho}호` : '-',
+            newRepName: toUnit?.tenant_name || selectedMember.user_email,
+            newRepUnit: toUnit ? `${toUnit.floor}층 ${toUnit.ho}호` : '-',
+            selfbillLink: selfbillLink
+          })
+        });
+      } catch (webhookErr) {
+        console.error('Webhook error:', webhookErr);
+      }
 
       // 요청 전송 완료 팝업
       alert("대표자 변경 요청이 전송되었습니다.\n\n입주자가 대표자 권한 양도를 수락하면 대표자 변경이 완료됩니다.");

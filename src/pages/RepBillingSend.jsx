@@ -194,6 +194,32 @@ export default function RepBillingSend() {
             event_ref_id: charge.id
           });
 
+          // 웹훅 전송 (청구서 발송)
+          try {
+            const breakdownData = charge.breakdown_json ? JSON.parse(charge.breakdown_json) : {};
+            const breakdownText = Object.entries(breakdownData)
+              .map(([key, value]) => `${key}: ${value.toLocaleString()}원`)
+              .join(', ');
+
+            await fetch('https://primary-production-0c80.up.railway.app/webhook-test/9446cee7-ee75-4fb5-aee5-7f409cff1369', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({
+                buildingName: building?.name,
+                chargeAmount: charge.amount_total,
+                chargeBreakdown: breakdownText || '항목 없음',
+                billDetailLink: billDetailUrl,
+                tenantName: unit.tenant_name,
+                tenantUnit: unit.floor && unit.ho ? `${unit.floor}층 ${unit.ho}호` : (unit.unit_name || '-'),
+                bankName: building?.bank_name,
+                bankAccount: building?.bank_account,
+                bankHolder: building?.bank_holder
+              })
+            });
+          } catch (webhookErr) {
+            console.error('Webhook error:', webhookErr);
+          }
+
           const existingPayment = await base44.entities.PaymentStatus.filter({
             unit_charge_id: charge.id
           });

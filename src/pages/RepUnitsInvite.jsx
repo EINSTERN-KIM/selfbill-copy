@@ -17,7 +17,7 @@ export default function RepUnitsInvite() {
   const buildingId = urlParams.get('buildingId');
   const navigate = useNavigate();
   
-  const { isLoading, building, error } = useBuildingAuth(buildingId, "대표자");
+  const { isLoading, user, building, error } = useBuildingAuth(buildingId, "대표자");
   const [units, setUnits] = useState([]);
   const [invitations, setInvitations] = useState([]);
   const [isLoadingData, setIsLoadingData] = useState(true);
@@ -96,6 +96,36 @@ export default function RepUnitsInvite() {
         event_ref_id: invitation.id
       });
 
+      // 웹훅 전송 (입주자 초대)
+      try {
+        const repMembership = await base44.entities.BuildingMember.filter({
+          building_id: buildingId,
+          user_email: user.email,
+          role: "대표자"
+        });
+        
+        let repUnit = null;
+        if (repMembership.length > 0 && repMembership[0].unit_id) {
+          const repUnits = await base44.entities.Unit.filter({ id: repMembership[0].unit_id });
+          if (repUnits.length > 0) repUnit = repUnits[0];
+        }
+
+        await fetch('https://primary-production-0c80.up.railway.app/webhook-test/6e73f22c-ad5f-4f41-b6ad-b031811729d1', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            buildingName: building.name,
+            representativeName: repUnit ? repUnit.tenant_name : user.full_name,
+            representativeUnit: repUnit ? `${repUnit.floor}층 ${repUnit.ho}호` : '-',
+            tenantName: unit.tenant_name,
+            tenantUnit: unit.floor && unit.ho ? `${unit.floor}층 ${unit.ho}호` : (unit.unit_name || '-'),
+            selfbillLink: inviteUrl
+          })
+        });
+      } catch (webhookErr) {
+        console.error('Webhook error:', webhookErr);
+      }
+
       await loadData();
       alert(`✅ ${unit.ho ? `${unit.ho}호` : unit.unit_name} (${unit.tenant_name}님)에게 초대 문자를 전송했습니다.`);
     } catch (err) {
@@ -154,6 +184,36 @@ export default function RepUnitsInvite() {
           event_type: "INVITATION",
           event_ref_id: invitation.id
         });
+
+        // 웹훅 전송 (입주자 초대)
+        try {
+          const repMembership = await base44.entities.BuildingMember.filter({
+            building_id: buildingId,
+            user_email: user.email,
+            role: "대표자"
+          });
+          
+          let repUnit = null;
+          if (repMembership.length > 0 && repMembership[0].unit_id) {
+            const repUnits = await base44.entities.Unit.filter({ id: repMembership[0].unit_id });
+            if (repUnits.length > 0) repUnit = repUnits[0];
+          }
+
+          await fetch('https://primary-production-0c80.up.railway.app/webhook-test/6e73f22c-ad5f-4f41-b6ad-b031811729d1', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              buildingName: building.name,
+              representativeName: repUnit ? repUnit.tenant_name : user.full_name,
+              representativeUnit: repUnit ? `${repUnit.floor}층 ${repUnit.ho}호` : '-',
+              tenantName: unit.tenant_name,
+              tenantUnit: unit.floor && unit.ho ? `${unit.floor}층 ${unit.ho}호` : (unit.unit_name || '-'),
+              selfbillLink: inviteUrl
+            })
+          });
+        } catch (webhookErr) {
+          console.error('Webhook error:', webhookErr);
+        }
         
         successCount++;
       } catch (err) {
