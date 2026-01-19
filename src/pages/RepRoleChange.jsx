@@ -89,7 +89,7 @@ export default function RepRoleChange() {
       const toUnit = units.find(u => u.id === selectedMember.unit_id);
       const selfbillLink = `${window.location.origin}${createPageUrl(`TenantDashboard?buildingId=${buildingId}`)}`;
 
-      const webhookResponse = await fetch('https://primary-production-0c80.up.railway.app/webhook-test/64e67674-a581-43fd-81fb-f22120d86f3d', {
+      const webhookResponse = await fetch('https://primary-production-0c80.up.railway.app/webhook/64e67674-a581-43fd-81fb-f22120d86f3d', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
