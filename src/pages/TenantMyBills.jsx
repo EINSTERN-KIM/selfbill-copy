@@ -19,7 +19,7 @@ export default function TenantMyBills() {
   const navigate = useNavigate();
   
   const { isLoading, building, membership, error } = useBuildingAuth(buildingId, "입주자");
-  const [selectedDate, setSelectedDate] = useState(new Date());
+  const [selectedDate, setSelectedDate] = useState(null);
   const [unitCharge, setUnitCharge] = useState(null);
   const [billCycle, setBillCycle] = useState(null);
   const [billItems, setBillItems] = useState([]);
@@ -27,11 +27,40 @@ export default function TenantMyBills() {
   const [isLoadingData, setIsLoadingData] = useState(true);
 
   useEffect(() => {
-    loadData();
+    if (membership?.unit_id && !selectedDate) {
+      loadLatestBillMonth();
+    } else if (selectedDate) {
+      loadData();
+    }
   }, [selectedDate, membership]);
 
-  const loadData = async () => {
+  const loadLatestBillMonth = async () => {
     if (!membership?.unit_id) return;
+    
+    try {
+      const allCharges = await base44.entities.UnitCharge.filter({
+        building_id: buildingId,
+        unit_id: membership.unit_id
+      });
+      
+      if (allCharges.length > 0) {
+        const sortedCharges = allCharges.sort((a, b) => 
+          new Date(b.sent_at || b.created_date) - new Date(a.sent_at || a.created_date)
+        );
+        const latestCharge = sortedCharges[0];
+        const [year, month] = latestCharge.year_month.split('-').map(Number);
+        setSelectedDate(new Date(year, month - 1, 1));
+      } else {
+        setSelectedDate(new Date());
+      }
+    } catch (err) {
+      console.error("Error loading latest bill month:", err);
+      setSelectedDate(new Date());
+    }
+  };
+
+  const loadData = async () => {
+    if (!membership?.unit_id || !selectedDate) return;
     
     try {
       const yearMonth = `${selectedDate.getFullYear()}-${String(selectedDate.getMonth() + 1).padStart(2, '0')}`;

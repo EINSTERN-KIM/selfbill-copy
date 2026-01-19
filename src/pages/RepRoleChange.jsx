@@ -27,6 +27,7 @@ export default function RepRoleChange() {
   const [requests, setRequests] = useState([]);
   const [selectedMemberId, setSelectedMemberId] = useState("");
   const [currentRepUnit, setCurrentRepUnit] = useState(null);
+  const [currentRepUserId, setCurrentRepUserId] = useState(null);
 
   useEffect(() => {
     loadData();
@@ -58,6 +59,7 @@ export default function RepRoleChange() {
       if (repMember && repMember.unit_id) {
         const repUnit = unitsData.find(u => u.id === repMember.unit_id);
         setCurrentRepUnit(repUnit);
+        setCurrentRepUserId(repMember.user_id);
       }
       
       setIsLoadingData(false);
@@ -249,6 +251,7 @@ export default function RepRoleChange() {
                       </SelectTrigger>
                       <SelectContent>
                         {members
+                          .filter(m => m.user_id !== currentRepUserId)
                           .sort((a, b) => {
                             const unitA = units.find(u => u.id === a.unit_id);
                             const unitB = units.find(u => u.id === b.unit_id);

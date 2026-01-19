@@ -21,9 +21,10 @@ export default function RepUnits() {
   const buildingId = urlParams.get('buildingId');
   const navigate = useNavigate();
   
-  const { isLoading, building, error } = useBuildingAuth(buildingId, "대표자");
+  const { isLoading, user, building, error } = useBuildingAuth(buildingId, "대표자");
   const [units, setUnits] = useState([]);
   const [isLoadingUnits, setIsLoadingUnits] = useState(true);
+  const [repUnitId, setRepUnitId] = useState(null);
   const [showDialog, setShowDialog] = useState(false);
   const [editingUnit, setEditingUnit] = useState(null);
   const [isSaving, setIsSaving] = useState(false);
@@ -39,7 +40,25 @@ export default function RepUnits() {
 
   useEffect(() => {
     loadUnits();
-  }, [buildingId]);
+    loadRepUnit();
+  }, [buildingId, user]);
+
+  const loadRepUnit = async () => {
+    if (!buildingId || !user) return;
+    try {
+      const members = await base44.entities.BuildingMember.filter({
+        building_id: buildingId,
+        user_email: user.email,
+        role: "대표자",
+        status: "활성"
+      });
+      if (members.length > 0 && members[0].unit_id) {
+        setRepUnitId(members[0].unit_id);
+      }
+    } catch (err) {
+      console.error("Error loading rep unit:", err);
+    }
+  };
 
   const totalShareRatio = units.reduce((sum, u) => sum + (u.share_ratio || 0), 0);
 
@@ -291,6 +310,9 @@ export default function RepUnits() {
                           <p className="font-medium text-slate-900">
                             {unit.unit_name || "호수 미입력"}
                           </p>
+                          {unit.id === repUnitId && (
+                            <Badge className="bg-primary text-white text-xs">대표자</Badge>
+                          )}
                           {unit.needs_review && (
                             <span className="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-yellow-100 text-yellow-800">
                               확인 필요
