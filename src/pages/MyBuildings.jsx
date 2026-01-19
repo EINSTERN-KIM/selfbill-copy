@@ -112,8 +112,8 @@ export default function MyBuildings() {
     loadData();
   }, [navigate]);
 
-  const handleBuildingClick = (item) => {
-    const { building, hasRepRole, hasTenantRole, hasBothRoles, primaryRole } = item;
+  const handleBuildingClick = async (item) => {
+    const { building, hasRepRole, hasTenantRole, hasBothRoles, memberships } = item;
     
     // 두 역할을 모두 가진 경우 역할 선택 모달 표시
     if (hasBothRoles) {
@@ -131,6 +131,20 @@ export default function MyBuildings() {
       }
       navigate(createPageUrl(`RepDashboard?buildingId=${building.id}`));
     } else if (hasTenantRole) {
+      // 입주자인 경우, unit의 needs_review 상태 확인
+      const tenantMembership = memberships.find(m => m.role === "입주자");
+      if (tenantMembership?.unit_id) {
+        const units = await base44.entities.Unit.filter({ id: tenantMembership.unit_id });
+        if (units.length > 0 && units[0].needs_review) {
+          // needs_review가 true면 추가 정보 입력 페이지로
+          sessionStorage.setItem('pendingInvitation', JSON.stringify({
+            buildingId: building.id,
+            unitId: units[0].id
+          }));
+          navigate(createPageUrl("TenantAdditionalInfo"));
+          return;
+        }
+      }
       navigate(createPageUrl(`TenantDashboard?buildingId=${building.id}`));
     }
   };
