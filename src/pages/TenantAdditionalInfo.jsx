@@ -110,24 +110,36 @@ export default function TenantAdditionalInfo() {
         move_out_date: formData.move_out_date || null,
         car_count: formData.car_count,
         car_numbers: formData.car_numbers.filter(cn => cn.trim() !== ""),
-        needs_review: true
+        needs_review: false
       });
       
-      // Create BuildingMember
-      await base44.entities.BuildingMember.create({
+      // BuildingMember가 이미 존재하는지 확인
+      const existingMembers = await base44.entities.BuildingMember.filter({
         building_id: pendingInvitation.buildingId,
-        user_id: user.id,
         user_email: user.email,
         role: "입주자",
-        unit_id: pendingInvitation.unitId,
-        status: "활성"
+        unit_id: pendingInvitation.unitId
       });
       
-      // Update invitation status
-      await base44.entities.Invitation.update(pendingInvitation.invitationId, {
-        status: "가입 완료",
-        accepted_at: new Date().toISOString()
-      });
+      // BuildingMember가 없을 때만 생성
+      if (existingMembers.length === 0) {
+        await base44.entities.BuildingMember.create({
+          building_id: pendingInvitation.buildingId,
+          user_id: user.id,
+          user_email: user.email,
+          role: "입주자",
+          unit_id: pendingInvitation.unitId,
+          status: "활성"
+        });
+      }
+      
+      // Invitation이 있는 경우만 업데이트
+      if (pendingInvitation.invitationId) {
+        await base44.entities.Invitation.update(pendingInvitation.invitationId, {
+          status: "가입 완료",
+          accepted_at: new Date().toISOString()
+        });
+      }
       
       // Clear sessionStorage
       sessionStorage.removeItem('pendingInvitation');

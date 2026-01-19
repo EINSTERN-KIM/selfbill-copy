@@ -35,7 +35,18 @@ export default function TenantDashboard() {
         // Load unit info
         const units = await base44.entities.Unit.filter({ id: membership.unit_id });
         if (units.length > 0) {
-          setUnit(units[0]);
+          const unitData = units[0];
+          setUnit(unitData);
+          
+          // needs_review가 true인 경우 추가 정보 입력 페이지로 리다이렉트
+          if (unitData.needs_review) {
+            sessionStorage.setItem('pendingInvitation', JSON.stringify({
+              buildingId: buildingId,
+              unitId: unitData.id
+            }));
+            navigate(createPageUrl("TenantAdditionalInfo"));
+            return;
+          }
         }
 
         // Load latest charge
@@ -59,7 +70,7 @@ export default function TenantDashboard() {
       }
     }
     loadData();
-  }, [membership, isLoading]);
+  }, [membership, isLoading, buildingId, navigate]);
 
   const getUnitDisplay = () => {
     if (!unit) return "-";
