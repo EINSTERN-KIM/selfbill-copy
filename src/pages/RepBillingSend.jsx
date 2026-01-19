@@ -210,36 +210,36 @@ export default function RepBillingSend() {
             })
           });
 
-          if (!webhookResponse.ok) {
+          if (webhookResponse.ok) {
+            // 웹훅 성공 - SMS 전송
+            await base44.functions.invoke('sendTwilioSMS', {
+              to_phone: unit.tenant_phone,
+              body: notificationBody,
+              building_id: buildingId,
+              event_type: "BILL_NOTICE",
+              event_ref_id: charge.id
+            });
+
+            const existingPayment = await base44.entities.PaymentStatus.filter({
+              unit_charge_id: charge.id
+            });
+            
+            if (existingPayment.length === 0) {
+              await base44.entities.PaymentStatus.create({
+                unit_charge_id: charge.id,
+                building_id: buildingId,
+                unit_id: unitId,
+                year_month: selectedYearMonth,
+                status: "미납",
+                charged_amount: charge.amount_total,
+                paid_amount: 0
+              });
+            }
+            
+            successCount++;
+          } else {
             throw new Error('웹훅 전송 실패');
           }
-
-          // SMS 전송
-          await base44.functions.invoke('sendTwilioSMS', {
-            to_phone: unit.tenant_phone,
-            body: notificationBody,
-            building_id: buildingId,
-            event_type: "BILL_NOTICE",
-            event_ref_id: charge.id
-          });
-
-          const existingPayment = await base44.entities.PaymentStatus.filter({
-            unit_charge_id: charge.id
-          });
-          
-          if (existingPayment.length === 0) {
-            await base44.entities.PaymentStatus.create({
-              unit_charge_id: charge.id,
-              building_id: buildingId,
-              unit_id: unitId,
-              year_month: selectedYearMonth,
-              status: "미납",
-              charged_amount: charge.amount_total,
-              paid_amount: 0
-            });
-          }
-          
-          successCount++;
         } catch (unitErr) {
           console.error("Error sending to unit:", unitErr);
           failCount++;

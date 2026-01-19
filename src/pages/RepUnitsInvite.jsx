@@ -115,21 +115,21 @@ export default function RepUnitsInvite() {
         })
       });
 
-      if (!webhookResponse.ok) {
+      if (webhookResponse.ok) {
+        // 웹훅 성공 - SMS 전송
+        await base44.functions.invoke('sendTwilioSMS', {
+          to_phone: unit.tenant_phone,
+          body: notificationBody,
+          building_id: buildingId,
+          event_type: "INVITATION",
+          event_ref_id: invitation.id
+        });
+
+        await loadData();
+        alert(`✅ ${unit.ho ? `${unit.ho}호` : unit.unit_name} (${unit.tenant_name}님)에게 초대 문자를 전송했습니다.`);
+      } else {
         throw new Error('웹훅 전송 실패');
       }
-
-      // SMS 전송
-      await base44.functions.invoke('sendTwilioSMS', {
-        to_phone: unit.tenant_phone,
-        body: notificationBody,
-        building_id: buildingId,
-        event_type: "INVITATION",
-        event_ref_id: invitation.id
-      });
-
-      await loadData();
-      alert(`✅ ${unit.ho ? `${unit.ho}호` : unit.unit_name} (${unit.tenant_name}님)에게 초대 문자를 전송했습니다.`);
     } catch (err) {
       console.error("Error sending invitation:", err);
       alert(`❌ ${unit.ho ? `${unit.ho}호` : unit.unit_name} 초대 문자 전송에 실패했습니다.\n잠시 후 다시 시도해주세요.`);
@@ -206,20 +206,20 @@ export default function RepUnitsInvite() {
           })
         });
 
-        if (!webhookResponse.ok) {
+        if (webhookResponse.ok) {
+          // 웹훅 성공 - SMS 전송
+          await base44.functions.invoke('sendTwilioSMS', {
+            to_phone: unit.tenant_phone,
+            body: notificationBody,
+            building_id: buildingId,
+            event_type: "INVITATION",
+            event_ref_id: invitation.id
+          });
+          
+          successCount++;
+        } else {
           throw new Error('웹훅 전송 실패');
         }
-
-        // SMS 전송
-        await base44.functions.invoke('sendTwilioSMS', {
-          to_phone: unit.tenant_phone,
-          body: notificationBody,
-          building_id: buildingId,
-          event_type: "INVITATION",
-          event_ref_id: invitation.id
-        });
-        
-        successCount++;
       } catch (err) {
         console.error("Error sending invitation:", err);
         failCount++;
