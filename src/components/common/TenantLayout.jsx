@@ -32,14 +32,22 @@ export default function TenantLayout({ buildingId, building, currentPage, childr
         <div className="p-4 border-b">
           <button
             onClick={() => navigate(createPageUrl("MyBuildings"))}
-            className="flex items-center gap-3 w-full hover:bg-slate-50 rounded-lg p-2 -m-2 transition-colors"
+            className="flex items-center gap-3 w-full hover:bg-slate-50 active:bg-slate-100 rounded-lg p-3 -m-3 transition-colors touch-manipulation"
           >
-            <div className="w-10 h-10 rounded-xl bg-primary flex items-center justify-center">
-              <Building2 className="w-5 h-5 text-white" />
-            </div>
+            {building?.building_icon_url ? (
+              <img 
+                src={building.building_icon_url} 
+                alt="건물 아이콘"
+                className="w-10 h-10 rounded-xl object-cover flex-shrink-0"
+              />
+            ) : (
+              <div className="w-10 h-10 rounded-xl bg-primary flex items-center justify-center flex-shrink-0">
+                <Building2 className="w-5 h-5 text-white" />
+              </div>
+            )}
             <div className="flex-1 min-w-0 text-left">
-              <p className="font-semibold text-slate-900 truncate">{building?.name || '공동주택'}</p>
-              <p className="text-xs text-slate-500">입주자</p>
+              <p className="font-semibold text-slate-900 truncate break-keep">{building?.name || '공동주택'}</p>
+              <p className="text-xs text-slate-500 break-keep">입주자</p>
             </div>
           </button>
         </div>
@@ -54,15 +62,15 @@ export default function TenantLayout({ buildingId, building, currentPage, childr
               <Link
                 key={item.id}
                 to={createPageUrl(`${item.id}?buildingId=${buildingId}`)}
-                className={`flex items-center gap-3 px-3 py-2.5 rounded-lg transition-colors ${
+                className={`flex items-center gap-3 px-4 py-3 rounded-lg transition-colors touch-manipulation ${
                   isActive 
                     ? 'bg-primary text-white' 
-                    : 'text-slate-700 hover:bg-slate-100'
+                    : 'text-slate-700 hover:bg-slate-100 active:bg-slate-200'
                 }`}
                 onClick={() => setSidebarOpen(false)}
               >
-                <Icon className="w-5 h-5" />
-                <span className={`text-sm ${item.isBold ? 'font-bold' : 'font-medium'}`}>{item.label}</span>
+                <Icon className="w-5 h-5 flex-shrink-0" />
+                <span className={`text-sm break-keep ${item.isBold ? 'font-bold' : 'font-medium'}`}>{item.label}</span>
               </Link>
             );
           })}
@@ -73,10 +81,10 @@ export default function TenantLayout({ buildingId, building, currentPage, childr
       <div className="p-3 border-t">
         <button
           onClick={handleLogout}
-          className="flex items-center gap-3 px-3 py-2.5 rounded-lg text-red-600 hover:bg-red-50 transition-colors w-full"
+          className="flex items-center gap-3 px-4 py-3 rounded-lg text-red-600 hover:bg-red-50 active:bg-red-100 transition-colors w-full touch-manipulation"
         >
-          <LogOut className="w-5 h-5" />
-          <span className="text-sm font-medium">로그아웃</span>
+          <LogOut className="w-5 h-5 flex-shrink-0" />
+          <span className="text-sm font-medium break-keep">로그아웃</span>
         </button>
       </div>
     </div>
@@ -91,14 +99,23 @@ export default function TenantLayout({ buildingId, building, currentPage, childr
 
       {/* Mobile Header */}
       <div className="lg:hidden fixed top-0 left-0 right-0 h-16 bg-white border-b z-40 flex items-center justify-between px-4">
-        <div className="flex items-center gap-3">
-          <Building2 className="w-6 h-6 text-primary" />
-          <span className="font-semibold text-slate-900">{building?.name || '공동주택'}</span>
+        <div className="flex items-center gap-3 min-w-0 flex-1">
+          {building?.building_icon_url ? (
+            <img 
+              src={building.building_icon_url} 
+              alt="건물 아이콘"
+              className="w-6 h-6 rounded object-cover flex-shrink-0"
+            />
+          ) : (
+            <Building2 className="w-6 h-6 text-primary flex-shrink-0" />
+          )}
+          <span className="font-semibold text-slate-900 truncate">{building?.name || '공동주택'}</span>
         </div>
         <Button
           variant="ghost"
           size="icon"
           onClick={() => setSidebarOpen(!sidebarOpen)}
+          className="touch-manipulation flex-shrink-0"
         >
           {sidebarOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
         </Button>
@@ -111,13 +128,14 @@ export default function TenantLayout({ buildingId, building, currentPage, childr
             className="lg:hidden fixed inset-0 bg-black/50 z-40"
             onClick={() => setSidebarOpen(false)}
           />
-          <aside className="lg:hidden fixed left-0 top-0 bottom-0 w-64 bg-white z-50 shadow-xl">
+          <aside className="lg:hidden fixed left-0 top-0 bottom-0 w-72 bg-white z-50 shadow-xl">
             <div className="h-16 flex items-center justify-between px-4 border-b">
-              <span className="font-semibold text-slate-900">메뉴</span>
+              <span className="font-semibold text-slate-900 break-keep">메뉴</span>
               <Button
                 variant="ghost"
                 size="icon"
                 onClick={() => setSidebarOpen(false)}
+                className="touch-manipulation"
               >
                 <X className="w-6 h-6" />
               </Button>

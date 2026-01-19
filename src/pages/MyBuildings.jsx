@@ -185,26 +185,26 @@ export default function MyBuildings() {
         </div>
 
         {/* Header */}
-        <div className="flex items-center justify-between mb-8">
-          <div>
-            <h1 className="text-2xl font-bold text-slate-900">내 공동주택</h1>
-            <p className="text-slate-500 mt-1">관리 중인 공동주택 목록</p>
+        <div className="mb-6">
+          <div className="mb-4">
+            <h1 className="text-xl sm:text-2xl font-bold text-slate-900 break-keep">내 공동주택</h1>
+            <p className="text-slate-500 mt-1 text-sm break-keep">관리 중인 공동주택 목록</p>
           </div>
-          <div className="flex items-center gap-2">
+          <div className="flex flex-col sm:flex-row gap-2">
             <Button 
               variant="outline"
               onClick={() => navigate(createPageUrl("TenantInviteCheck"))}
-              className="border-primary text-primary hover:bg-primary-light hover:text-primary-dark rounded-full px-4 font-semibold"
+              className="border-primary text-primary hover:bg-primary-light hover:text-primary-dark rounded-full px-4 font-semibold touch-manipulation w-full sm:w-auto"
             >
-              <UserPlus className="w-4 h-4 mr-2" />
-              입주자 등록
+              <UserPlus className="w-4 h-4 mr-2 flex-shrink-0" />
+              <span className="break-keep">입주자 등록</span>
             </Button>
             <Button 
               onClick={() => navigate(createPageUrl("BuildingSetupWizard"))}
-              className="bg-primary hover:bg-primary-dark text-white rounded-full px-4 font-semibold"
+              className="bg-primary hover:bg-primary-dark text-white rounded-full px-4 font-semibold touch-manipulation w-full sm:w-auto"
             >
-              <Plus className="w-4 h-4 mr-2" />
-              새 건물 등록
+              <Plus className="w-4 h-4 mr-2 flex-shrink-0" />
+              <span className="break-keep">새 건물 등록</span>
             </Button>
           </div>
         </div>
@@ -226,22 +226,22 @@ export default function MyBuildings() {
                 className="cursor-pointer hover:shadow-xl transition-all group card-rounded border border-slate-200"
                 onClick={() => handleBuildingClick(item)}
               >
-                <CardContent className="p-5">
-                  <div className="flex items-start gap-4">
+                <CardContent className="p-4 sm:p-5">
+                  <div className="flex items-start gap-3 sm:gap-4">
                     {item.building?.building_icon_url ? (
                       <img 
                         src={item.building.building_icon_url} 
                         alt="건물 아이콘"
-                        className="w-14 h-14 rounded-2xl object-cover flex-shrink-0"
+                        className="w-12 h-12 sm:w-14 sm:h-14 rounded-2xl object-cover flex-shrink-0"
                       />
                     ) : (
-                      <div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-primary to-primary-dark flex items-center justify-center flex-shrink-0">
-                        <Building2 className="w-7 h-7 text-white" />
+                      <div className="w-12 h-12 sm:w-14 sm:h-14 rounded-2xl bg-gradient-to-br from-primary to-primary-dark flex items-center justify-center flex-shrink-0">
+                        <Building2 className="w-6 h-6 sm:w-7 sm:h-7 text-white" />
                       </div>
                     )}
                     <div className="flex-1 min-w-0">
                       <div className="flex items-center gap-2 mb-1 flex-wrap">
-                        <h3 className="font-semibold text-slate-900 truncate">
+                        <h3 className="font-semibold text-slate-900 break-keep">
                           {item.building?.name || "이름 없음"}
                         </h3>
                         {item.hasBothRoles ? (
