@@ -211,7 +211,7 @@ export default function RepBillingSend() {
           });
 
           if (webhookResponse.ok) {
-            // 웹훅 성공 - SMS 전송
+            // 웹훅 전송 성공
             await base44.functions.invoke('sendTwilioSMS', {
               to_phone: unit.tenant_phone,
               body: notificationBody,
@@ -238,7 +238,8 @@ export default function RepBillingSend() {
             
             successCount++;
           } else {
-            throw new Error('웹훅 전송 실패');
+            // 웹훅 전송 실패
+            failCount++;
           }
         } catch (unitErr) {
           console.error("Error sending to unit:", unitErr);
@@ -252,9 +253,9 @@ export default function RepBillingSend() {
       });
 
       if (failCount === 0) {
-        alert(`✅ 청구서 발송 완료!\n${successCount}세대에 청구서가 성공적으로 발송되었습니다.`);
+        alert(`✅ 청구서 발송 성공\n\n${successCount}세대에 청구서가 성공적으로 발송되었습니다.`);
       } else {
-        alert(`⚠️ 청구서 발송 완료\n성공: ${successCount}세대\n실패: ${failCount}세대`);
+        alert(`⚠️ 청구서 발송 완료\n\n✅ 성공: ${successCount}세대\n❌ 실패: ${failCount}세대`);
       }
 
       navigate(createPageUrl(`RepDashboard?buildingId=${buildingId}`));

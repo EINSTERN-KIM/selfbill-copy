@@ -116,7 +116,7 @@ export default function RepUnitsInvite() {
       });
 
       if (webhookResponse.ok) {
-        // 웹훅 성공 - SMS 전송
+        // 웹훅 전송 성공
         await base44.functions.invoke('sendTwilioSMS', {
           to_phone: unit.tenant_phone,
           body: notificationBody,
@@ -126,13 +126,14 @@ export default function RepUnitsInvite() {
         });
 
         await loadData();
-        alert(`✅ ${unit.ho ? `${unit.ho}호` : unit.unit_name} (${unit.tenant_name}님)에게 초대 문자를 전송했습니다.`);
+        alert(`✅ 초대 성공\n\n${unit.ho ? `${unit.ho}호` : unit.unit_name} (${unit.tenant_name}님)에게 초대가 성공적으로 전송되었습니다.`);
       } else {
-        throw new Error('웹훅 전송 실패');
+        // 웹훅 전송 실패
+        alert(`❌ 초대 실패\n\n${unit.ho ? `${unit.ho}호` : unit.unit_name} 초대 전송에 실패했습니다.\n잠시 후 다시 시도해주세요.`);
       }
     } catch (err) {
       console.error("Error sending invitation:", err);
-      alert(`❌ ${unit.ho ? `${unit.ho}호` : unit.unit_name} 초대 문자 전송에 실패했습니다.\n잠시 후 다시 시도해주세요.`);
+      alert(`❌ 초대 실패\n\n${unit.ho ? `${unit.ho}호` : unit.unit_name} 초대 전송에 실패했습니다.\n잠시 후 다시 시도해주세요.`);
     } finally {
       setSendingUnitIds(prev => {
         const newSet = new Set(prev);
@@ -207,7 +208,7 @@ export default function RepUnitsInvite() {
         });
 
         if (webhookResponse.ok) {
-          // 웹훅 성공 - SMS 전송
+          // 웹훅 전송 성공
           await base44.functions.invoke('sendTwilioSMS', {
             to_phone: unit.tenant_phone,
             body: notificationBody,
@@ -218,7 +219,8 @@ export default function RepUnitsInvite() {
           
           successCount++;
         } else {
-          throw new Error('웹훅 전송 실패');
+          // 웹훅 전송 실패
+          failCount++;
         }
       } catch (err) {
         console.error("Error sending invitation:", err);
@@ -230,9 +232,9 @@ export default function RepUnitsInvite() {
     setIsSending(false);
     
     if (failCount === 0) {
-      alert(`✅ 모든 초대 문자 전송 완료\n\n성공: ${successCount}세대`);
+      alert(`✅ 초대 성공\n\n${successCount}세대에 초대가 성공적으로 전송되었습니다.`);
     } else {
-      alert(`초대 문자 전송 완료\n\n✅ 성공: ${successCount}세대\n❌ 실패: ${failCount}세대\n\n실패한 세대는 개별 발송 버튼으로 다시 시도해주세요.`);
+      alert(`⚠️ 초대 전송 완료\n\n✅ 성공: ${successCount}세대\n❌ 실패: ${failCount}세대\n\n실패한 세대는 개별 발송 버튼으로 다시 시도해주세요.`);
     }
   };
 
