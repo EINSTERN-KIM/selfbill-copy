@@ -98,7 +98,15 @@ export default function TenantLayout({ buildingId, building, currentPage, childr
       </aside>
 
       {/* Mobile Header */}
-      <div className="lg:hidden fixed top-0 left-0 right-0 h-16 bg-white border-b z-40 flex items-center justify-between px-4">
+      <div className="lg:hidden fixed top-0 left-0 right-0 h-16 bg-white border-b z-40 flex items-center gap-3 px-4">
+        <Button
+          variant="ghost"
+          size="icon"
+          onClick={() => setSidebarOpen(!sidebarOpen)}
+          className="touch-manipulation flex-shrink-0 -ml-2"
+        >
+          {sidebarOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
+        </Button>
         <div className="flex items-center gap-3 min-w-0 flex-1">
           {building?.building_icon_url ? (
             <img 
@@ -111,14 +119,6 @@ export default function TenantLayout({ buildingId, building, currentPage, childr
           )}
           <span className="font-semibold text-slate-900 truncate">{building?.name || '공동주택'}</span>
         </div>
-        <Button
-          variant="ghost"
-          size="icon"
-          onClick={() => setSidebarOpen(!sidebarOpen)}
-          className="touch-manipulation flex-shrink-0"
-        >
-          {sidebarOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
-        </Button>
       </div>
 
       {/* Mobile Sidebar */}
