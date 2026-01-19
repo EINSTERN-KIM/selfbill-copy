@@ -96,6 +96,7 @@ export default function RepRoleChange() {
           currentRepUnit: currentRepUnit ? `${currentRepUnit.floor}층 ${currentRepUnit.ho}호` : '-',
           newRepName: toUnit?.tenant_name || selectedMember.user_email,
           newRepUnit: toUnit ? `${toUnit.floor}층 ${toUnit.ho}호` : '-',
+          newRepPhone: toUnit?.tenant_phone,
           selfbillLink: selfbillLink
         })
       });

@@ -110,6 +110,7 @@ export default function RepUnitsInvite() {
           representativeUnit: repUnit ? `${repUnit.floor}층 ${repUnit.ho}호` : '-',
           tenantName: unit.tenant_name,
           tenantUnit: unit.floor && unit.ho ? `${unit.floor}층 ${unit.ho}호` : (unit.unit_name || '-'),
+          tenantPhone: unit.tenant_phone,
           selfbillLink: inviteUrl
         })
       });
@@ -200,6 +201,7 @@ export default function RepUnitsInvite() {
             representativeUnit: repUnit ? `${repUnit.floor}층 ${repUnit.ho}호` : '-',
             tenantName: unit.tenant_name,
             tenantUnit: unit.floor && unit.ho ? `${unit.floor}층 ${unit.ho}호` : (unit.unit_name || '-'),
+            tenantPhone: unit.tenant_phone,
             selfbillLink: inviteUrl
           })
         });

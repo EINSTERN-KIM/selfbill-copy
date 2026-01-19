@@ -202,6 +202,7 @@ export default function RepBillingSend() {
               billDetailLink: billDetailUrl,
               tenantName: unit.tenant_name,
               tenantUnit: unit.floor && unit.ho ? `${unit.floor}층 ${unit.ho}호` : (unit.unit_name || '-'),
+              tenantPhone: unit.tenant_phone,
               bankName: building?.bank_name,
               bankAccount: building?.bank_account,
               bankHolder: building?.bank_holder
