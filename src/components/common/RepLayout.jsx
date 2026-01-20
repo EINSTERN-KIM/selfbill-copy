@@ -76,15 +76,13 @@ export default function RepLayout({ children, buildingId, building, currentPage 
       id: 'payments',
       title: '납부 현황 관리',
       items: [
-        { label: "납부 현황 확인", icon: CreditCard, page: "RepPaymentsManage" },
         { label: "납부 현황 관리", icon: CreditCard, page: "RepPaymentsManage" },
       ]
     },
     {
       id: 'reports',
-      title: '보고서',
+      title: '연간 보고서',
       items: [
-        { label: "연간 보고서", icon: BarChart3, page: "RepReportsTotalFee" },
         { label: "전체 관리비", icon: BarChart3, page: "RepReportsTotalFee" },
         { label: "세대별 관리비", icon: Receipt, page: "RepReportsUnitFee" },
         { label: "세대별 납부율 현황", icon: Receipt, page: "RepReportsUnitPayments" },
