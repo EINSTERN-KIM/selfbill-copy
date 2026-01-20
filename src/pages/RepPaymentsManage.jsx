@@ -328,25 +328,28 @@ export default function RepPaymentsManage() {
                     const unitInfo = getUnitInfo(charge.unit_id);
                     
                     return (
-                      <Card key={charge.id} className="card-rounded border-green-200 bg-green-50">
-                        <CardContent className="p-4">
-                          <div className="flex items-center justify-between">
-                            <div className="flex-1">
-                              <p className="font-bold text-slate-900 mb-1">{unitInfo.name}</p>
-                              <p className="text-sm text-slate-600">{unitInfo.tenant}</p>
-                              <p className="text-sm text-green-700 mt-1 font-semibold">
-                                완납: {formatWon(data.paid_amount)}
-                              </p>
-                              {data.paid_at && (
-                                <p className="text-xs text-slate-500 mt-1">
-                                  납부일: {new Date(data.paid_at).toLocaleDateString('ko-KR')}
-                                </p>
-                              )}
-                            </div>
-                            <CheckCircle2 className="w-8 h-8 text-green-600" />
-                          </div>
-                        </CardContent>
-                      </Card>
+                     <Card key={charge.id} className="card-rounded border-green-200 bg-green-50">
+                       <CardContent className="p-4">
+                         <div className="flex items-center justify-between">
+                           <div className="flex-1">
+                             <p className="font-bold text-slate-900 mb-1">{unitInfo.name}</p>
+                             <p className="text-sm text-slate-600">{unitInfo.tenant}</p>
+                             <p className="text-sm text-green-700 mt-1 font-semibold">
+                               완납: {formatWon(data.paid_amount)}
+                             </p>
+                             {data.paid_at && (
+                               <p className="text-xs text-slate-500 mt-1">
+                                 납부일: {new Date(data.paid_at).toLocaleDateString('ko-KR')}
+                               </p>
+                             )}
+                           </div>
+                           <div className="flex items-center gap-2 bg-green-600 text-white px-4 py-2 rounded-full font-semibold">
+                             <CheckCircle2 className="w-5 h-5" />
+                             <span>완납</span>
+                           </div>
+                         </div>
+                       </CardContent>
+                     </Card>
                     );
                   })}
                 </div>
@@ -367,40 +370,43 @@ export default function RepPaymentsManage() {
                     const remainingAmount = charge.amount_total - (parseFloat(data.paid_amount) || 0);
                     
                     return (
-                      <Card key={charge.id} className="card-rounded border-amber-200 bg-amber-50">
-                        <CardContent className="p-4">
-                          <div className="flex items-center justify-between">
-                            <div className="flex-1">
-                              <p className="font-bold text-slate-900 mb-1">{unitInfo.name}</p>
-                              <p className="text-sm text-slate-600">{unitInfo.tenant}</p>
-                              <p className="text-sm text-slate-500 mt-1">
-                                청구: {formatWon(charge.amount_total)}
-                              </p>
-                              <p className="text-sm text-amber-700 font-semibold">
-                                납부: {formatWon(data.paid_amount)}
-                              </p>
-                              <p className="text-sm text-red-600 font-semibold">
-                                잔액: {formatWon(remainingAmount)}
-                              </p>
-                              {data.paid_at && (
-                                <p className="text-xs text-slate-500 mt-1">
-                                  납부일: {new Date(data.paid_at).toLocaleDateString('ko-KR')}
-                                </p>
-                              )}
-                            </div>
-                            <div className="flex flex-col gap-2">
-                              <button
-                                onClick={() => handleMarkAsPaid(charge.id, charge.amount_total)}
-                                className="p-2 hover:bg-green-100 rounded-full transition-colors"
-                                title="완납 처리"
-                              >
-                                <X className="w-6 h-6 text-green-600" />
-                              </button>
-                              <Triangle className="w-6 h-6 text-amber-600" />
-                            </div>
-                          </div>
-                        </CardContent>
-                      </Card>
+                     <Card key={charge.id} className="card-rounded border-amber-200 bg-amber-50">
+                       <CardContent className="p-4">
+                         <div className="flex items-center justify-between">
+                           <div className="flex-1">
+                             <p className="font-bold text-slate-900 mb-1">{unitInfo.name}</p>
+                             <p className="text-sm text-slate-600">{unitInfo.tenant}</p>
+                             <p className="text-sm text-slate-500 mt-1">
+                               청구: {formatWon(charge.amount_total)}
+                             </p>
+                             <p className="text-sm text-amber-700 font-semibold">
+                               납부: {formatWon(data.paid_amount)}
+                             </p>
+                             <p className="text-sm text-red-600 font-semibold">
+                               잔액: {formatWon(remainingAmount)}
+                             </p>
+                             {data.paid_at && (
+                               <p className="text-xs text-slate-500 mt-1">
+                                 납부일: {new Date(data.paid_at).toLocaleDateString('ko-KR')}
+                               </p>
+                             )}
+                           </div>
+                           <div className="flex flex-col gap-2 items-end">
+                             <button
+                               onClick={() => handleMarkAsPaid(charge.id, charge.amount_total)}
+                               className="p-2 hover:bg-green-100 rounded-full transition-colors"
+                               title="완납 처리"
+                             >
+                               <CheckCircle2 className="w-6 h-6 text-green-600" />
+                             </button>
+                             <div className="flex items-center gap-2 border-2 border-amber-600 text-amber-700 px-3 py-1.5 rounded-full font-semibold">
+                               <Triangle className="w-4 h-4" />
+                               <span className="text-sm">부분납</span>
+                             </div>
+                           </div>
+                         </div>
+                       </CardContent>
+                     </Card>
                     );
                   })}
                 </div>
@@ -420,36 +426,42 @@ export default function RepPaymentsManage() {
                     const unitInfo = getUnitInfo(charge.unit_id);
                     
                     return (
-                      <Card key={charge.id} className="card-rounded border-red-200">
-                        <CardContent className="p-4">
-                          <div className="flex items-center justify-between">
-                            <div className="flex-1">
-                              <p className="font-bold text-slate-900 mb-1">{unitInfo.name}</p>
-                              <p className="text-sm text-slate-600">{unitInfo.tenant}</p>
-                              <p className="text-sm text-red-600 font-semibold mt-1">
-                                청구: {formatWon(charge.amount_total)}
-                              </p>
-                            </div>
-                            <div className="flex flex-col gap-2">
-                              <button
-                                onClick={() => handleMarkAsPaid(charge.id, charge.amount_total)}
-                                className="p-2 hover:bg-red-100 rounded-full transition-colors"
-                                title="완납 처리"
-                              >
-                                <X className="w-6 h-6 text-red-600" />
-                              </button>
-                              <Button
-                                size="sm"
-                                variant="outline"
-                                onClick={() => handlePartialPayment(charge.id)}
-                                className="text-xs"
-                              >
-                                부분납
-                              </Button>
-                            </div>
-                          </div>
-                        </CardContent>
-                      </Card>
+                     <Card key={charge.id} className="card-rounded border-red-200">
+                       <CardContent className="p-4">
+                         <div className="flex items-center justify-between">
+                           <div className="flex-1">
+                             <p className="font-bold text-slate-900 mb-1">{unitInfo.name}</p>
+                             <p className="text-sm text-slate-600">{unitInfo.tenant}</p>
+                             <p className="text-sm text-red-600 font-semibold mt-1">
+                               청구: {formatWon(charge.amount_total)}
+                             </p>
+                           </div>
+                           <div className="flex flex-col gap-2 items-end">
+                             <button
+                               onClick={() => handleMarkAsPaid(charge.id, charge.amount_total)}
+                               className="p-2 hover:bg-green-100 rounded-full transition-colors"
+                               title="완납 처리"
+                             >
+                               <CheckCircle2 className="w-6 h-6 text-green-600" />
+                             </button>
+                             <div className="flex flex-col gap-2">
+                               <div className="flex items-center gap-2 border-2 border-red-600 text-red-700 px-3 py-1.5 rounded-full font-semibold">
+                                 <X className="w-4 h-4" />
+                                 <span className="text-sm">미납</span>
+                               </div>
+                               <Button
+                                 size="sm"
+                                 variant="outline"
+                                 onClick={() => handlePartialPayment(charge.id)}
+                                 className="text-xs"
+                               >
+                                 부분납
+                               </Button>
+                             </div>
+                           </div>
+                         </div>
+                       </CardContent>
+                     </Card>
                     );
                   })}
                 </div>
