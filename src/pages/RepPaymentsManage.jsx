@@ -372,11 +372,17 @@ export default function RepPaymentsManage() {
                     return (
                      <Card key={charge.id} className="card-rounded border-amber-200 bg-amber-50">
                        <CardContent className="p-4">
-                         <div className="flex items-center justify-between">
+                         <div className="flex items-start gap-3">
                            <div className="flex-1">
-                             <p className="font-bold text-slate-900 mb-1">{unitInfo.name}</p>
-                             <p className="text-sm text-slate-600">{unitInfo.tenant}</p>
-                             <p className="text-sm text-slate-500 mt-1">
+                             <div className="flex items-center gap-2 mb-2">
+                               <p className="font-bold text-slate-900">{unitInfo.name}</p>
+                               <div className="flex items-center gap-1.5 bg-amber-100 border border-amber-300 text-amber-800 px-2.5 py-1 rounded-full text-xs font-bold">
+                                 <Triangle className="w-3.5 h-3.5 fill-amber-800" />
+                                 <span>부분납</span>
+                               </div>
+                             </div>
+                             <p className="text-sm text-slate-600 mb-2">{unitInfo.tenant}</p>
+                             <p className="text-sm text-slate-500">
                                청구: {formatWon(charge.amount_total)}
                              </p>
                              <p className="text-sm text-amber-700 font-semibold">
@@ -391,19 +397,15 @@ export default function RepPaymentsManage() {
                                </p>
                              )}
                            </div>
-                           <div className="flex flex-col gap-2 items-end">
+                           <div className="flex flex-col gap-2">
                              <button
                                onClick={() => handleMarkAsPaid(charge.id, charge.amount_total)}
-                               className="flex items-center gap-2 px-3 py-2 hover:bg-green-100 rounded-full transition-colors border-2 border-green-600 text-green-700 font-semibold"
+                               className="flex items-center gap-2 px-3 py-2 hover:bg-green-100 rounded-full transition-colors border-2 border-green-600 text-green-700 font-semibold whitespace-nowrap"
                                title="완납 처리"
                              >
                                <CheckCircle2 className="w-5 h-5" />
                                <span className="text-sm">완납</span>
                              </button>
-                             <div className="flex items-center gap-2 border-2 border-amber-600 text-amber-700 px-3 py-1.5 rounded-full font-semibold">
-                               <Triangle className="w-4 h-4" />
-                               <span className="text-sm">부분납</span>
-                             </div>
                            </div>
                          </div>
                        </CardContent>
@@ -429,37 +431,37 @@ export default function RepPaymentsManage() {
                     return (
                      <Card key={charge.id} className="card-rounded border-red-200">
                        <CardContent className="p-4">
-                         <div className="flex items-center justify-between">
+                         <div className="flex items-start gap-3">
                            <div className="flex-1">
-                             <p className="font-bold text-slate-900 mb-1">{unitInfo.name}</p>
-                             <p className="text-sm text-slate-600">{unitInfo.tenant}</p>
-                             <p className="text-sm text-red-600 font-semibold mt-1">
+                             <div className="flex items-center gap-2 mb-2">
+                               <p className="font-bold text-slate-900">{unitInfo.name}</p>
+                               <div className="flex items-center gap-1.5 bg-red-100 border border-red-300 text-red-800 px-2.5 py-1 rounded-full text-xs font-bold">
+                                 <X className="w-3.5 h-3.5" />
+                                 <span>미납</span>
+                               </div>
+                             </div>
+                             <p className="text-sm text-slate-600 mb-2">{unitInfo.tenant}</p>
+                             <p className="text-sm text-red-600 font-semibold">
                                청구: {formatWon(charge.amount_total)}
                              </p>
                            </div>
-                           <div className="flex flex-col gap-2 items-end">
+                           <div className="flex flex-col gap-2">
                              <button
                                onClick={() => handleMarkAsPaid(charge.id, charge.amount_total)}
-                               className="flex items-center gap-2 px-3 py-2 hover:bg-green-100 rounded-full transition-colors border-2 border-green-600 text-green-700 font-semibold"
+                               className="flex items-center gap-2 px-3 py-2 hover:bg-green-100 rounded-full transition-colors border-2 border-green-600 text-green-700 font-semibold whitespace-nowrap"
                                title="완납 처리"
                              >
                                <CheckCircle2 className="w-5 h-5" />
                                <span className="text-sm">완납</span>
                              </button>
-                             <div className="flex flex-col gap-2">
-                               <div className="flex items-center gap-2 border-2 border-red-600 text-red-700 px-3 py-1.5 rounded-full font-semibold">
-                                 <X className="w-4 h-4" />
-                                 <span className="text-sm">미납</span>
-                               </div>
-                               <Button
-                                 size="sm"
-                                 variant="outline"
-                                 onClick={() => handlePartialPayment(charge.id)}
-                                 className="text-xs"
-                               >
-                                 부분납
-                               </Button>
-                             </div>
+                             <button
+                               onClick={() => handlePartialPayment(charge.id)}
+                               className="flex items-center gap-2 px-3 py-2 hover:bg-amber-100 rounded-full transition-colors border-2 border-amber-600 text-amber-700 font-semibold whitespace-nowrap"
+                               title="부분납 처리"
+                             >
+                               <Triangle className="w-4 h-4" />
+                               <span className="text-sm">부분납</span>
+                             </button>
                            </div>
                          </div>
                        </CardContent>
