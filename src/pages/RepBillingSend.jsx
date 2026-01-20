@@ -198,11 +198,12 @@ export default function RepBillingSend() {
             body: JSON.stringify({
               buildingName: building?.name,
               billingYearMonth: selectedYearMonth,
+              dueDate: dueDateStr,
               chargeAmount: charge.amount_total?.toLocaleString() + '원',
               chargeBreakdown: breakdownText || '항목 없음',
               billDetailLink: billDetailUrl,
               tenantName: unit.tenant_name,
-              tenantUnit: unit.floor && unit.ho ? `${unit.floor}층 ${unit.ho}호` : (unit.unit_name || '-'),
+              tenantUnit: unit.ho || '-',
               tenantPhone: unit.tenant_phone,
               bankName: building?.bank_name,
               bankAccount: building?.bank_account,

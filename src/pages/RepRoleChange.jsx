@@ -95,9 +95,9 @@ export default function RepRoleChange() {
         body: JSON.stringify({
           buildingName: building?.name,
           currentRepName: currentRepUnit?.tenant_name || user.full_name,
-          currentRepUnit: currentRepUnit ? `${currentRepUnit.floor}층 ${currentRepUnit.ho}호` : '-',
+          currentRepUnit: currentRepUnit ? currentRepUnit.ho : '-',
           newRepName: toUnit?.tenant_name || selectedMember.user_email,
-          newRepUnit: toUnit ? `${toUnit.floor}층 ${toUnit.ho}호` : '-',
+          newRepUnit: toUnit ? toUnit.ho : '-',
           newRepPhone: toUnit?.tenant_phone,
           selfbillLink: selfbillLink
         })

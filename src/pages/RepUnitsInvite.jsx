@@ -107,9 +107,9 @@ export default function RepUnitsInvite() {
         body: JSON.stringify({
           buildingName: building.name,
           representativeName: repUnit ? repUnit.tenant_name : user.full_name,
-          representativeUnit: repUnit ? `${repUnit.floor}층 ${repUnit.ho}호` : '-',
+          representativeUnit: repUnit ? repUnit.ho : '-',
           tenantName: unit.tenant_name,
-          tenantUnit: unit.floor && unit.ho ? `${unit.floor}층 ${unit.ho}호` : (unit.unit_name || '-'),
+          tenantUnit: unit.ho || '-',
           tenantPhone: unit.tenant_phone,
           selfbillLink: inviteUrl
         })
@@ -194,9 +194,9 @@ export default function RepUnitsInvite() {
           body: JSON.stringify({
             buildingName: building.name,
             representativeName: repUnit ? repUnit.tenant_name : user.full_name,
-            representativeUnit: repUnit ? `${repUnit.floor}층 ${repUnit.ho}호` : '-',
+            representativeUnit: repUnit ? repUnit.ho : '-',
             tenantName: unit.tenant_name,
-            tenantUnit: unit.floor && unit.ho ? `${unit.floor}층 ${unit.ho}호` : (unit.unit_name || '-'),
+            tenantUnit: unit.ho || '-',
             tenantPhone: unit.tenant_phone,
             selfbillLink: inviteUrl
           })
