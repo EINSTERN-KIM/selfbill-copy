@@ -396,6 +396,12 @@ export default function RepPaymentsManage() {
                                  납부일: {new Date(data.paid_at).toLocaleDateString('ko-KR')}
                                </p>
                              )}
+                             {data.memo && (
+                               <div className="mt-2 p-2 bg-white rounded border border-amber-200">
+                                 <p className="text-xs text-slate-500 mb-1">메모</p>
+                                 <p className="text-sm text-slate-700">{data.memo}</p>
+                               </div>
+                             )}
                            </div>
                            <div className="flex flex-col gap-2">
                              <button
@@ -405,6 +411,13 @@ export default function RepPaymentsManage() {
                              >
                                <CheckCircle2 className="w-5 h-5" />
                                <span className="text-sm">완납</span>
+                             </button>
+                             <button
+                               onClick={() => handlePartialPayment(charge.id)}
+                               className="flex items-center gap-2 px-3 py-2 hover:bg-amber-100 rounded-full transition-colors border-2 border-amber-600 text-amber-700 font-semibold whitespace-nowrap"
+                               title="메모 수정"
+                             >
+                               <span className="text-sm">메모 수정</span>
                              </button>
                            </div>
                          </div>
