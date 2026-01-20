@@ -40,7 +40,7 @@ export default function RepLayout({ children, buildingId, building, currentPage 
       id: 'main',
       title: '대시보드',
       items: [
-        { label: "대시보드 홈", icon: Home, page: "RepDashboard" }
+        { label: "대시보드", icon: Home, page: "RepDashboard" }
       ]
     },
     {
@@ -48,34 +48,35 @@ export default function RepLayout({ children, buildingId, building, currentPage 
       title: '건물 관리',
       items: [
         { label: "건물 기본정보", icon: Building2, page: "RepBuildingSetup" },
-        { label: "관리비 설정", icon: Settings, page: "RepBillingSettings" },
-        { label: "입금 계좌", icon: CreditCard, page: "RepBankAccount" },
-        { label: "요금제 확인", icon: Receipt, page: "RepPlan" },
+        { label: "관리비 부과 방식", icon: Settings, page: "RepBillingSettings" },
+        { label: "관리비 입금 계좌", icon: CreditCard, page: "RepBankAccount" },
+        { label: "셀프빌 이용 요금", icon: Receipt, page: "RepPlan" },
       ]
     },
     {
       id: 'units',
       title: '세대 관리',
       items: [
-        { label: "세대 목록", icon: Users, page: "RepUnits" },
+        { label: "입주자 목록 변경/조회", icon: Users, page: "RepUnits" },
         { label: "입주자 초대", icon: Send, page: "RepUnitsInvite" },
         { label: "대표자 변경", icon: Users, page: "RepRoleChange" },
       ]
     },
     {
       id: 'billing',
-      title: '관리비 부과',
+      title: '관리비 청구',
       items: [
-        { label: "관리비 항목", icon: FileText, page: "RepFeeItems" },
-        { label: "월별 관리비 입력", icon: PlusCircle, page: "RepBillingMonthlyEdit" },
-        { label: "세대별 청구 확인", icon: Receipt, page: "RepBillingUnitCharges" },
-        { label: "청구서 발송", icon: Send, page: "RepBillingSend" },
+        { label: "관리비 항목/금액 설정", icon: FileText, page: "RepFeeItems" },
+        { label: "월별 관리비 작성/수정", icon: PlusCircle, page: "RepBillingMonthlyEdit" },
+        { label: "세대별 청구서 조회", icon: Receipt, page: "RepBillingUnitCharges" },
+        { label: "세대별 청구서 발송", icon: Send, page: "RepBillingSend" },
       ]
     },
     {
       id: 'payments',
       title: '납부 현황 관리',
       items: [
+        { label: "납부 현황 확인", icon: CreditCard, page: "RepPaymentsManage" },
         { label: "납부 현황 관리", icon: CreditCard, page: "RepPaymentsManage" },
       ]
     },
@@ -83,9 +84,10 @@ export default function RepLayout({ children, buildingId, building, currentPage 
       id: 'reports',
       title: '보고서',
       items: [
-        { label: "전체 관리비 현황", icon: BarChart3, page: "RepReportsTotalFee" },
+        { label: "연간 보고서", icon: BarChart3, page: "RepReportsTotalFee" },
+        { label: "전체 관리비", icon: BarChart3, page: "RepReportsTotalFee" },
         { label: "세대별 관리비", icon: Receipt, page: "RepReportsUnitFee" },
-        { label: "세대별 납부 현황", icon: Receipt, page: "RepReportsUnitPayments" },
+        { label: "세대별 납부율 현황", icon: Receipt, page: "RepReportsUnitPayments" },
       ]
     }
   ];
