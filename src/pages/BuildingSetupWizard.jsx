@@ -1247,7 +1247,7 @@ export default function BuildingSetupWizard() {
         {currentStep === 5 && (
           <Card>
             <CardHeader>
-              <CardTitle>5단계: 셀프빌 요금제 확인</CardTitle>
+              <CardTitle>5단계: 똑빌 요금제 확인</CardTitle>
             </CardHeader>
             <CardContent className="space-y-6">
               <div className="text-center py-6">
@@ -1259,7 +1259,7 @@ export default function BuildingSetupWizard() {
 
               <div className="p-6 bg-gradient-to-br from-primary-light/20 to-primary/10 rounded-xl">
                 <div className="text-center mb-4">
-                  <p className="text-sm text-slate-600 mb-2">이 건물의 셀프빌 요금</p>
+                  <p className="text-sm text-slate-600 mb-2">이 건물의 똑빌 요금</p>
                   <div className="text-5xl font-bold text-slate-900">
                     {(units.length * 3900).toLocaleString()}<span className="text-2xl text-slate-600">원/월</span>
                   </div>
@@ -1288,7 +1288,7 @@ export default function BuildingSetupWizard() {
                       <span className="font-semibold text-slate-900">{getSubscriptionDate() || "-"}</span>
                     </div>
                   </div>
-                  <p className="text-xs font-semibold text-slate-700 mb-3">셀프빌 입금 계좌</p>
+                  <p className="text-xs font-semibold text-slate-700 mb-3">똑빌 입금 계좌</p>
                   <div className="space-y-1 text-sm">
                     <div className="flex justify-between">
                       <span className="text-slate-500">은행</span>
@@ -1296,7 +1296,7 @@ export default function BuildingSetupWizard() {
                     </div>
                     <div className="flex justify-between">
                       <span className="text-slate-500">예금주</span>
-                      <span className="font-medium">(주)셀프빌</span>
+                      <span className="font-medium">(주)똑빌</span>
                     </div>
                     <div className="flex justify-between">
                       <span className="text-slate-500">계좌번호</span>
@@ -1321,7 +1321,7 @@ export default function BuildingSetupWizard() {
                     <div className="text-sm text-slate-700 space-y-1">
                       <p>• 위 요금제 내용을 확인했으며 동의합니다.</p>
                       <p>• 공동주택 등록일로부터 1개월은 무료입니다.</p>
-                      <p>• {getAutoStartDate() || "-"}부터는 자동이체가 정상 처리되어야 셀프빌을 계속 이용하실 수 있습니다.</p>
+                      <p>• {getAutoStartDate() || "-"}부터는 자동이체가 정상 처리되어야 똑빌을 계속 이용하실 수 있습니다.</p>
                       <p>• 자동이체는 대표님이 직접 등록해 주십시오.</p>
                     </div>
                   </div>
@@ -1342,7 +1342,7 @@ export default function BuildingSetupWizard() {
                   </p>
                 </div>
                 <p className="text-sm text-slate-600">
-                  셀프빌 이용료 자동이체를 위한 계좌 정보를 등록하실 수 있습니다.
+                  똑빌 이용료 자동이체를 위한 계좌 정보를 등록하실 수 있습니다.
                 </p>
                 
                 <div className="space-y-3 p-4 bg-slate-50 rounded-lg">

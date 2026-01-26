@@ -164,7 +164,7 @@ export default function RepPlan() {
       <div className="max-w-lg mx-auto px-4 py-6">
         <PageHeader
           title="요금제 확인"
-          subtitle="셀프빌 이용 요금 및 자동이체 설정"
+          subtitle="똑빌 이용 요금 및 자동이체 설정"
           backUrl={createPageUrl(`RepDashboard?buildingId=${buildingId}`)}
         />
 
@@ -174,7 +174,7 @@ export default function RepPlan() {
             <div className="text-center mb-6">
               <Building2 className="w-12 h-12 text-primary mx-auto mb-3" />
               <h2 className="text-xl font-bold text-slate-900">{building?.name}</h2>
-              <p className="text-sm text-slate-500 mt-1">셀프빌 이용 요금제</p>
+              <p className="text-sm text-slate-500 mt-1">똑빌 이용 요금제</p>
             </div>
 
             <div className="grid grid-cols-2 gap-3 mb-6">
@@ -215,7 +215,7 @@ export default function RepPlan() {
                   <span className="font-semibold text-slate-900">{getSubscriptionDate() || "-"}</span>
                 </div>
               </div>
-              <p className="text-xs font-semibold text-slate-700 mb-3">셀프빌 입금 계좌</p>
+              <p className="text-xs font-semibold text-slate-700 mb-3">똑빌 입금 계좌</p>
               <div className="space-y-1 text-sm">
                 <div className="flex justify-between">
                   <span className="text-slate-500">은행</span>
@@ -223,7 +223,7 @@ export default function RepPlan() {
                 </div>
                 <div className="flex justify-between">
                   <span className="text-slate-500">예금주</span>
-                  <span className="font-medium">(주)셀프빌</span>
+                  <span className="font-medium">(주)똑빌</span>
                 </div>
                 <div className="flex justify-between">
                   <span className="text-slate-500">계좌번호</span>
@@ -240,7 +240,7 @@ export default function RepPlan() {
             <div className="flex items-center justify-between">
               <CardTitle className="text-lg flex items-center gap-2">
                 <CreditCard className="w-5 h-5" />
-                셀프빌 자동이체 계좌
+                똑빌 자동이체 계좌
               </CardTitle>
               {!isEditing && (
                 <Button
@@ -294,7 +294,7 @@ export default function RepPlan() {
                   </p>
                 </div>
                 <p className="text-sm text-slate-600">
-                  셀프빌 이용료 자동이체를 위한 계좌 정보를 등록해 주세요.
+                  똑빌 이용료 자동이체를 위한 계좌 정보를 등록해 주세요.
                 </p>
 
                 <div className="space-y-2">
