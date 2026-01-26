@@ -159,11 +159,12 @@ export default function Onboarding() {
 
         {/* Logo */}
         <div className="text-center mb-10">
-          <div className="inline-flex items-center gap-3 mb-3">
-            <div className="w-12 h-12 rounded-2xl bg-primary flex items-center justify-center">
-              <Building2 className="w-7 h-7 text-white" />
-            </div>
-            <span className="text-3xl font-bold text-slate-900">셀프빌</span>
+          <div className="inline-flex items-center justify-center mb-3">
+            <img 
+              src="https://qtrypzzcjebvfcihiynt.supabase.co/storage/v1/object/public/base44-prod/public/6955621ae58823aa6ee78811/43a1bd447__260126_IMG__byW.png" 
+              alt="똑빌 로고"
+              className="h-16"
+            />
           </div>
           <p className="text-slate-600">공동주택 관리비 자동화 서비스</p>
         </div>
@@ -174,7 +175,7 @@ export default function Onboarding() {
             <Card className="card-rounded">
               <CardContent className="p-8 text-center">
                 <h2 className="text-2xl font-bold text-slate-900 mb-4">
-                  셀프빌에 오신 것을 환영합니다
+                  똑빌에 오신 것을 환영합니다
                 </h2>
                 <p className="text-slate-600 mb-6 leading-relaxed">
                   공동주택 관리비 청구와 납부 현황을 투명하게 관리하세요.
@@ -245,7 +246,7 @@ export default function Onboarding() {
         {user && step === "select" && (
           <div className="space-y-4">
             <h2 className="text-2xl font-bold text-center text-slate-900 mb-8">
-              셀프빌 시작하기
+              똑빌 시작하기
             </h2>
 
             {/* Terms and Privacy Links */}
@@ -277,7 +278,7 @@ export default function Onboarding() {
                   <div className="flex-1">
                     <h3 className="text-lg font-bold text-slate-900 mb-2">새로운 공동주택을 등록할 대표자입니다</h3>
                     <p className="text-sm text-slate-600 leading-relaxed">
-                      내가 관리하는 공동주택을 처음 셀프빌에 등록합니다.
+                      내가 관리하는 공동주택을 처음 똑빌에 등록합니다.
                       건물 정보, 세대, 관리비 항목을 설정하고 관리할 수 있습니다.
                     </p>
                   </div>

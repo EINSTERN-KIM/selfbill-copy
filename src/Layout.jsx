@@ -32,8 +32,8 @@ export default function Layout({ children, currentPageName }) {
       'Onboarding': '온보딩'
     };
 
-    const pageTitle = pageTitles[currentPageName] || '셀프빌';
-    document.title = `셀프빌 | ${pageTitle}`;
+    const pageTitle = pageTitles[currentPageName] || '똑빌';
+    document.title = `똑빌 | ${pageTitle}`;
   }, [currentPageName]);
 
   return (
