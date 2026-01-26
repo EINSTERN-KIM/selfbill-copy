@@ -191,7 +191,7 @@ export default function MyBuildings() {
           <img 
             src="https://qtrypzzcjebvfcihiynt.supabase.co/storage/v1/object/public/base44-prod/public/6955621ae58823aa6ee78811/43a1bd447__260126_IMG__byW.png" 
             alt="똑빌 로고"
-            className="h-8"
+            className="h-12"
           />
         </div>
 
