@@ -172,7 +172,11 @@ export default function RepPlan() {
         <Card className="mb-6 bg-gradient-to-br from-primary-light/20 to-primary/10 border-primary-light card-rounded border-0 shadow-md">
           <CardContent className="pt-6">
             <div className="text-center mb-6">
-              <Building2 className="w-12 h-12 text-primary mx-auto mb-3" />
+              <img 
+                src="https://qtrypzzcjebvfcihiynt.supabase.co/storage/v1/object/public/base44-prod/public/6955621ae58823aa6ee78811/43a1bd447__260126_IMG__byW.png" 
+                alt="똑빌 로고"
+                className="h-12 mx-auto mb-3"
+              />
               <h2 className="text-xl font-bold text-slate-900">{building?.name}</h2>
               <p className="text-sm text-slate-500 mt-1">똑빌 이용 요금제</p>
             </div>

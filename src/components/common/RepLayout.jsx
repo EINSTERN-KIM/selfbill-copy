@@ -97,12 +97,12 @@ export default function RepLayout({ children, buildingId, building, currentPage 
         <div className="p-4 border-b flex flex-col gap-3 sticky top-0 bg-white z-10">
             <button 
               onClick={() => navigate(createPageUrl("MyBuildings"))}
-              className="flex items-center justify-center hover:opacity-80 transition-opacity"
+              className="flex items-center justify-start hover:opacity-80 transition-opacity"
             >
               <img 
                 src="https://qtrypzzcjebvfcihiynt.supabase.co/storage/v1/object/public/base44-prod/public/6955621ae58823aa6ee78811/43a1bd447__260126_IMG__byW.png" 
                 alt="똑빌 로고"
-                className="h-10"
+                className="h-8"
               />
             </button>
             <div className="flex items-center gap-2">
