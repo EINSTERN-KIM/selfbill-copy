@@ -2,6 +2,7 @@ import BuildingSetupWizard from './pages/BuildingSetupWizard';
 import Home from './pages/Home';
 import MyBuildings from './pages/MyBuildings';
 import Onboarding from './pages/Onboarding';
+import Privacy from './pages/Privacy';
 import RepBankAccount from './pages/RepBankAccount';
 import RepBillingMonthlyEdit from './pages/RepBillingMonthlyEdit';
 import RepBillingSend from './pages/RepBillingSend';
@@ -26,7 +27,6 @@ import TenantMyBills from './pages/TenantMyBills';
 import TenantMyPayments from './pages/TenantMyPayments';
 import TenantMyUnit from './pages/TenantMyUnit';
 import Terms from './pages/Terms';
-import Privacy from './pages/Privacy';
 import __Layout from './Layout.jsx';
 
 
@@ -35,6 +35,7 @@ export const PAGES = {
     "Home": Home,
     "MyBuildings": MyBuildings,
     "Onboarding": Onboarding,
+    "Privacy": Privacy,
     "RepBankAccount": RepBankAccount,
     "RepBillingMonthlyEdit": RepBillingMonthlyEdit,
     "RepBillingSend": RepBillingSend,
@@ -59,7 +60,6 @@ export const PAGES = {
     "TenantMyPayments": TenantMyPayments,
     "TenantMyUnit": TenantMyUnit,
     "Terms": Terms,
-    "Privacy": Privacy,
 }
 
 export const pagesConfig = {
