@@ -165,6 +165,23 @@ export default function Onboarding() {
             <h2 className="text-2xl font-bold text-center text-slate-900 mb-8">
               셀프빌 시작하기
             </h2>
+
+            {/* Terms and Privacy Links */}
+            <div className="flex justify-center gap-4 mb-6 text-xs text-slate-500">
+              <button 
+                onClick={() => window.open(createPageUrl("Terms"), '_blank')}
+                className="hover:text-slate-700 underline"
+              >
+                이용약관
+              </button>
+              <span>·</span>
+              <button 
+                onClick={() => window.open(createPageUrl("Privacy"), '_blank')}
+                className="hover:text-slate-700 underline"
+              >
+                개인정보처리방침
+              </button>
+            </div>
             
             <Card 
               className="cursor-pointer hover:shadow-xl transition-all border-2 hover:border-primary card-rounded"
