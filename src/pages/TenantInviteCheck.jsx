@@ -79,12 +79,21 @@ export default function TenantInviteCheck() {
           const buildings = await base44.entities.Building.filter({ id: invitation.building_id });
           const units = await base44.entities.Unit.filter({ id: invitation.unit_id });
           
+          // Check if this unit already has an active member (any account with this phone)
+          const unitMembers = await base44.entities.BuildingMember.filter({
+            building_id: invitation.building_id,
+            unit_id: invitation.unit_id,
+            status: "활성"
+          });
+          
+          const isAlreadyUsed = unitMembers.length > 0;
+          
           return {
             ...invitation,
             buildingName: buildings[0]?.name || '건물명 없음',
             buildingAddress: buildings[0]?.address || '',
             unitName: units[0]?.unit_name || units[0]?.ho || '세대 정보 없음',
-            isRegistered: existingBuildingIds.includes(invitation.building_id),
+            isRegistered: existingBuildingIds.includes(invitation.building_id) || isAlreadyUsed,
             invitePhone: invitePhone
           };
         })
