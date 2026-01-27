@@ -442,6 +442,14 @@ export default function Onboarding() {
             </CardContent>
           </Card>
         )}
+
+        {/* Building Selection Modal */}
+        <BuildingInviteSelectionModal
+          isOpen={showBuildingSelection}
+          onClose={() => setShowBuildingSelection(false)}
+          invitations={availableInvitations}
+          onSelect={handleSelectInvitation}
+        />
       </div>
     </div>
   );
