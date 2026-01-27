@@ -9,6 +9,7 @@ import { Label } from "@/components/ui/label";
 import { Building2, Users, Shield, ArrowRight, Check, LogOut } from 'lucide-react';
 import LoadingSpinner from '@/components/common/LoadingSpinner';
 import PhoneInput from '@/components/common/PhoneInput';
+import BuildingInviteSelectionModal from '@/components/common/BuildingInviteSelectionModal';
 
 export default function Onboarding() {
   const navigate = useNavigate();
@@ -21,6 +22,8 @@ export default function Onboarding() {
   const [phone3, setPhone3] = useState("");
   const [checkingInvite, setCheckingInvite] = useState(false);
   const [inviteError, setInviteError] = useState("");
+  const [showBuildingSelection, setShowBuildingSelection] = useState(false);
+  const [availableInvitations, setAvailableInvitations] = useState([]);
 
   useEffect(() => {
     async function init() {
@@ -83,7 +86,7 @@ export default function Onboarding() {
     setInviteError("");
     
     try {
-      // Search for invitation by phone
+      // Search for all invitations by phone
       const invitations = await base44.entities.Invitation.filter({
         tenant_phone: invitePhone,
         status: "초대 발송"
@@ -95,8 +98,64 @@ export default function Onboarding() {
         return;
       }
       
-      const invitation = invitations[0];
+      // Check which buildings the user is already a member of
+      const existingMemberships = await base44.entities.BuildingMember.filter({
+        user_email: user.email,
+        status: "활성"
+      });
       
+      const existingBuildingIds = existingMemberships.map(m => m.building_id);
+      
+      // Get building and unit details for each invitation
+      const invitationsWithDetails = await Promise.all(
+        invitations.map(async (invitation) => {
+          const buildings = await base44.entities.Building.filter({ id: invitation.building_id });
+          const units = await base44.entities.Unit.filter({ id: invitation.unit_id });
+          
+          return {
+            ...invitation,
+            buildingName: buildings[0]?.name || '건물명 없음',
+            buildingAddress: buildings[0]?.address || '',
+            unitName: units[0]?.unit_name || units[0]?.ho || '세대 정보 없음',
+            isRegistered: existingBuildingIds.includes(invitation.building_id)
+          };
+        })
+      );
+      
+      // If only one invitation and not registered, proceed directly
+      const unregisteredInvitations = invitationsWithDetails.filter(inv => !inv.isRegistered);
+      
+      if (unregisteredInvitations.length === 0) {
+        setInviteError("이미 모든 건물에 등록되어 있습니다.");
+        setCheckingInvite(false);
+        return;
+      }
+      
+      if (invitationsWithDetails.length === 1 && !invitationsWithDetails[0].isRegistered) {
+        // Single invitation - proceed directly
+        await handleSelectInvitation(invitationsWithDetails[0]);
+      } else {
+        // Multiple invitations - show selection modal
+        setAvailableInvitations(invitationsWithDetails);
+        setShowBuildingSelection(true);
+        setCheckingInvite(false);
+      }
+    } catch (err) {
+      console.error("Invite check error:", err);
+      setInviteError("초대 확인 중 오류가 발생했습니다.");
+      setCheckingInvite(false);
+    }
+  };
+
+  const handleSelectInvitation = async (invitation) => {
+    if (invitation.isRegistered) {
+      return;
+    }
+    
+    setShowBuildingSelection(false);
+    setCheckingInvite(true);
+    
+    try {
       // Create BuildingMember
       await base44.entities.BuildingMember.create({
         building_id: invitation.building_id,
@@ -110,15 +169,15 @@ export default function Onboarding() {
       // Update invitation status
       await base44.entities.Invitation.update(invitation.id, {
         status: "가입 완료",
-        joined_at: new Date().toISOString()
+        accepted_at: new Date().toISOString()
       });
       
       navigate(createPageUrl("MyBuildings"));
     } catch (err) {
-      setInviteError("초대 확인 중 오류가 발생했습니다.");
+      console.error("Join error:", err);
+      setInviteError("가입 처리 중 오류가 발생했습니다.");
+      setCheckingInvite(false);
     }
-    
-    setCheckingInvite(false);
   };
 
   if (isLoading) {
