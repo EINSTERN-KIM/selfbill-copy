@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { ArrowLeft } from 'lucide-react';
+import { createPageUrl } from '@/utils';
 
 export default function Terms() {
   const navigate = useNavigate();
@@ -12,7 +13,7 @@ export default function Terms() {
       <div className="max-w-4xl mx-auto">
         <Button
           variant="ghost"
-          onClick={() => navigate(-1)}
+          onClick={() => navigate(createPageUrl("Onboarding"))}
           className="mb-4"
         >
           <ArrowLeft className="w-4 h-4 mr-2" />
