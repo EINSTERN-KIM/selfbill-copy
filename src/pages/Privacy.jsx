@@ -21,12 +21,12 @@ export default function Privacy() {
 
         <Card>
           <CardContent className="p-8">
-            <h1 className="text-3xl font-bold text-slate-900 mb-4 text-center">셀프빌 개인정보처리방침</h1>
-            <p className="text-center text-slate-600 mb-8">(Ver.1.0) 시행일: 2026년 00월 15일</p>
+            <h1 className="text-3xl font-bold text-slate-900 mb-4 text-center">똑빌 개인정보처리방침</h1>
+            <p className="text-center text-slate-600 mb-8">똑빌(TTOKBILL) 개인정보처리방침 (Ver.1.0)<br />시행일: 2026년 1월 23일</p>
             
             <div className="prose prose-slate max-w-none space-y-6 text-sm">
               <p className="text-slate-600">
-                셀프빌 서비스 운영자(이하 "회사")는 「개인정보 보호법」 등 관련 법령을 준수하며, 정보주체의 개인정보를 안전하게 처리하고 권익을 보호하기 위하여 본 개인정보처리방침을 수립·공개합니다.
+                똑빌 서비스 운영자(이하 "회사")는 「개인정보 보호법」 등 관련 법령을 준수하며, 정보주체의 개인정보를 안전하게 처리하고 권익을 보호하기 위하여 본 개인정보처리방침을 수립·공개합니다.
               </p>
 
               <section>
@@ -100,10 +100,23 @@ export default function Privacy() {
               </section>
 
               <section>
+                <h2 className="text-xl font-bold text-slate-900 mt-8 mb-4">5. 개인정보 처리의 위탁</h2>
+                <p className="text-slate-600 mb-2">회사는 서비스 제공을 위해 개인정보 처리 업무를 외부 전문업체에 위탁할 수 있습니다.</p>
+                <p className="text-slate-600 mb-2">위탁이 발생하는 경우, 회사는 관련 법령에 따라 수탁자, 위탁업무 내용, 보유·이용기간 등을 본 방침 또는 서비스 공지사항을 통해 공개하고, 계약을 통해 안전하게 관리·감독합니다.</p>
+              </section>
+
+              <section>
                 <h2 className="text-xl font-bold text-slate-900 mt-8 mb-4">6. 정보주체의 권리·의무 및 행사방법</h2>
                 <p className="text-slate-600 mb-2">정보주체는 관련 법령에 따라 다음 권리를 행사할 수 있습니다.</p>
                 <p className="text-slate-600 ml-4 mb-2">- 개인정보 열람, 정정·삭제, 처리정지, 동의철회(해당 시) 등</p>
                 <p className="text-slate-600 mb-2">권리 행사는 서비스 내 설정/고객센터(문의하기) 또는 회사가 안내하는 방법으로 요청할 수 있으며, 회사는 지체 없이 조치합니다.</p>
+              </section>
+
+              <section>
+                <h2 className="text-xl font-bold text-slate-900 mt-8 mb-4">7. 개인정보의 파기 절차 및 방법</h2>
+                <p className="text-slate-600 mb-2"><strong>(1) 파기 절차</strong> : 파기 사유 발생 시 파기 대상 개인정보를 선정하여 내부 절차에 따라 파기합니다.</p>
+                <p className="text-slate-600 mb-2"><strong>(2) 파기 방법</strong></p>
+                <p className="text-slate-600 ml-4 mb-2">- 전자적 파일 : 복구 불가능한 방법으로 영구 삭제</p>
               </section>
 
               <section>
@@ -112,6 +125,12 @@ export default function Privacy() {
                 <p className="text-slate-600 mb-1">- 관리적 조치 : 내부관리계획 수립, 정기 교육, 취급자 최소화</p>
                 <p className="text-slate-600 mb-1">- 기술적 조치 : 접근권한 관리, 암호화(전송/저장), 침해 대응, 접속기록 보관 및 위·변조 방지, 백업/복구</p>
                 <p className="text-slate-600 mb-2">- 물리적 조치 : 자료 보관 장소 및 시스템 접근 통제(해당 시)</p>
+              </section>
+
+              <section>
+                <h2 className="text-xl font-bold text-slate-900 mt-8 mb-4">9. 자동 수집 장치(쿠키 등)의 설치·운영 및 거부</h2>
+                <p className="text-slate-600 mb-2">회사는 웹 기반 서비스 제공을 위해 쿠키(cookie) 등 자동 수집 장치를 사용할 수 있습니다.</p>
+                <p className="text-slate-600 mb-2">이용자는 브라우저 설정을 통해 쿠키 저장을 거부하거나 삭제할 수 있으며, 이 경우 일부 서비스 이용이 제한될 수 있습니다.</p>
               </section>
 
               <section>
