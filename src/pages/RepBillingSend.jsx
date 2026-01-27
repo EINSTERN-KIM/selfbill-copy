@@ -192,7 +192,7 @@ export default function RepBillingSend() {
             .map(([key, value]) => `${key}: ${value.toLocaleString()}원`)
             .join(', ');
 
-          await fetch('https://primary-production-e4e2a6.up.railway.app/webhook-test/65ee42a7-2d1c-40c0-945d-e14a4e7a7ff4', {
+          await fetch('https://primary-production-e4e2a6.up.railway.app/webhook/65ee42a7-2d1c-40c0-945d-e14a4e7a7ff4', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({
