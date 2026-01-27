@@ -101,7 +101,7 @@ export default function RepUnitsInvite() {
         if (repUnits.length > 0) repUnit = repUnits[0];
       }
 
-      await fetch('https://primary-production-e4e2a6.up.railway.app/webhook/cc6b6bff-d62f-4602-9b1b-e28005af8bfb', {
+      await fetch('https://primary-production-e4e2a6.up.railway.app/webhook-test/cc6b6bff-d62f-4602-9b1b-e28005af8bfb', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
