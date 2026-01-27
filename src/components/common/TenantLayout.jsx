@@ -28,11 +28,21 @@ export default function TenantLayout({ buildingId, building, currentPage, childr
   const renderMenu = () => (
     <div className="flex flex-col h-full">
       <div className="flex-1 overflow-y-auto">
-        {/* Building Header */}
-        <div className="p-4 border-b">
+        {/* Logo & Building Header */}
+        <div className="p-4 border-b space-y-3">
+          <button 
+            onClick={() => navigate(createPageUrl("MyBuildings"))}
+            className="flex items-center justify-start w-full hover:opacity-80 transition-opacity"
+          >
+            <img 
+              src="https://qtrypzzcjebvfcihiynt.supabase.co/storage/v1/object/public/base44-prod/public/6955621ae58823aa6ee78811/43a1bd447__260126_IMG__byW.png" 
+              alt="똑빌 로고"
+              className="h-8"
+            />
+          </button>
           <button
             onClick={() => navigate(createPageUrl("MyBuildings"))}
-            className="flex items-center gap-3 w-full hover:bg-slate-50 active:bg-slate-100 rounded-lg p-3 -m-3 transition-colors touch-manipulation"
+            className="flex items-center gap-3 w-full hover:bg-slate-50 active:bg-slate-100 rounded-lg p-3 -mx-3 transition-colors touch-manipulation"
           >
             {building?.building_icon_url ? (
               <img 
@@ -107,18 +117,16 @@ export default function TenantLayout({ buildingId, building, currentPage, childr
         >
           {sidebarOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
         </Button>
-        <div className="flex items-center gap-3 min-w-0 flex-1">
-          {building?.building_icon_url ? (
-            <img 
-              src={building.building_icon_url} 
-              alt="건물 아이콘"
-              className="w-6 h-6 rounded object-cover flex-shrink-0"
-            />
-          ) : (
-            <Building2 className="w-6 h-6 text-primary flex-shrink-0" />
-          )}
-          <span className="font-semibold text-slate-900 truncate">{building?.name || '공동주택'}</span>
-        </div>
+        <button 
+          onClick={() => navigate(createPageUrl("MyBuildings"))}
+          className="flex items-center gap-2 min-w-0 flex-1 hover:opacity-80 transition-opacity"
+        >
+          <img 
+            src="https://qtrypzzcjebvfcihiynt.supabase.co/storage/v1/object/public/base44-prod/public/6955621ae58823aa6ee78811/43a1bd447__260126_IMG__byW.png" 
+            alt="똑빌 로고"
+            className="h-6 flex-shrink-0"
+          />
+        </button>
       </div>
 
       {/* Mobile Sidebar */}
@@ -130,7 +138,16 @@ export default function TenantLayout({ buildingId, building, currentPage, childr
           />
           <aside className="lg:hidden fixed left-0 top-0 bottom-0 w-72 bg-white z-50 shadow-xl">
             <div className="h-16 flex items-center justify-between px-4 border-b">
-              <span className="font-semibold text-slate-900 break-keep">메뉴</span>
+              <button 
+                onClick={() => navigate(createPageUrl("MyBuildings"))}
+                className="hover:opacity-80 transition-opacity"
+              >
+                <img 
+                  src="https://qtrypzzcjebvfcihiynt.supabase.co/storage/v1/object/public/base44-prod/public/6955621ae58823aa6ee78811/43a1bd447__260126_IMG__byW.png" 
+                  alt="똑빌 로고"
+                  className="h-6"
+                />
+              </button>
               <Button
                 variant="ghost"
                 size="icon"

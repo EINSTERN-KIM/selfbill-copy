@@ -168,11 +168,12 @@ export default function TenantAdditionalInfo() {
       <div className="w-full max-w-2xl">
         {/* Logo */}
         <div className="text-center mb-8">
-          <div className="inline-flex items-center gap-3 mb-3">
-            <div className="w-12 h-12 rounded-2xl bg-primary flex items-center justify-center">
-              <Building2 className="w-7 h-7 text-white" />
-            </div>
-            <span className="text-3xl font-bold text-slate-900">셀프빌</span>
+          <div className="inline-flex items-center justify-center mb-3">
+            <img 
+              src="https://qtrypzzcjebvfcihiynt.supabase.co/storage/v1/object/public/base44-prod/public/6955621ae58823aa6ee78811/43a1bd447__260126_IMG__byW.png" 
+              alt="똑빌 로고"
+              className="h-16"
+            />
           </div>
           <p className="text-slate-600">입주자 추가 정보 입력</p>
         </div>
