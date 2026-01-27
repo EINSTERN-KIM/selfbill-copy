@@ -8,6 +8,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Building2, Users, ArrowLeft } from 'lucide-react';
 import LoadingSpinner from '@/components/common/LoadingSpinner';
+import BuildingInviteSelectionModal from '@/components/common/BuildingInviteSelectionModal';
 
 export default function TenantInviteCheck() {
   const navigate = useNavigate();
@@ -18,6 +19,8 @@ export default function TenantInviteCheck() {
   const [phone3, setPhone3] = useState("");
   const [checkingInvite, setCheckingInvite] = useState(false);
   const [inviteError, setInviteError] = useState("");
+  const [showBuildingSelection, setShowBuildingSelection] = useState(false);
+  const [availableInvitations, setAvailableInvitations] = useState([]);
 
   useEffect(() => {
     async function init() {
@@ -50,22 +53,7 @@ export default function TenantInviteCheck() {
     setInviteError("");
     
     try {
-      // Check if user already registered with this phone
-      const existingMembers = await base44.entities.BuildingMember.filter({
-        user_email: user?.email,
-        status: "활성"
-      });
-      
-      for (const member of existingMembers) {
-        const units = await base44.entities.Unit.filter({ id: member.unit_id });
-        if (units.length > 0 && units[0].tenant_phone === invitePhone) {
-          setInviteError("이미 이 휴대폰 번호로 등록된 입주자입니다.");
-          setCheckingInvite(false);
-          return;
-        }
-      }
-      
-      // Search for invitation by phone
+      // Search for all invitations by phone
       const invitations = await base44.entities.Invitation.filter({
         tenant_phone: invitePhone,
         status: "초대 발송"
@@ -77,51 +65,79 @@ export default function TenantInviteCheck() {
         return;
       }
       
-      const invitation = invitations[0];
+      // Check which buildings the user is already a member of
+      const existingMemberships = await base44.entities.BuildingMember.filter({
+        user_email: user.email,
+        status: "활성"
+      });
       
-      // Check if this invitation is already used by the current user
-      const alreadyCompleted = existingMembers.some(m => 
-        m.building_id === invitation.building_id && m.unit_id === invitation.unit_id
+      const existingBuildingIds = existingMemberships.map(m => m.building_id);
+      
+      // Get building and unit details for each invitation
+      const invitationsWithDetails = await Promise.all(
+        invitations.map(async (invitation) => {
+          const buildings = await base44.entities.Building.filter({ id: invitation.building_id });
+          const units = await base44.entities.Unit.filter({ id: invitation.unit_id });
+          
+          return {
+            ...invitation,
+            buildingName: buildings[0]?.name || '건물명 없음',
+            buildingAddress: buildings[0]?.address || '',
+            unitName: units[0]?.unit_name || units[0]?.ho || '세대 정보 없음',
+            isRegistered: existingBuildingIds.includes(invitation.building_id),
+            invitePhone: invitePhone
+          };
+        })
       );
       
-      if (alreadyCompleted) {
-        setInviteError("이미 가입 완료한 초대입니다.");
+      // Filter out unregistered invitations
+      const unregisteredInvitations = invitationsWithDetails.filter(inv => !inv.isRegistered);
+      
+      if (unregisteredInvitations.length === 0) {
+        setInviteError("이미 모든 건물에 등록되어 있습니다.");
         setCheckingInvite(false);
         return;
       }
       
-      // Check if building has capacity
-      const [buildingUnits, buildingInvites] = await Promise.all([
-        base44.entities.Unit.filter({ 
-          building_id: invitation.building_id,
-          status: "active"
-        }),
-        base44.entities.Invitation.filter({ 
-          building_id: invitation.building_id,
-          status: "가입 완료"
-        })
-      ]);
-      
-      if (buildingInvites.length >= buildingUnits.length) {
-        setInviteError("해당 건물의 초대 가능한 세대 수를 초과했습니다.");
+      if (invitationsWithDetails.length === 1 && !invitationsWithDetails[0].isRegistered) {
+        // Single unregistered invitation - proceed directly
+        await handleSelectInvitation(invitationsWithDetails[0]);
+      } else {
+        // Multiple invitations - show selection modal
+        setAvailableInvitations(invitationsWithDetails);
+        setShowBuildingSelection(true);
         setCheckingInvite(false);
-        return;
       }
-      
+    } catch (err) {
+      console.error("Invite check error:", err);
+      setInviteError("초대 확인 중 오류가 발생했습니다.");
+      setCheckingInvite(false);
+    }
+  };
+
+  const handleSelectInvitation = async (invitation) => {
+    if (invitation.isRegistered) {
+      return;
+    }
+    
+    setShowBuildingSelection(false);
+    setCheckingInvite(true);
+    
+    try {
       // Store invitation data and navigate to additional info page
       sessionStorage.setItem('pendingInvitation', JSON.stringify({
         invitationId: invitation.id,
         buildingId: invitation.building_id,
         unitId: invitation.unit_id,
-        invitePhone: invitePhone
+        invitePhone: invitation.invitePhone
       }));
       
       navigate(createPageUrl("TenantAdditionalInfo"));
     } catch (err) {
-      setInviteError("초대 확인 중 오류가 발생했습니다.");
+      console.error("Select error:", err);
+      setInviteError("선택 처리 중 오류가 발생했습니다.");
+      setCheckingInvite(false);
     }
-    
-    setCheckingInvite(false);
   };
 
   if (isLoading) {
@@ -225,6 +241,14 @@ export default function TenantInviteCheck() {
             </div>
           </CardContent>
         </Card>
+
+        {/* Building Selection Modal */}
+        <BuildingInviteSelectionModal
+          isOpen={showBuildingSelection}
+          onClose={() => setShowBuildingSelection(false)}
+          invitations={availableInvitations}
+          onSelect={handleSelectInvitation}
+        />
       </div>
     </div>
   );
