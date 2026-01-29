@@ -79,14 +79,15 @@ export default function TenantInviteCheck() {
           const buildings = await base44.entities.Building.filter({ id: invitation.building_id });
           const units = await base44.entities.Unit.filter({ id: invitation.unit_id });
           
-          // Check if this unit already has an active member (any account with this phone)
+          // Check if this unit already has an active member from a DIFFERENT account
           const unitMembers = await base44.entities.BuildingMember.filter({
             building_id: invitation.building_id,
             unit_id: invitation.unit_id,
             status: "활성"
           });
           
-          const isAlreadyUsed = unitMembers.length > 0;
+          // Allow same user to be both 대표자 and 입주자, but block different users
+          const isAlreadyUsed = unitMembers.length > 0 && unitMembers.some(m => m.user_id !== user.id);
           
           return {
             ...invitation,
