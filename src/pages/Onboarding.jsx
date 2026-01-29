@@ -118,9 +118,9 @@ export default function Onboarding() {
             unit_id: invitation.unit_id,
             status: "활성"
           });
-          
+
           const isAlreadyUsed = unitMembers.length > 0;
-          
+
           return {
             ...invitation,
             buildingName: buildings[0]?.name || '건물명 없음',
@@ -128,27 +128,19 @@ export default function Onboarding() {
             unitName: units[0]?.unit_name || units[0]?.ho || '세대 정보 없음',
             isRegistered: existingBuildingIds.includes(invitation.building_id) || isAlreadyUsed
           };
-        })
-      );
-      
-      // If only one invitation and not registered, proceed directly
-      const unregisteredInvitations = invitationsWithDetails.filter(inv => !inv.isRegistered);
-      
-      if (unregisteredInvitations.length === 0) {
-        setInviteError("이미 모든 건물에 등록되어 있습니다.");
-        setCheckingInvite(false);
-        return;
-      }
-      
-      if (invitationsWithDetails.length === 1 && !invitationsWithDetails[0].isRegistered) {
-        // Single invitation - proceed directly
-        await handleSelectInvitation(invitationsWithDetails[0]);
-      } else {
-        // Multiple invitations - show selection modal
-        setAvailableInvitations(invitationsWithDetails);
-        setShowBuildingSelection(true);
-        setCheckingInvite(false);
-      }
+          })
+          );
+
+          // Always show the modal if there are any invitations
+          if (invitationsWithDetails.length === 1 && !invitationsWithDetails[0].isRegistered) {
+          // Single unregistered invitation - proceed directly
+          await handleSelectInvitation(invitationsWithDetails[0]);
+          } else {
+          // Show selection modal for all cases (multiple invitations or registered buildings)
+          setAvailableInvitations(invitationsWithDetails);
+          setShowBuildingSelection(true);
+          setCheckingInvite(false);
+          }
     } catch (err) {
       console.error("Invite check error:", err);
       setInviteError("초대 확인 중 오류가 발생했습니다.");

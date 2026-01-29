@@ -99,20 +99,12 @@ export default function TenantInviteCheck() {
         })
       );
       
-      // Filter out unregistered invitations
-      const unregisteredInvitations = invitationsWithDetails.filter(inv => !inv.isRegistered);
-      
-      if (unregisteredInvitations.length === 0) {
-        setInviteError("이미 모든 건물에 등록되어 있습니다.");
-        setCheckingInvite(false);
-        return;
-      }
-      
+      // Always show the modal if there are any invitations
       if (invitationsWithDetails.length === 1 && !invitationsWithDetails[0].isRegistered) {
         // Single unregistered invitation - proceed directly
         await handleSelectInvitation(invitationsWithDetails[0]);
       } else {
-        // Multiple invitations - show selection modal
+        // Show selection modal for all cases (multiple invitations or registered buildings)
         setAvailableInvitations(invitationsWithDetails);
         setShowBuildingSelection(true);
         setCheckingInvite(false);
