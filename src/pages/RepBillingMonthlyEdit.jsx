@@ -535,18 +535,19 @@ export default function RepBillingMonthlyEdit() {
                               </div>
                             </>
                           ) : (
-                            <div className="grid grid-cols-2 gap-3">
-                              <div>
+                            <div className="flex flex-col sm:flex-row gap-3">
+                              <div className="flex-1">
                                 <Label className="text-xs">항목명</Label>
                                 <Input value={item.name} disabled className="mt-1 bg-slate-50" />
                               </div>
-                              <div>
+                              <div className="w-full sm:w-40">
                                 <Label className="text-xs">금액 (원)</Label>
                                 <Input
                                   type="number"
                                   value={item.amount_total}
                                   onChange={(e) => handleItemChange(item.id, 'amount_total', e.target.value)}
-                                  className="mt-1"
+                                  className="mt-1 text-right font-semibold"
+                                  style={{ minWidth: '140px' }}
                                 />
                               </div>
                             </div>
@@ -586,7 +587,7 @@ export default function RepBillingMonthlyEdit() {
                               <div>
                                 <div className="flex items-center justify-between mb-2">
                                   <Label className="text-xs">항목명</Label>
-                                  <span className="text-sm font-semibold text-primary">
+                                  <span className="text-sm font-semibold text-primary whitespace-nowrap">
                                     합계: {(unitAmounts[item.id] ? Object.values(unitAmounts[item.id]).reduce((sum, amt) => sum + (parseInt(amt) || 0), 0) : 0).toLocaleString()}원
                                   </span>
                                 </div>
@@ -597,7 +598,7 @@ export default function RepBillingMonthlyEdit() {
                                 <div className="space-y-2 max-h-60 overflow-y-auto">
                                   {units.map(unit => (
                                     <div key={unit.id} className="flex items-center gap-2">
-                                      <span className="text-sm w-32">{unit.unit_name}</span>
+                                      <span className="text-sm w-24 flex-shrink-0">{unit.unit_name}</span>
                                       <Input
                                         type="number"
                                         placeholder="0"
@@ -612,7 +613,8 @@ export default function RepBillingMonthlyEdit() {
                                           const total = Object.values(updatedAmounts).reduce((sum, amt) => sum + (parseInt(amt) || 0), 0);
                                           handleItemChange(item.id, 'amount_total', total);
                                         }}
-                                        className="h-8 flex-1"
+                                        className="h-8 flex-1 text-right font-semibold"
+                                        style={{ minWidth: '120px' }}
                                       />
                                     </div>
                                   ))}
@@ -620,18 +622,19 @@ export default function RepBillingMonthlyEdit() {
                               </div>
                             </>
                           ) : (
-                            <div className="grid grid-cols-2 gap-3">
-                              <div>
+                            <div className="flex flex-col sm:flex-row gap-3">
+                              <div className="flex-1">
                                 <Label className="text-xs">항목명</Label>
                                 <Input value={item.name} disabled className="mt-1 bg-slate-50" />
                               </div>
-                              <div>
+                              <div className="w-full sm:w-40">
                                 <Label className="text-xs">금액 (원)</Label>
                                 <Input
                                   type="number"
                                   value={item.amount_total}
                                   onChange={(e) => handleItemChange(item.id, 'amount_total', e.target.value)}
-                                  className="mt-1"
+                                  className="mt-1 text-right font-semibold"
+                                  style={{ minWidth: '140px' }}
                                 />
                               </div>
                             </div>
@@ -707,41 +710,42 @@ export default function RepBillingMonthlyEdit() {
                              </div>
                            </>
                           ) : (
-                            <div className="grid grid-cols-2 gap-3">
-                              <div>
-                                <Label className="text-xs">항목명</Label>
-                                <Input value={item.name} disabled className="mt-1 bg-slate-50" />
-                              </div>
-                              <div>
-                                <Label className="text-xs">금액 (원)</Label>
-                                <Input
-                                  type="number"
-                                  value={item.amount_total}
-                                  onChange={(e) => handleItemChange(item.id, 'amount_total', e.target.value)}
-                                  className="mt-1"
-                                />
-                              </div>
-                            </div>
+                           <div className="flex flex-col sm:flex-row gap-3">
+                             <div className="flex-1">
+                               <Label className="text-xs">항목명</Label>
+                               <Input value={item.name} disabled className="mt-1 bg-slate-50" />
+                             </div>
+                             <div className="w-full sm:w-40">
+                               <Label className="text-xs">금액 (원)</Label>
+                               <Input
+                                 type="number"
+                                 value={item.amount_total}
+                                 onChange={(e) => handleItemChange(item.id, 'amount_total', e.target.value)}
+                                 className="mt-1 text-right font-semibold"
+                                 style={{ minWidth: '140px' }}
+                               />
+                             </div>
+                           </div>
                           )}
-                        </div>
-                        <Button
+                          </div>
+                          <Button
                           variant="ghost"
                           size="icon"
                           onClick={() => handleDeleteItem(item.id)}
                           className="text-red-500 hover:text-red-600"
-                        >
+                          >
                           <Trash2 className="w-4 h-4" />
-                        </Button>
-                      </div>
-                    </CardContent>
-                  </Card>
-                ))}
-              </div>
-            </div>
-          )}
-        </div>
+                          </Button>
+                          </div>
+                          </CardContent>
+                          </Card>
+                          ))}
+                          </div>
+                          </div>
+                          )}
+                          </div>
 
-        {/* 이번 달에만 추가하는 항목 섹션 */}
+                          {/* 이번 달에만 추가하는 항목 섹션 */}
         <div className="mb-6">
           <div className="flex items-center justify-between mb-4">
             <h3 className="text-sm font-semibold text-slate-700 flex items-center gap-2">
