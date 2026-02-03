@@ -86,7 +86,7 @@ export default function RepUnitsInvite() {
 
       // Send SMS via Twilio
       const inviteUrl = `${window.location.origin}${createPageUrl(`AcceptInvite?inviteId=${invitation.id}`)}`;
-      const notificationBody = `[셀프빌 입주자 초대]\n\n${building.name}\n${unit.ho ? `${unit.ho}호` : unit.unit_name}\n\n${unit.tenant_name}님을 입주자로 초대합니다.\n\n아래 링크를 클릭하여 초대를 수락해 주세요.\n\n${inviteUrl}`;
+      const notificationBody = `[똑빌 입주자 초대]\n\n${building.name}\n${unit.ho ? `${unit.ho}호` : unit.unit_name}\n\n${unit.tenant_name}님을 입주자로 초대합니다.\n\n아래 링크를 클릭하여 초대를 수락해 주세요.\n\n${inviteUrl}`;
 
       // 웹훅 전송 (입주자 초대)
       const repMembership = await base44.entities.BuildingMember.filter({
@@ -173,7 +173,7 @@ export default function RepUnitsInvite() {
         }
 
         const inviteUrl = `${window.location.origin}${createPageUrl(`AcceptInvite?inviteId=${invitation.id}`)}`;
-        const notificationBody = `[셀프빌 입주자 초대]\n\n${building.name}\n${unit.ho ? `${unit.ho}호` : unit.unit_name}\n\n${unit.tenant_name}님을 입주자로 초대합니다.\n\n아래 링크를 클릭하여 초대를 수락해 주세요.\n\n${inviteUrl}`;
+        const notificationBody = `[똑빌 입주자 초대]\n\n${building.name}\n${unit.ho ? `${unit.ho}호` : unit.unit_name}\n\n${unit.tenant_name}님을 입주자로 초대합니다.\n\n아래 링크를 클릭하여 초대를 수락해 주세요.\n\n${inviteUrl}`;
 
         // 웹훅 전송 (입주자 초대)
         const repMembership = await base44.entities.BuildingMember.filter({
