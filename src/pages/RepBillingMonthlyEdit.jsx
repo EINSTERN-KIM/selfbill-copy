@@ -773,8 +773,8 @@ export default function RepBillingMonthlyEdit() {
                   <CardContent className="p-4">
                     <div className="flex items-start gap-4">
                       <div className="flex-1 space-y-3">
-                        <div className="grid grid-cols-3 gap-3">
-                          <div>
+                        <div className="grid grid-cols-4 gap-3">
+                          <div className="col-span-1">
                             <Label className="text-xs">카테고리</Label>
                             <Select
                               value={item.category}
@@ -799,7 +799,7 @@ export default function RepBillingMonthlyEdit() {
                               </SelectContent>
                             </Select>
                           </div>
-                          <div>
+                          <div className="col-span-2">
                             <Label className="text-xs">항목명</Label>
                             <Input
                               value={item.name}

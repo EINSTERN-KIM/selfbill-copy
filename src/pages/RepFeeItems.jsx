@@ -229,7 +229,7 @@ export default function RepFeeItems() {
                             return Object.entries(unitAmounts).map(([unitId, amount]) => {
                               const unit = units.find(u => u.id === unitId);
                               return unit ? (
-                                <Badge key={unitId} variant="outline" className="text-xs">
+                                <Badge key={unitId} variant="outline" className="text-xs whitespace-nowrap">
                                   {unit.unit_name}: {parseInt(amount).toLocaleString()}원
                                 </Badge>
                               ) : null;
