@@ -193,7 +193,7 @@ ${emailForm.message}
 
             <div className="flex items-center justify-end gap-2 pt-4 text-xs text-slate-400">
               <Phone className="w-3 h-3" />
-              <span>펜타라: 010-5945-0198</span>
+              <span>똑빌 전화문의: 010-5945-0198</span>
             </div>
           </div>
         )}

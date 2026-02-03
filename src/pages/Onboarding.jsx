@@ -283,7 +283,7 @@ export default function Onboarding() {
                 </Button>
 
                 <Button
-                  onClick={handleGoogleLogin}
+                  onClick={() => base44.auth.redirectToLogin(createPageUrl("Onboarding"), { mode: 'signup' })}
                   size="lg"
                   variant="outline"
                   className="w-full border-2 border-primary text-primary hover:bg-primary-light/20 font-semibold"
