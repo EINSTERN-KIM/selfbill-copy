@@ -104,7 +104,7 @@ export default function Onboarding() {
         status: "활성"
       });
       
-      const existingBuildingIds = existingMemberships.map(m => m.building_id);
+      const existingBuildingIds = (existingMemberships || []).map(m => m.building_id).filter(Boolean);
       
       // Get building and unit details for each invitation
       const invitationsWithDetails = await Promise.all(
