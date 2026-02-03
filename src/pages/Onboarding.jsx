@@ -153,33 +153,12 @@ export default function Onboarding() {
     if (invitation.isRegistered) {
       return;
     }
-    
+
     setShowBuildingSelection(false);
-    setCheckingInvite(true);
-    
-    try {
-      // Create BuildingMember
-      await base44.entities.BuildingMember.create({
-        building_id: invitation.building_id,
-        user_id: user.id,
-        user_email: user.email,
-        role: "입주자",
-        unit_id: invitation.unit_id,
-        status: "활성"
-      });
-      
-      // Update invitation status
-      await base44.entities.Invitation.update(invitation.id, {
-        status: "가입 완료",
-        accepted_at: new Date().toISOString()
-      });
-      
-      navigate(createPageUrl("MyBuildings"));
-    } catch (err) {
-      console.error("Join error:", err);
-      setInviteError("가입 처리 중 오류가 발생했습니다.");
-      setCheckingInvite(false);
-    }
+
+    // Store and navigate for additional info
+    sessionStorage.setItem('pendingInvitation', JSON.stringify(invitation));
+    navigate(createPageUrl("TenantAdditionalInfo"));
   };
 
   if (isLoading) {
