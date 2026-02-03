@@ -3,13 +3,15 @@ import { Link, useNavigate } from 'react-router-dom';
 import { createPageUrl } from '@/utils';
 import { 
   Building2, Receipt, CreditCard, Home, Menu, X, 
-  ChevronDown, ChevronUp, LogOut
+  ChevronDown, ChevronUp, LogOut, HelpCircle
 } from 'lucide-react';
 import { Button } from "@/components/ui/button";
 import { base44 } from '@/api/base44Client';
+import SupportDialog from '@/components/common/SupportDialog';
 
 export default function TenantLayout({ buildingId, building, currentPage, children }) {
   const [sidebarOpen, setSidebarOpen] = useState(false);
+  const [showSupport, setShowSupport] = useState(false);
   const navigate = useNavigate();
 
   const menuItems = [
@@ -87,8 +89,15 @@ export default function TenantLayout({ buildingId, building, currentPage, childr
         </nav>
       </div>
 
-      {/* Logout Button */}
-      <div className="p-3 border-t">
+      {/* Support & Logout */}
+      <div className="p-3 border-t space-y-1">
+        <button
+          onClick={() => setShowSupport(true)}
+          className="flex items-center gap-3 px-4 py-3 rounded-lg text-slate-500 hover:bg-slate-50 active:bg-slate-100 transition-colors w-full touch-manipulation"
+        >
+          <HelpCircle className="w-5 h-5 flex-shrink-0" />
+          <span className="text-sm font-medium break-keep">고객센터</span>
+        </button>
         <button
           onClick={handleLogout}
           className="flex items-center gap-3 px-4 py-3 rounded-lg text-red-600 hover:bg-red-50 active:bg-red-100 transition-colors w-full touch-manipulation"
@@ -166,6 +175,9 @@ export default function TenantLayout({ buildingId, building, currentPage, childr
       <main className="flex-1 lg:ml-64 pt-16 lg:pt-0">
         {children}
       </main>
+
+      {/* Support Dialog */}
+      <SupportDialog isOpen={showSupport} onClose={() => setShowSupport(false)} />
     </div>
   );
 }

@@ -271,7 +271,7 @@ export default function Onboarding() {
                 <Button
                   onClick={handleGoogleLogin}
                   size="lg"
-                  className="w-full bg-white text-slate-700 border-2 border-slate-300 hover:bg-slate-50 hover:border-slate-400 font-semibold"
+                  className="w-full bg-white text-slate-700 border-2 border-slate-300 hover:bg-slate-50 hover:border-slate-400 font-semibold mb-3"
                 >
                   <svg className="w-5 h-5 mr-3" viewBox="0 0 24 24">
                     <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/>
@@ -281,8 +281,17 @@ export default function Onboarding() {
                   </svg>
                   구글 계정으로 계속하기
                 </Button>
-              </CardContent>
-            </Card>
+
+                <Button
+                  onClick={handleGoogleLogin}
+                  size="lg"
+                  variant="outline"
+                  className="w-full border-2 border-primary text-primary hover:bg-primary-light/20 font-semibold"
+                >
+                  이메일로 가입하기
+                </Button>
+                </CardContent>
+                </Card>
 
             {/* Terms and Privacy Links */}
             <div className="flex justify-center gap-4 text-xs text-slate-500">
