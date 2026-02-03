@@ -6,12 +6,14 @@ import { base44 } from '@/api/base44Client';
 import { 
   Building2, Users, Receipt, CreditCard, Settings, 
   ChevronRight, ChevronDown, Menu, X, Home, FileText,
-  PlusCircle, Send, BarChart3, LogOut
+  PlusCircle, Send, BarChart3, LogOut, HelpCircle
 } from 'lucide-react';
+import SupportDialog from '@/components/common/SupportDialog';
 
 export default function RepLayout({ children, buildingId, building, currentPage }) {
   const navigate = useNavigate();
   const [sidebarOpen, setSidebarOpen] = useState(false);
+  const [showSupport, setShowSupport] = useState(false);
   const [expandedSections, setExpandedSections] = useState({
     building: true,
     units: true,
@@ -182,8 +184,15 @@ export default function RepLayout({ children, buildingId, building, currentPage 
           })}
         </nav>
         
-        {/* Logout Button */}
-        <div className="p-3 border-t mt-auto sticky bottom-0 bg-white">
+        {/* Support & Logout */}
+        <div className="p-3 border-t mt-auto sticky bottom-0 bg-white space-y-1">
+          <button
+            onClick={() => setShowSupport(true)}
+            className="w-full flex items-center gap-3 px-4 py-3 rounded-lg text-slate-500 hover:bg-slate-50 active:bg-slate-100 transition-colors touch-manipulation"
+          >
+            <HelpCircle className="w-5 h-5 flex-shrink-0" />
+            <span className="text-sm font-medium break-keep">고객센터</span>
+          </button>
           <button
             onClick={handleLogout}
             className="w-full flex items-center gap-3 px-4 py-3 rounded-lg text-red-600 hover:bg-red-50 active:bg-red-100 transition-colors touch-manipulation"
@@ -213,6 +222,9 @@ export default function RepLayout({ children, buildingId, building, currentPage 
             </div>
         {children}
       </div>
+
+      {/* Support Dialog */}
+      <SupportDialog isOpen={showSupport} onClose={() => setShowSupport(false)} />
     </div>
   );
 }
