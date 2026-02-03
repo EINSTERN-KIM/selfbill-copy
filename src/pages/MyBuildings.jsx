@@ -115,22 +115,15 @@ export default function MyBuildings() {
   const handleBuildingClick = async (item) => {
     const { building, hasRepRole, hasTenantRole, hasBothRoles, memberships } = item;
     
-    // 두 역할을 모두 가진 경우 역할 선택 모달 표시
-    if (hasBothRoles) {
+    // 대표자 역할이 있는 경우 항상 역할 선택 모달 표시 (입주자 여부 무관)
+    if (hasRepRole) {
       setSelectedBuilding(building);
       setShowRoleModal(true);
       return;
     }
     
-    // 하나의 역할만 가진 경우
-    if (hasRepRole) {
-      // Check if building setup is incomplete
-      if (building.status === "draft" || building.setup_step < 5) {
-        navigate(createPageUrl(`BuildingSetupWizard?buildingId=${building.id}`));
-        return;
-      }
-      navigate(createPageUrl(`RepDashboard?buildingId=${building.id}`));
-    } else if (hasTenantRole) {
+    // 입주자 역할만 가진 경우
+    if (hasTenantRole) {
       // 입주자인 경우, unit의 needs_review 상태 확인
       const tenantMembership = memberships.find(m => m.role === "입주자");
       if (tenantMembership?.unit_id) {
