@@ -777,41 +777,43 @@ export default function RepBillingMonthlyEdit() {
                   <CardContent className="p-4">
                     <div className="flex items-start gap-4">
                       <div className="flex-1 space-y-3">
-                        <div className="grid grid-cols-4 gap-3">
-                          <div className="col-span-1">
-                            <Label className="text-xs">카테고리</Label>
-                            <Select
-                              value={item.category}
-                              onValueChange={(val) => {
-                                handleExtraItemChange(item.id, 'category', val);
-                                // 카테고리 변경 시 타입도 자동 설정
-                                if (val === "기타") {
-                                  handleExtraItemChange(item.id, 'type', '세대별');
-                                } else {
-                                  handleExtraItemChange(item.id, 'type', '공용');
-                                  handleExtraItemChange(item.id, 'target_unit_ids', []);
-                                }
-                              }}
-                            >
-                              <SelectTrigger className="mt-1">
-                                <SelectValue />
-                              </SelectTrigger>
-                              <SelectContent>
-                                <SelectItem value="일반">일반</SelectItem>
-                                <SelectItem value="수선">수선</SelectItem>
-                                <SelectItem value="기타">기타(세대별)</SelectItem>
-                              </SelectContent>
-                            </Select>
-                          </div>
-                          <div className="col-span-2">
-                            <Label className="text-xs">항목명</Label>
-                            <Input
-                              value={item.name}
-                              onChange={(e) => handleExtraItemChange(item.id, 'name', e.target.value)}
-                              placeholder="예: 엘리베이터 수리"
-                              disabled={!isEditable}
-                              className="mt-1"
-                            />
+                        <div className="flex flex-col gap-3">
+                          <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
+                            <div>
+                              <Label className="text-xs">카테고리</Label>
+                              <Select
+                                value={item.category}
+                                onValueChange={(val) => {
+                                  handleExtraItemChange(item.id, 'category', val);
+                                  // 카테고리 변경 시 타입도 자동 설정
+                                  if (val === "기타") {
+                                    handleExtraItemChange(item.id, 'type', '세대별');
+                                  } else {
+                                    handleExtraItemChange(item.id, 'type', '공용');
+                                    handleExtraItemChange(item.id, 'target_unit_ids', []);
+                                  }
+                                }}
+                              >
+                                <SelectTrigger className="mt-1">
+                                  <SelectValue />
+                                </SelectTrigger>
+                                <SelectContent>
+                                  <SelectItem value="일반">일반</SelectItem>
+                                  <SelectItem value="수선">수선</SelectItem>
+                                  <SelectItem value="기타">기타(세대별)</SelectItem>
+                                </SelectContent>
+                              </Select>
+                            </div>
+                            <div className="sm:col-span-2">
+                              <Label className="text-xs">항목명</Label>
+                              <Input
+                                value={item.name}
+                                onChange={(e) => handleExtraItemChange(item.id, 'name', e.target.value)}
+                                placeholder="예: 엘리베이터 수리"
+                                disabled={!isEditable}
+                                className="mt-1"
+                              />
+                            </div>
                           </div>
                           <div>
                             <Label className="text-xs">금액 (원)</Label>
@@ -822,7 +824,8 @@ export default function RepBillingMonthlyEdit() {
                               onWheel={(e) => e.target.blur()}
                               placeholder="0"
                               disabled={!isEditable}
-                              className="mt-1"
+                              className="mt-1 text-right font-semibold w-full"
+                              style={{ minWidth: '140px' }}
                             />
                           </div>
                         </div>
