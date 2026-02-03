@@ -223,15 +223,15 @@ export default function RepPlan() {
               <div className="space-y-1 text-sm">
                 <div className="flex justify-between">
                   <span className="text-slate-500">은행</span>
-                  <span className="font-medium">신한은행</span>
+                  <span className="font-medium">카카오뱅크</span>
                 </div>
                 <div className="flex justify-between">
                   <span className="text-slate-500">예금주</span>
-                  <span className="font-medium">(주)똑빌</span>
+                  <span className="font-medium">똑빌</span>
                 </div>
                 <div className="flex justify-between">
                   <span className="text-slate-500">계좌번호</span>
-                  <span className="font-medium">110-123-456789</span>
+                  <span className="font-medium">3333-36-2456177</span>
                 </div>
               </div>
             </div>
