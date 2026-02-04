@@ -192,7 +192,7 @@ export default function Layout({ children, currentPageName }) {
         }
 
         .dark .bg-white { background-color: #1e293b !important; }
-        .dark .bg-slate-50 { background-color: #0f172a !important; }
+        .dark .bg-slate-50 { background-color: #1e293b !important; }
         .dark .bg-slate-100 { background-color: #334155 !important; }
         .dark .text-slate-900 { color: #f1f5f9 !important; }
         .dark .text-slate-700 { color: #cbd5e1 !important; }
