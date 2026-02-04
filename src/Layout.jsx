@@ -191,15 +191,23 @@ export default function Layout({ children, currentPageName }) {
           --color-border: #334155;
         }
 
-        .dark .bg-white { background-color: #1e293b !important; }
-        .dark .bg-slate-50 { background-color: #1e293b !important; }
-        .dark .bg-slate-100 { background-color: #334155 !important; }
+        .dark .bg-white { background-color: rgba(34, 197, 94, 0.08) !important; }
+        .dark .bg-slate-50 { background-color: rgba(34, 197, 94, 0.05) !important; }
+        .dark .bg-slate-100 { background-color: rgba(34, 197, 94, 0.12) !important; }
         .dark .text-slate-900 { color: #f1f5f9 !important; }
         .dark .text-slate-700 { color: #cbd5e1 !important; }
         .dark .text-slate-600 { color: #94a3b8 !important; }
         .dark .text-slate-500 { color: #64748b !important; }
-        .dark .border-slate-200 { border-color: #334155 !important; }
-        .dark .border { border-color: #334155 !important; }
+        .dark .border-slate-200 { border-color: rgba(34, 197, 94, 0.2) !important; }
+        .dark .border { border-color: rgba(34, 197, 94, 0.2) !important; }
+        
+        /* Card backgrounds in dark mode */
+        .dark [class*="bg-card"], 
+        .dark .rounded-xl.border,
+        .dark .card-rounded {
+          background-color: rgba(34, 197, 94, 0.08) !important;
+          border-color: rgba(34, 197, 94, 0.2) !important;
+        }
       `}</style>
       {children}
     </div>
