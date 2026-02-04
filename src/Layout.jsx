@@ -47,6 +47,14 @@ export default function Layout({ children, currentPageName }) {
   return (
     <div className="min-h-screen" style={{ backgroundColor: 'var(--color-background)' }}>
       <style>{`
+        /* Mobile safe areas */
+        :root {
+          --safe-area-inset-top: env(safe-area-inset-top, 0px);
+          --safe-area-inset-bottom: env(safe-area-inset-bottom, 0px);
+          --safe-area-inset-left: env(safe-area-inset-left, 0px);
+          --safe-area-inset-right: env(safe-area-inset-right, 0px);
+        }
+        
         :root {
           --color-primary: #2F6F4F;
           --color-primary-light: #A8C3A0;
@@ -66,6 +74,33 @@ export default function Layout({ children, currentPageName }) {
           -webkit-font-smoothing: antialiased;
           -moz-osx-font-smoothing: grayscale;
           touch-action: manipulation;
+          overflow-x: hidden;
+          overscroll-behavior: none;
+        }
+        
+        /* Hide scrollbars */
+        ::-webkit-scrollbar {
+          width: 0px;
+          height: 0px;
+        }
+        
+        body::-webkit-scrollbar,
+        html::-webkit-scrollbar {
+          display: none;
+        }
+        
+        body, html {
+          -ms-overflow-style: none;
+          scrollbar-width: none;
+        }
+        
+        /* Prevent text selection on UI elements */
+        button, .touch-manipulation, [role="button"] {
+          -webkit-user-select: none;
+          -moz-user-select: none;
+          -ms-user-select: none;
+          user-select: none;
+          -webkit-tap-highlight-color: transparent;
         }
         
         /* 모바일 최적화 */
