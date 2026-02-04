@@ -95,9 +95,17 @@ export default function RepLayout({ children, buildingId, building, currentPage 
 
   return (
     <div className="min-h-screen bg-slate-50 flex">
+      {/* Mobile Sidebar Overlay */}
+      {sidebarOpen && (
+        <div 
+          className="lg:hidden fixed inset-0 bg-black/50 z-40"
+          onClick={() => setSidebarOpen(false)}
+        />
+      )}
+
       {/* Sidebar */}
-      <div className={`fixed inset-y-0 left-0 z-50 w-64 bg-white dark:bg-slate-900 border-r dark:border-slate-700 transform transition-transform duration-300 ${sidebarOpen ? 'translate-x-0' : '-translate-x-full'} lg:translate-x-0 lg:static overflow-y-auto`} style={{ paddingBottom: 'calc(5rem + var(--safe-area-inset-bottom))' }}>
-        <div className="p-4 border-b dark:border-slate-700 flex flex-col gap-3 sticky top-0 bg-white dark:bg-slate-900 z-10">
+      <div className={`fixed inset-y-0 left-0 z-50 w-64 border-r dark:border-slate-700 transform transition-transform duration-300 ${sidebarOpen ? 'translate-x-0' : '-translate-x-full'} lg:translate-x-0 lg:static overflow-y-auto shadow-xl lg:shadow-none`} style={{ paddingBottom: 'calc(5rem + var(--safe-area-inset-bottom))', backgroundColor: 'var(--color-surface)' }}>
+        <div className="p-4 border-b dark:border-slate-700 flex flex-col gap-3 sticky top-0 z-10" style={{ backgroundColor: 'var(--color-surface)' }}>
             <button 
               onClick={() => navigate(createPageUrl("MyBuildings"))}
               className="flex items-center justify-start hover:opacity-80 transition-opacity"
@@ -186,7 +194,7 @@ export default function RepLayout({ children, buildingId, building, currentPage 
         </nav>
         
         {/* Settings, Support & Logout */}
-        <div className="p-3 border-t dark:border-slate-700 mt-auto sticky bottom-0 bg-white dark:bg-slate-900 space-y-1">
+        <div className="p-3 border-t dark:border-slate-700 mt-auto sticky bottom-0 space-y-1" style={{ backgroundColor: 'var(--color-surface)' }}>
           <button
             onClick={() => {
               navigate(createPageUrl(`RepSettings?buildingId=${buildingId}`));

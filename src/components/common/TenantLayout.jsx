@@ -146,7 +146,7 @@ export default function TenantLayout({ buildingId, building, currentPage, childr
             className="lg:hidden fixed inset-0 bg-black/50 z-40"
             onClick={() => setSidebarOpen(false)}
           />
-          <aside className="lg:hidden fixed left-0 top-0 bottom-0 w-72 bg-white dark:bg-slate-900 z-50 shadow-xl" style={{ paddingBottom: 'calc(5rem + var(--safe-area-inset-bottom))' }}>
+          <aside className="lg:hidden fixed left-0 top-0 bottom-0 w-72 z-50 shadow-xl" style={{ paddingBottom: 'calc(5rem + var(--safe-area-inset-bottom))', backgroundColor: 'var(--color-surface)' }}>
             <div className="h-16 flex items-center justify-between px-4 border-b dark:border-slate-700">
               <button 
                 onClick={() => navigate(createPageUrl("MyBuildings"))}

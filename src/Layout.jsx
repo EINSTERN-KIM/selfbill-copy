@@ -67,6 +67,10 @@ export default function Layout({ children, currentPageName }) {
           --color-success: #1E7C4F;
           --color-danger: #F45B5B;
         }
+
+        .dark {
+          --color-surface: #0f172a;
+        }
         
         body {
           font-family: 'Pretendard', -apple-system, BlinkMacSystemFont, 'Noto Sans KR', 'Segoe UI', sans-serif;
