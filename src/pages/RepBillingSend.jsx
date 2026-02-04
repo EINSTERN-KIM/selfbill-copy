@@ -338,10 +338,10 @@ export default function RepBillingSend() {
             </div>
 
             {/* 납기일 표시 */}
-            <div className="border-t pt-4">
-              <div className="bg-amber-50 border border-amber-200 rounded-lg p-3">
-                <p className="text-xs font-medium text-amber-900 mb-1">납기일</p>
-                <p className="text-sm text-amber-800">
+            <div className="border-t pt-4 dark:border-slate-700">
+              <div className="bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-800/30 rounded-lg p-3">
+                <p className="text-xs font-medium text-amber-900 dark:text-amber-300 mb-1">납기일</p>
+                <p className="text-sm text-amber-800 dark:text-amber-200">
                   {(() => {
                     const [year, month] = selectedYearMonth.split('-').map(Number);
                     const billingDueDay = building?.billing_due_day || 25;
@@ -356,15 +356,15 @@ export default function RepBillingSend() {
                     return `${dueYear}년 ${dueMonth}월 ${dueDateDay}일`;
                   })()}
                 </p>
-                <p className="text-xs text-amber-700 mt-1">※ 관리비 설정에서 변경 가능</p>
+                <p className="text-xs text-amber-700 dark:text-amber-400 mt-1">※ 관리비 설정에서 변경 가능</p>
               </div>
             </div>
 
             {/* 부과기간 표시 */}
             {building && (
-              <div className="bg-blue-50 border border-blue-200 rounded-lg p-3">
-                <p className="text-xs font-medium text-blue-900 mb-1">부과기간</p>
-                <p className="text-sm text-blue-800">
+              <div className="bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800/30 rounded-lg p-3">
+                <p className="text-xs font-medium text-blue-900 dark:text-blue-300 mb-1">부과기간</p>
+                <p className="text-sm text-blue-800 dark:text-blue-200">
                   {(() => {
                     const [year, month] = selectedYearMonth.split('-').map(Number);
                     const start = building.billing_period_start || 1;
