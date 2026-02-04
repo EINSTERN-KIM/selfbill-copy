@@ -175,12 +175,22 @@ export default function BuildingSetupWizard() {
         });
         bldgId = newBuilding.id;
         
+        // Create both 대표자 and 입주자 memberships
         await base44.entities.BuildingMember.create({
           building_id: bldgId,
           user_id: user.id,
           user_email: user.email,
           role: "대표자",
           is_primary_representative: true,
+          status: "활성"
+        });
+        
+        await base44.entities.BuildingMember.create({
+          building_id: bldgId,
+          user_id: user.id,
+          user_email: user.email,
+          role: "입주자",
+          is_primary_representative: false,
           status: "활성"
         });
         
@@ -285,14 +295,25 @@ export default function BuildingSetupWizard() {
         setSelectedRepUnit(newUnit.id);
         setRepUnitAdded(true);
         
-        // Update BuildingMember with unit_id
-        const members = await base44.entities.BuildingMember.filter({
+        // Update both 대표자 and 입주자 BuildingMember with unit_id
+        const repMembers = await base44.entities.BuildingMember.filter({
           building_id: buildingId,
           user_email: user.email,
           role: "대표자"
         });
-        if (members.length > 0) {
-          await base44.entities.BuildingMember.update(members[0].id, {
+        if (repMembers.length > 0) {
+          await base44.entities.BuildingMember.update(repMembers[0].id, {
+            unit_id: newUnit.id
+          });
+        }
+        
+        const tenantMembers = await base44.entities.BuildingMember.filter({
+          building_id: buildingId,
+          user_email: user.email,
+          role: "입주자"
+        });
+        if (tenantMembers.length > 0) {
+          await base44.entities.BuildingMember.update(tenantMembers[0].id, {
             unit_id: newUnit.id
           });
         }

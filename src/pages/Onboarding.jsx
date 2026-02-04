@@ -156,8 +156,12 @@ export default function Onboarding() {
 
     setShowBuildingSelection(false);
 
-    // Store and navigate for additional info
-    sessionStorage.setItem('pendingInvitation', JSON.stringify(invitation));
+    // Store invitation with correct structure
+    sessionStorage.setItem('pendingInvitation', JSON.stringify({
+      buildingId: invitation.building_id,
+      unitId: invitation.unit_id,
+      invitationId: invitation.id
+    }));
     navigate(createPageUrl("TenantAdditionalInfo"));
   };
 
