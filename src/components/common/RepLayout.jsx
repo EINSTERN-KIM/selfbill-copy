@@ -184,8 +184,22 @@ export default function RepLayout({ children, buildingId, building, currentPage 
           })}
         </nav>
         
-        {/* Support & Logout */}
+        {/* Settings, Support & Logout */}
         <div className="p-3 border-t mt-auto sticky bottom-0 bg-white space-y-1">
+          <button
+            onClick={() => {
+              navigate(createPageUrl(`RepSettings?buildingId=${buildingId}`));
+              setSidebarOpen(false);
+            }}
+            className={`w-full flex items-center gap-3 px-4 py-3 rounded-lg transition-colors touch-manipulation ${
+              isCurrentPage('RepSettings')
+                ? 'bg-primary text-white font-semibold'
+                : 'text-slate-500 hover:bg-slate-50 active:bg-slate-100'
+            }`}
+          >
+            <Settings className="w-5 h-5 flex-shrink-0" />
+            <span className="text-sm font-medium break-keep">설정</span>
+          </button>
           <button
             onClick={() => setShowSupport(true)}
             className="w-full flex items-center gap-3 px-4 py-3 rounded-lg text-slate-500 hover:bg-slate-50 active:bg-slate-100 transition-colors touch-manipulation"
