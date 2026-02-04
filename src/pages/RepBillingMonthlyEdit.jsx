@@ -547,6 +547,7 @@ export default function RepBillingMonthlyEdit() {
                                   type="number"
                                   value={item.amount_total}
                                   onChange={(e) => handleItemChange(item.id, 'amount_total', e.target.value)}
+                                  onWheel={(e) => e.target.blur()}
                                   className="mt-1 text-right font-semibold"
                                   style={{ minWidth: '140px' }}
                                 />
@@ -635,6 +636,7 @@ export default function RepBillingMonthlyEdit() {
                                   type="number"
                                   value={item.amount_total}
                                   onChange={(e) => handleItemChange(item.id, 'amount_total', e.target.value)}
+                                  onWheel={(e) => e.target.blur()}
                                   className="mt-1 text-right font-semibold"
                                   style={{ minWidth: '140px' }}
                                 />
