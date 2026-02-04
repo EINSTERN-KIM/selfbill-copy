@@ -126,7 +126,7 @@ export default function RepBankAccount() {
                 <Input
                   value={formData.bank_account_holder}
                   onChange={(e) => setFormData({ ...formData, bank_account_holder: e.target.value })}
-                  placeholder="예금주명"
+                  placeholder="김경아(똑빌)"
                 />
               </div>
 
@@ -135,7 +135,7 @@ export default function RepBankAccount() {
                 <Input
                   value={formData.bank_account_number}
                   onChange={(e) => setFormData({ ...formData, bank_account_number: e.target.value })}
-                  placeholder="- 없이 입력"
+                  placeholder="1002123456789"
                 />
               </div>
 
