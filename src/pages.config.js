@@ -76,7 +76,6 @@ import TenantMyBills from './pages/TenantMyBills';
 import TenantMyPayments from './pages/TenantMyPayments';
 import TenantMyUnit from './pages/TenantMyUnit';
 import Terms from './pages/Terms';
-import RepSettings from './pages/RepSettings';
 import __Layout from './Layout.jsx';
 
 
@@ -110,7 +109,6 @@ export const PAGES = {
     "TenantMyPayments": TenantMyPayments,
     "TenantMyUnit": TenantMyUnit,
     "Terms": Terms,
-    "RepSettings": RepSettings,
 }
 
 export const pagesConfig = {

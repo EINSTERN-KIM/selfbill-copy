@@ -39,31 +39,18 @@ export default function Layout({ children, currentPageName }) {
   return (
     <div className="min-h-screen" style={{ backgroundColor: 'var(--color-background)' }}>
       <style>{`
-            :root {
-              --color-primary: #2F6F4F;
-              --color-primary-light: #A8C3A0;
-              --color-primary-dark: #1E5A3A;
-              --color-background: #F8F8F4;
-              --color-surface: #FFFFFF;
-              --color-text-main: #222222;
-              --color-text-sub: #666666;
-              --color-border: #E5E5E5;
-              --color-success: #1E7C4F;
-              --color-danger: #F45B5B;
-            }
-
-            .dark {
-              --color-primary: #4A9B6F;
-              --color-primary-light: #6BB88D;
-              --color-primary-dark: #2F6F4F;
-              --color-background: #0F172A;
-              --color-surface: #1E293B;
-              --color-text-main: #F1F5F9;
-              --color-text-sub: #94A3B8;
-              --color-border: #334155;
-              --color-success: #4ADE80;
-              --color-danger: #F87171;
-            }
+        :root {
+          --color-primary: #2F6F4F;
+          --color-primary-light: #A8C3A0;
+          --color-primary-dark: #1E5A3A;
+          --color-background: #F8F8F4;
+          --color-surface: #FFFFFF;
+          --color-text-main: #222222;
+          --color-text-sub: #666666;
+          --color-border: #E5E5E5;
+          --color-success: #1E7C4F;
+          --color-danger: #F45B5B;
+        }
         
         body {
           font-family: 'Pretendard', -apple-system, BlinkMacSystemFont, 'Noto Sans KR', 'Segoe UI', sans-serif;

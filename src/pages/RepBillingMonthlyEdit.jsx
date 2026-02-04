@@ -527,8 +527,6 @@ export default function RepBillingMonthlyEdit() {
                                           const total = Object.values(updatedAmounts).reduce((sum, amt) => sum + (parseInt(amt) || 0), 0);
                                           handleItemChange(item.id, 'amount_total', total);
                                         }}
-                                        onWheel={(e) => e.target.blur()}
-                                        disabled={!isEditable}
                                         className="h-8 flex-1"
                                       />
                                     </div>
@@ -615,8 +613,6 @@ export default function RepBillingMonthlyEdit() {
                                           const total = Object.values(updatedAmounts).reduce((sum, amt) => sum + (parseInt(amt) || 0), 0);
                                           handleItemChange(item.id, 'amount_total', total);
                                         }}
-                                        onWheel={(e) => e.target.blur()}
-                                        disabled={!isEditable}
                                         className="h-8 flex-1 text-right font-semibold"
                                         style={{ minWidth: '120px' }}
                                       />
