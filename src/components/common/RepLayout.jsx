@@ -96,7 +96,7 @@ export default function RepLayout({ children, buildingId, building, currentPage 
   return (
     <div className="min-h-screen bg-slate-50 flex">
       {/* Sidebar */}
-      <div className={`fixed inset-y-0 left-0 z-50 w-64 bg-white dark:bg-slate-900 border-r dark:border-slate-700 transform transition-transform duration-300 ${sidebarOpen ? 'translate-x-0' : '-translate-x-full'} lg:translate-x-0 lg:static overflow-y-auto pb-20 lg:pb-0`}>
+      <div className={`fixed inset-y-0 left-0 z-50 w-64 bg-white dark:bg-slate-900 border-r dark:border-slate-700 transform transition-transform duration-300 ${sidebarOpen ? 'translate-x-0' : '-translate-x-full'} lg:translate-x-0 lg:static overflow-y-auto`} style={{ paddingBottom: 'calc(5rem + var(--safe-area-inset-bottom))' }}>
         <div className="p-4 border-b dark:border-slate-700 flex flex-col gap-3 sticky top-0 bg-white dark:bg-slate-900 z-10">
             <button 
               onClick={() => navigate(createPageUrl("MyBuildings"))}

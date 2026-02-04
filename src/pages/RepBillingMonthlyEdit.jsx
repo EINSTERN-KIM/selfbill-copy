@@ -824,19 +824,21 @@ export default function RepBillingMonthlyEdit() {
                               />
                             </div>
                           </div>
-                          <div>
-                            <Label className="text-xs">금액 (원)</Label>
-                            <Input
-                              type="number"
-                              value={item.amount_total}
-                              onChange={(e) => handleExtraItemChange(item.id, 'amount_total', e.target.value)}
-                              onWheel={(e) => e.target.blur()}
-                              placeholder="0"
-                              disabled={!isEditable}
-                              className="mt-1 text-right font-semibold w-full"
-                              style={{ minWidth: '140px' }}
-                            />
-                          </div>
+                          {item.category !== "기타" && (
+                            <div>
+                              <Label className="text-xs">금액 (원)</Label>
+                              <Input
+                                type="number"
+                                value={item.amount_total}
+                                onChange={(e) => handleExtraItemChange(item.id, 'amount_total', e.target.value)}
+                                onWheel={(e) => e.target.blur()}
+                                placeholder="0"
+                                disabled={!isEditable}
+                                className="mt-1 text-right font-semibold w-full"
+                                style={{ minWidth: '140px' }}
+                              />
+                            </div>
+                          )}
                         </div>
 
                         {item.category === "기타" && (
