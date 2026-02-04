@@ -16,7 +16,7 @@ export default function MobileBottomNav({ buildingId, role = "rep" }) {
   const tenantTabs = [
     { id: 'home', label: '홈', icon: Home, page: 'TenantDashboard' },
     { id: 'bills', label: '청구서', icon: Receipt, page: 'TenantMyBills' },
-    { id: 'settings', label: '내 정보', icon: Settings, page: 'TenantMyUnit' }
+    { id: 'settings', label: '설정', icon: Settings, page: 'TenantMyUnit' }
   ];
   
   const tabs = role === "rep" ? repTabs : tenantTabs;

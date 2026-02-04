@@ -113,7 +113,7 @@ export default function TenantLayout({ buildingId, building, currentPage, childr
   return (
     <div className="min-h-screen bg-slate-50 flex">
       {/* Desktop Sidebar */}
-      <aside className="hidden lg:block w-64 bg-white border-r fixed h-screen">
+      <aside className="hidden lg:block w-64 bg-white dark:bg-slate-900 border-r dark:border-slate-700 fixed h-screen">
         {renderMenu()}
       </aside>
 
@@ -146,8 +146,8 @@ export default function TenantLayout({ buildingId, building, currentPage, childr
             className="lg:hidden fixed inset-0 bg-black/50 z-40"
             onClick={() => setSidebarOpen(false)}
           />
-          <aside className="lg:hidden fixed left-0 top-0 bottom-0 w-72 bg-white z-50 shadow-xl">
-            <div className="h-16 flex items-center justify-between px-4 border-b">
+          <aside className="lg:hidden fixed left-0 top-0 bottom-0 w-72 bg-white dark:bg-slate-900 z-50 shadow-xl pb-20">
+            <div className="h-16 flex items-center justify-between px-4 border-b dark:border-slate-700">
               <button 
                 onClick={() => navigate(createPageUrl("MyBuildings"))}
                 className="hover:opacity-80 transition-opacity"

@@ -69,7 +69,8 @@ export default function TenantMyBills() {
         base44.entities.UnitCharge.filter({
           building_id: buildingId,
           unit_id: membership.unit_id,
-          year_month: yearMonth
+          year_month: yearMonth,
+          is_sent: true
         }),
         base44.entities.BillCycle.filter({
           building_id: buildingId,

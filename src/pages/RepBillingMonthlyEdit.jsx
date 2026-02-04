@@ -351,6 +351,11 @@ export default function RepBillingMonthlyEdit() {
           target_unit_ids: item.category === "기타" ? (item.target_unit_ids || []) : []
         };
 
+        // 기타 항목이고 세대별 금액이 있으면 저장
+        if (item.category === "기타" && unitAmounts[item.id]) {
+          itemData.unit_amounts = JSON.stringify(unitAmounts[item.id]);
+        }
+
         if (item.isNew) {
           await base44.entities.BillItem.create(itemData);
         } else {
@@ -835,31 +840,56 @@ export default function RepBillingMonthlyEdit() {
                         </div>
 
                         {item.category === "기타" && (
-                          <div className="p-3 bg-slate-50 rounded-lg">
-                            <Label className="text-xs mb-2 block">부과 대상 세대 선택</Label>
-                            <div className="grid grid-cols-2 gap-2 max-h-48 overflow-y-auto">
-                              {units.map(unit => {
-                                const isSelected = item.target_unit_ids?.includes(unit.id);
-                                return (
-                                  <label
-                                    key={unit.id}
-                                    className={`flex items-center gap-2 p-2 rounded cursor-pointer hover:bg-slate-100 ${isSelected ? 'bg-primary-light' : ''}`}
-                                  >
-                                    <Checkbox
-                                      checked={isSelected}
-                                      onCheckedChange={() => toggleExtraItemUnitSelection(item.id, unit.id)}
-                                    />
-                                    <span className="text-sm">{unit.unit_name}</span>
-                                  </label>
-                                );
-                              })}
-                            </div>
-                            {item.target_unit_ids && item.target_unit_ids.length > 0 && (
-                              <div className="mt-2 text-xs text-slate-600">
-                                선택된 세대: {item.target_unit_ids.length}개
-                              </div>
-                            )}
-                          </div>
+                         <div className="p-3 bg-slate-50 rounded-lg">
+                           <Label className="text-xs mb-2 block">부과 대상 세대별 금액 입력</Label>
+                           <div className="space-y-2 max-h-60 overflow-y-auto">
+                             {units.map(unit => {
+                               const isSelected = item.target_unit_ids?.includes(unit.id);
+                               return (
+                                 <div key={unit.id} className={`flex items-center gap-2 p-2 rounded ${isSelected ? 'bg-primary-light' : ''}`}>
+                                   <Checkbox
+                                     checked={isSelected}
+                                     onCheckedChange={() => {
+                                       toggleExtraItemUnitSelection(item.id, unit.id);
+                                       if (!isSelected) {
+                                         // 체크 해제 시 금액도 초기화
+                                         const newAmounts = { ...unitAmounts[item.id] };
+                                         delete newAmounts[unit.id];
+                                         setUnitAmounts(prev => ({
+                                           ...prev,
+                                           [item.id]: newAmounts
+                                         }));
+                                       }
+                                     }}
+                                     disabled={!isEditable}
+                                   />
+                                   <span className="text-sm w-24 flex-shrink-0">{unit.unit_name}</span>
+                                   {isSelected && (
+                                     <Input
+                                       type="number"
+                                       placeholder="0"
+                                       value={unitAmounts[item.id]?.[unit.id] || 0}
+                                       onChange={(e) => {
+                                         const newAmount = parseInt(e.target.value) || 0;
+                                         setUnitAmounts(prev => ({
+                                           ...prev,
+                                           [item.id]: { ...prev[item.id], [unit.id]: newAmount }
+                                         }));
+                                         // 총 금액 업데이트
+                                         const updatedAmounts = { ...unitAmounts[item.id], [unit.id]: newAmount };
+                                         const total = Object.values(updatedAmounts).reduce((sum, amt) => sum + (parseInt(amt) || 0), 0);
+                                         handleExtraItemChange(item.id, 'amount_total', total);
+                                       }}
+                                       onWheel={(e) => e.target.blur()}
+                                       disabled={!isEditable}
+                                       className="h-8 flex-1 text-right font-semibold"
+                                     />
+                                   )}
+                                 </div>
+                               );
+                             })}
+                           </div>
+                         </div>
                         )}
                       </div>
                       <Button
