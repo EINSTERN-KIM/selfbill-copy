@@ -95,11 +95,11 @@ export default function RepBankAccount() {
 
         <Card>
           <CardContent className="pt-6">
-            <div className="flex items-center gap-3 p-4 bg-blue-50 rounded-lg mb-6">
-              <CreditCard className="w-8 h-8 text-blue-600" />
+            <div className="flex items-center gap-3 p-4 bg-blue-50 dark:bg-green-900/20 rounded-lg mb-6">
+              <CreditCard className="w-8 h-8 text-blue-600 dark:text-green-400" />
               <div>
-                <p className="font-medium text-slate-900">관리비 입금 계좌</p>
-                <p className="text-sm text-slate-500">관리비 청구서에 표시됩니다</p>
+                <p className="font-medium text-slate-900 dark:text-white">관리비 입금 계좌</p>
+                <p className="text-sm text-slate-500 dark:text-slate-400">관리비 청구서에 표시됩니다</p>
               </div>
             </div>
 
