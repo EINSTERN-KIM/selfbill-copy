@@ -169,6 +169,37 @@ export default function Layout({ children, currentPageName }) {
         .card-rounded {
           border-radius: 20px;
         }
+
+        /* Dark mode */
+        .dark {
+          color-scheme: dark;
+        }
+
+        .dark body {
+          background-color: #0f172a;
+          color: #f1f5f9;
+        }
+
+        .dark {
+          --color-primary: #22c55e;
+          --color-primary-light: #14532d;
+          --color-primary-dark: #4ade80;
+          --color-background: #0f172a;
+          --color-surface: #1e293b;
+          --color-text-main: #f1f5f9;
+          --color-text-sub: #cbd5e1;
+          --color-border: #334155;
+        }
+
+        .dark .bg-white { background-color: #1e293b !important; }
+        .dark .bg-slate-50 { background-color: #0f172a !important; }
+        .dark .bg-slate-100 { background-color: #334155 !important; }
+        .dark .text-slate-900 { color: #f1f5f9 !important; }
+        .dark .text-slate-700 { color: #cbd5e1 !important; }
+        .dark .text-slate-600 { color: #94a3b8 !important; }
+        .dark .text-slate-500 { color: #64748b !important; }
+        .dark .border-slate-200 { border-color: #334155 !important; }
+        .dark .border { border-color: #334155 !important; }
       `}</style>
       {children}
     </div>
