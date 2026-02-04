@@ -2,6 +2,14 @@ import React, { useEffect } from 'react';
 
 export default function Layout({ children, currentPageName }) {
   useEffect(() => {
+    // 다크모드 설정 복원
+    const savedTheme = localStorage.getItem('theme');
+    if (savedTheme === 'dark') {
+      document.documentElement.classList.add('dark');
+    } else {
+      document.documentElement.classList.remove('dark');
+    }
+
     const pageTitles = {
       'Home': '홈',
       'MyBuildings': '내 건물 목록',
