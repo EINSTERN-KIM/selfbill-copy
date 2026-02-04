@@ -7,7 +7,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { 
   Building2, Home, Receipt, CreditCard, 
   ChevronRight, AlertCircle, CheckCircle2, Clock,
-  FileText
+  FileText, RefreshCw
 } from 'lucide-react';
 import LoadingSpinner from '@/components/common/LoadingSpinner';
 import { useBuildingAuth } from '@/components/common/useBuildingAuth';
@@ -26,6 +26,9 @@ export default function TenantDashboard() {
   const [unit, setUnit] = useState(null);
   const [latestCharge, setLatestCharge] = useState(null);
   const [paymentStatus, setPaymentStatus] = useState(null);
+  const [isRefreshing, setIsRefreshing] = useState(false);
+  const [pullStartY, setPullStartY] = useState(0);
+  const [pullDistance, setPullDistance] = useState(0);
 
   useEffect(() => {
     async function loadData() {
@@ -105,6 +108,44 @@ export default function TenantDashboard() {
     },
   ];
 
+  const handleRefresh = async () => {
+    setIsRefreshing(true);
+    try {
+      await Promise.all([
+        base44.entities.Building.filter({ id: buildingId }),
+        base44.entities.Unit.filter({ id: membership?.unit_id }),
+        base44.entities.UnitCharge.filter({ unit_id: membership?.unit_id })
+      ]);
+      window.location.reload();
+    } catch (err) {
+      console.error("Refresh error:", err);
+    }
+    setIsRefreshing(false);
+  };
+
+  const handleTouchStart = (e) => {
+    if (window.scrollY === 0) {
+      setPullStartY(e.touches[0].clientY);
+    }
+  };
+
+  const handleTouchMove = (e) => {
+    if (pullStartY && window.scrollY === 0) {
+      const distance = e.touches[0].clientY - pullStartY;
+      if (distance > 0) {
+        setPullDistance(Math.min(distance, 100));
+      }
+    }
+  };
+
+  const handleTouchEnd = () => {
+    if (pullDistance > 60) {
+      handleRefresh();
+    }
+    setPullStartY(0);
+    setPullDistance(0);
+  };
+
   if (isLoading) {
     return (
       <TenantLayout buildingId={buildingId} building={building} currentPage="TenantDashboard">
@@ -136,7 +177,26 @@ export default function TenantDashboard() {
 
   return (
     <TenantLayout buildingId={buildingId} building={building} currentPage="TenantDashboard">
-      <div className="max-w-4xl mx-auto px-4 py-6">
+      <div 
+        className="max-w-4xl mx-auto px-4 py-6"
+        onTouchStart={handleTouchStart}
+        onTouchMove={handleTouchMove}
+        onTouchEnd={handleTouchEnd}
+      >
+        {/* Pull to Refresh Indicator */}
+        {pullDistance > 0 && (
+          <div 
+            className="fixed top-16 left-0 right-0 flex justify-center z-50 transition-opacity"
+            style={{ 
+              opacity: Math.min(pullDistance / 60, 1),
+              transform: `translateY(${Math.min(pullDistance - 60, 0)}px)`
+            }}
+          >
+            <div className="bg-white dark:bg-slate-800 rounded-full p-2 shadow-lg">
+              <RefreshCw className={`w-5 h-5 text-primary ${pullDistance > 60 || isRefreshing ? 'animate-spin' : ''}`} />
+            </div>
+          </div>
+        )}
         {/* Header */}
         <div className="mb-8">
           <button

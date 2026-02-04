@@ -9,6 +9,7 @@ import {
   PlusCircle, Send, BarChart3, LogOut, HelpCircle
 } from 'lucide-react';
 import SupportDialog from '@/components/common/SupportDialog';
+import MobileBottomNav from '@/components/common/MobileBottomNav';
 
 export default function RepLayout({ children, buildingId, building, currentPage }) {
   const navigate = useNavigate();
@@ -218,8 +219,8 @@ export default function RepLayout({ children, buildingId, building, currentPage 
       </div>
 
       {/* Main Content */}
-      <div className="flex-1 overflow-auto">
-        <div className="lg:hidden p-4 border-b bg-white sticky top-0 z-40 flex items-center gap-3">
+      <div className="flex-1 overflow-auto pb-20 lg:pb-0">
+        <div className="lg:hidden p-4 border-b bg-white dark:bg-slate-900 dark:border-slate-700 sticky top-0 z-40 flex items-center gap-3" style={{ paddingTop: 'max(1rem, var(--safe-area-inset-top))' }}>
               <button onClick={() => setSidebarOpen(true)} className="touch-manipulation p-2 flex-shrink-0 -ml-2">
                 <Menu className="w-6 h-6 text-slate-600" />
               </button>
@@ -236,6 +237,9 @@ export default function RepLayout({ children, buildingId, building, currentPage 
             </div>
         {children}
       </div>
+
+      {/* Mobile Bottom Navigation */}
+      <MobileBottomNav buildingId={buildingId} role="rep" />
 
       {/* Support Dialog */}
       <SupportDialog isOpen={showSupport} onClose={() => setShowSupport(false)} />

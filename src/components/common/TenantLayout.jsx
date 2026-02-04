@@ -8,6 +8,7 @@ import {
 import { Button } from "@/components/ui/button";
 import { base44 } from '@/api/base44Client';
 import SupportDialog from '@/components/common/SupportDialog';
+import MobileBottomNav from '@/components/common/MobileBottomNav';
 
 export default function TenantLayout({ buildingId, building, currentPage, children }) {
   const [sidebarOpen, setSidebarOpen] = useState(false);
@@ -117,7 +118,7 @@ export default function TenantLayout({ buildingId, building, currentPage, childr
       </aside>
 
       {/* Mobile Header */}
-      <div className="lg:hidden fixed top-0 left-0 right-0 h-16 bg-white border-b z-40 flex items-center gap-3 px-4">
+      <div className="lg:hidden fixed top-0 left-0 right-0 h-16 bg-white dark:bg-slate-900 dark:border-slate-700 border-b z-40 flex items-center gap-3 px-4" style={{ paddingTop: 'var(--safe-area-inset-top)' }}>
         <Button
           variant="ghost"
           size="icon"
@@ -172,9 +173,12 @@ export default function TenantLayout({ buildingId, building, currentPage, childr
       )}
 
       {/* Main Content */}
-      <main className="flex-1 lg:ml-64 pt-16 lg:pt-0">
+      <main className="flex-1 lg:ml-64 pt-16 lg:pt-0 pb-20 lg:pb-0">
         {children}
       </main>
+
+      {/* Mobile Bottom Navigation */}
+      <MobileBottomNav buildingId={buildingId} role="tenant" />
 
       {/* Support Dialog */}
       <SupportDialog isOpen={showSupport} onClose={() => setShowSupport(false)} />
