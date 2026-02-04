@@ -26,7 +26,7 @@ export default function MobileBottomNav({ buildingId, role = "rep" }) {
   };
   
   return (
-    <div className="lg:hidden fixed bottom-0 left-0 right-0 z-50 bg-white border-t border-slate-200 dark:bg-slate-900 dark:border-slate-700 safe-bottom">
+    <div className="lg:hidden fixed bottom-0 left-0 right-0 z-50 border-t border-slate-200 dark:border-slate-700 safe-bottom" style={{ backgroundColor: 'var(--color-surface)' }}>
       <div className="grid grid-cols-3 h-16">
         {tabs.map((tab) => {
           const Icon = tab.icon;
