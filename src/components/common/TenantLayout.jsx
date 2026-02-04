@@ -32,7 +32,7 @@ export default function TenantLayout({ buildingId, building, currentPage, childr
     <div className="flex flex-col h-full">
       <div className="flex-1 overflow-y-auto">
         {/* Logo & Building Header */}
-        <div className="p-4 border-b space-y-3">
+        <div className="p-4 border-b dark:border-slate-700 space-y-3">
           <button 
             onClick={() => navigate(createPageUrl("MyBuildings"))}
             className="flex items-center justify-start w-full hover:opacity-80 transition-opacity"
@@ -45,7 +45,7 @@ export default function TenantLayout({ buildingId, building, currentPage, childr
           </button>
           <button
             onClick={() => navigate(createPageUrl("MyBuildings"))}
-            className="flex items-center gap-3 w-full hover:bg-slate-50 active:bg-slate-100 rounded-lg p-3 -mx-3 transition-colors touch-manipulation"
+            className="flex items-center gap-3 w-full hover:bg-slate-50 dark:hover:bg-slate-800 active:bg-slate-100 dark:active:bg-slate-700 rounded-lg p-3 -mx-3 transition-colors touch-manipulation"
           >
             {building?.building_icon_url ? (
               <img 
@@ -59,8 +59,8 @@ export default function TenantLayout({ buildingId, building, currentPage, childr
               </div>
             )}
             <div className="flex-1 min-w-0 text-left">
-              <p className="font-semibold text-slate-900 truncate break-keep">{building?.name || '공동주택'}</p>
-              <p className="text-xs text-slate-500 break-keep">입주자</p>
+              <p className="font-semibold text-slate-900 dark:text-slate-100 truncate break-keep">{building?.name || '공동주택'}</p>
+              <p className="text-xs text-slate-500 dark:text-slate-400 break-keep">입주자</p>
             </div>
           </button>
         </div>
@@ -78,7 +78,7 @@ export default function TenantLayout({ buildingId, building, currentPage, childr
                 className={`flex items-center gap-3 px-4 py-3 rounded-lg transition-colors touch-manipulation ${
                   isActive 
                     ? 'bg-primary text-white' 
-                    : 'text-slate-700 hover:bg-slate-100 active:bg-slate-200'
+                    : 'text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 active:bg-slate-200 dark:active:bg-slate-700'
                 }`}
                 onClick={() => setSidebarOpen(false)}
               >
@@ -91,17 +91,17 @@ export default function TenantLayout({ buildingId, building, currentPage, childr
       </div>
 
       {/* Support & Logout */}
-      <div className="p-3 border-t space-y-1">
+      <div className="p-3 border-t dark:border-slate-700 space-y-1">
         <button
           onClick={() => setShowSupport(true)}
-          className="flex items-center gap-3 px-4 py-3 rounded-lg text-slate-500 hover:bg-slate-50 active:bg-slate-100 transition-colors w-full touch-manipulation"
+          className="flex items-center gap-3 px-4 py-3 rounded-lg text-slate-500 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-800 active:bg-slate-100 dark:active:bg-slate-700 transition-colors w-full touch-manipulation"
         >
           <HelpCircle className="w-5 h-5 flex-shrink-0" />
           <span className="text-sm font-medium break-keep">고객센터</span>
         </button>
         <button
           onClick={handleLogout}
-          className="flex items-center gap-3 px-4 py-3 rounded-lg text-red-600 hover:bg-red-50 active:bg-red-100 transition-colors w-full touch-manipulation"
+          className="flex items-center gap-3 px-4 py-3 rounded-lg text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20 active:bg-red-100 dark:active:bg-red-900/30 transition-colors w-full touch-manipulation"
         >
           <LogOut className="w-5 h-5 flex-shrink-0" />
           <span className="text-sm font-medium break-keep">로그아웃</span>
@@ -146,7 +146,7 @@ export default function TenantLayout({ buildingId, building, currentPage, childr
             className="lg:hidden fixed inset-0 bg-black/50 z-40"
             onClick={() => setSidebarOpen(false)}
           />
-          <aside className="lg:hidden fixed left-0 top-0 bottom-0 w-72 bg-white dark:bg-slate-900 z-50 shadow-xl pb-20">
+          <aside className="lg:hidden fixed left-0 top-0 bottom-0 w-72 bg-white dark:bg-slate-900 z-50 shadow-xl" style={{ paddingBottom: 'calc(5rem + var(--safe-area-inset-bottom))' }}>
             <div className="h-16 flex items-center justify-between px-4 border-b dark:border-slate-700">
               <button 
                 onClick={() => navigate(createPageUrl("MyBuildings"))}
