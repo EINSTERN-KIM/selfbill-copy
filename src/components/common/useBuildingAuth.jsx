@@ -57,13 +57,15 @@ export function useBuildingAuth(buildingId, requiredRole = null) {
         setHasTenantRole(hasTenant);
 
         // Check role if required
+        // 대표자는 입주자 + 대표자 모든 권한 행사 가능
+        // 입주자는 입주자 권한만
         if (requiredRole === "대표자" && !hasRep) {
           setError("이 페이지는 대표자만 접근할 수 있습니다.");
           setIsLoading(false);
           return;
         }
 
-        if (requiredRole === "입주자" && !hasTenant) {
+        if (requiredRole === "입주자" && !hasTenant && !hasRep) {
           setError("이 페이지는 입주자만 접근할 수 있습니다.");
           setIsLoading(false);
           return;
