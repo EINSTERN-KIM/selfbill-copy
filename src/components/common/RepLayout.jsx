@@ -104,8 +104,8 @@ export default function RepLayout({ children, buildingId, building, currentPage 
       )}
 
       {/* Sidebar */}
-      <div className={`fixed inset-y-0 left-0 z-50 w-64 border-r dark:border-slate-700 transform transition-transform duration-300 ${sidebarOpen ? 'translate-x-0' : '-translate-x-full'} lg:translate-x-0 lg:static overflow-y-auto shadow-xl lg:shadow-none`} style={{ paddingBottom: 'calc(5rem + var(--safe-area-inset-bottom))', backgroundColor: 'var(--color-surface)' }}>
-        <div className="p-4 border-b dark:border-slate-700 flex flex-col gap-3 sticky top-0 z-10" style={{ backgroundColor: 'var(--color-surface)' }}>
+      <div className={`fixed inset-y-0 left-0 z-50 w-64 border-r dark:border-slate-700 transform transition-transform duration-300 ${sidebarOpen ? 'translate-x-0' : '-translate-x-full'} lg:translate-x-0 lg:static overflow-y-auto shadow-xl lg:shadow-none flex flex-col`} style={{ backgroundColor: 'var(--color-surface)' }}>
+        <div className="p-4 border-b dark:border-slate-700 flex flex-col gap-3 sticky top-0 z-10 flex-shrink-0" style={{ backgroundColor: 'var(--color-surface)' }}>
             <button 
               onClick={() => navigate(createPageUrl("MyBuildings"))}
               className="flex items-center justify-start hover:opacity-80 transition-opacity"
@@ -121,7 +121,7 @@ export default function RepLayout({ children, buildingId, building, currentPage 
           </button>
         </div>
         
-        <nav className="p-3 space-y-1">
+        <nav className="p-3 space-y-1 flex-1 overflow-y-auto">
           {menuSections.map((section) => {
             const isExpanded = expandedSections[section.id];
 
@@ -194,7 +194,7 @@ export default function RepLayout({ children, buildingId, building, currentPage 
         </nav>
         
         {/* Settings, Support & Logout */}
-        <div className="p-3 border-t dark:border-slate-700 mt-auto sticky bottom-0 space-y-1" style={{ backgroundColor: 'var(--color-surface)' }}>
+        <div className="p-3 border-t dark:border-slate-700 flex-shrink-0 space-y-1 lg:sticky lg:bottom-0" style={{ backgroundColor: 'var(--color-surface)', marginBottom: 'calc(4rem + var(--safe-area-inset-bottom))' }}>
           <button
             onClick={() => {
               navigate(createPageUrl(`RepSettings?buildingId=${buildingId}`));

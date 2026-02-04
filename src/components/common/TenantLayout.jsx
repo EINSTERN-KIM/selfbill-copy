@@ -29,8 +29,8 @@ export default function TenantLayout({ buildingId, building, currentPage, childr
   };
 
   const renderMenu = () => (
-    <div className="flex flex-col h-full">
-      <div className="flex-1 overflow-y-auto">
+    <div className="flex flex-col h-full" style={{ paddingBottom: 'calc(4rem + var(--safe-area-inset-bottom))' }}>
+      <div className="flex-1 overflow-y-auto flex-shrink-0">
         {/* Logo & Building Header */}
         <div className="p-4 border-b dark:border-slate-700 space-y-3">
           <button 
@@ -91,7 +91,7 @@ export default function TenantLayout({ buildingId, building, currentPage, childr
       </div>
 
       {/* Support & Logout */}
-      <div className="p-3 border-t dark:border-slate-700 space-y-1">
+      <div className="p-3 border-t dark:border-slate-700 space-y-1 flex-shrink-0" style={{ backgroundColor: 'var(--color-surface)' }}>
         <button
           onClick={() => setShowSupport(true)}
           className="flex items-center gap-3 px-4 py-3 rounded-lg text-slate-500 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-800 active:bg-slate-100 dark:active:bg-slate-700 transition-colors w-full touch-manipulation"
@@ -146,7 +146,7 @@ export default function TenantLayout({ buildingId, building, currentPage, childr
             className="lg:hidden fixed inset-0 bg-black/50 z-40"
             onClick={() => setSidebarOpen(false)}
           />
-          <aside className="lg:hidden fixed left-0 top-0 bottom-0 w-72 z-50 shadow-xl" style={{ paddingBottom: 'calc(5rem + var(--safe-area-inset-bottom))', backgroundColor: 'var(--color-surface)' }}>
+          <aside className="lg:hidden fixed left-0 top-0 bottom-0 w-72 z-50 shadow-xl" style={{ backgroundColor: 'var(--color-surface)' }}>
             <div className="h-16 flex items-center justify-between px-4 border-b dark:border-slate-700">
               <button 
                 onClick={() => navigate(createPageUrl("MyBuildings"))}
