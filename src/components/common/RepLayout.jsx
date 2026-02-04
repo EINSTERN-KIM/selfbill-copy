@@ -96,8 +96,8 @@ export default function RepLayout({ children, buildingId, building, currentPage 
   return (
     <div className="min-h-screen bg-slate-50 flex">
       {/* Sidebar */}
-      <div className={`fixed inset-y-0 left-0 z-50 w-64 bg-white border-r transform transition-transform duration-300 ${sidebarOpen ? 'translate-x-0' : '-translate-x-full'} lg:translate-x-0 lg:static overflow-y-auto`}>
-        <div className="p-4 border-b flex flex-col gap-3 sticky top-0 bg-white z-10">
+      <div className={`fixed inset-y-0 left-0 z-50 w-64 bg-white dark:bg-slate-900 border-r dark:border-slate-700 transform transition-transform duration-300 ${sidebarOpen ? 'translate-x-0' : '-translate-x-full'} lg:translate-x-0 lg:static overflow-y-auto pb-20 lg:pb-0`}>
+        <div className="p-4 border-b dark:border-slate-700 flex flex-col gap-3 sticky top-0 bg-white dark:bg-slate-900 z-10">
             <button 
               onClick={() => navigate(createPageUrl("MyBuildings"))}
               className="flex items-center justify-start hover:opacity-80 transition-opacity"
@@ -131,7 +131,7 @@ export default function RepLayout({ children, buildingId, building, currentPage 
                     className={`w-full flex items-center gap-3 px-4 py-3 rounded-lg transition-colors text-left touch-manipulation ${
                       isCurrent 
                         ? 'bg-primary text-white font-semibold' 
-                        : 'hover:bg-primary-light hover:text-primary active:bg-primary-light'
+                        : 'text-slate-700 dark:text-slate-300 hover:bg-primary-light hover:text-primary active:bg-primary-light'
                     }`}
                   >
                     <Icon className="w-5 h-5 flex-shrink-0" />
@@ -145,9 +145,9 @@ export default function RepLayout({ children, buildingId, building, currentPage 
               <div key={section.id} className="space-y-1">
                 <button
                   onClick={() => toggleSection(section.id)}
-                  className="w-full flex items-center justify-between px-4 py-3 rounded-lg hover:bg-slate-100 active:bg-slate-200 transition-colors text-left touch-manipulation"
+                  className="w-full flex items-center justify-between px-4 py-3 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800 active:bg-slate-200 dark:active:bg-slate-700 transition-colors text-left touch-manipulation"
                 >
-                  <span className="text-xs font-semibold text-slate-600 break-keep">{section.title}</span>
+                  <span className="text-xs font-semibold text-slate-600 dark:text-slate-400 break-keep">{section.title}</span>
                   {isExpanded ? (
                     <ChevronDown className="w-4 h-4 text-slate-400 flex-shrink-0" />
                   ) : (
@@ -170,7 +170,7 @@ export default function RepLayout({ children, buildingId, building, currentPage 
                           className={`w-full flex items-center gap-3 px-4 py-2.5 rounded-lg transition-colors text-left touch-manipulation ${
                             isCurrent 
                               ? 'bg-primary text-white font-semibold' 
-                              : 'hover:bg-slate-100 active:bg-slate-200'
+                              : 'hover:bg-slate-100 dark:hover:bg-slate-800 active:bg-slate-200 dark:active:bg-slate-700'
                           }`}
                         >
                           <Icon className={`w-4 h-4 flex-shrink-0 ${isCurrent ? 'text-white' : 'text-slate-500'}`} />
@@ -186,7 +186,7 @@ export default function RepLayout({ children, buildingId, building, currentPage 
         </nav>
         
         {/* Settings, Support & Logout */}
-        <div className="p-3 border-t mt-auto sticky bottom-0 bg-white space-y-1">
+        <div className="p-3 border-t dark:border-slate-700 mt-auto sticky bottom-0 bg-white dark:bg-slate-900 space-y-1">
           <button
             onClick={() => {
               navigate(createPageUrl(`RepSettings?buildingId=${buildingId}`));
@@ -195,7 +195,7 @@ export default function RepLayout({ children, buildingId, building, currentPage 
             className={`w-full flex items-center gap-3 px-4 py-3 rounded-lg transition-colors touch-manipulation ${
               isCurrentPage('RepSettings')
                 ? 'bg-primary text-white font-semibold'
-                : 'text-slate-500 hover:bg-slate-50 active:bg-slate-100'
+                : 'text-slate-500 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-800 active:bg-slate-100 dark:active:bg-slate-700'
             }`}
           >
             <Settings className="w-5 h-5 flex-shrink-0" />
@@ -203,14 +203,14 @@ export default function RepLayout({ children, buildingId, building, currentPage 
           </button>
           <button
             onClick={() => setShowSupport(true)}
-            className="w-full flex items-center gap-3 px-4 py-3 rounded-lg text-slate-500 hover:bg-slate-50 active:bg-slate-100 transition-colors touch-manipulation"
+            className="w-full flex items-center gap-3 px-4 py-3 rounded-lg text-slate-500 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-800 active:bg-slate-100 dark:active:bg-slate-700 transition-colors touch-manipulation"
           >
             <HelpCircle className="w-5 h-5 flex-shrink-0" />
             <span className="text-sm font-medium break-keep">고객센터</span>
           </button>
           <button
             onClick={handleLogout}
-            className="w-full flex items-center gap-3 px-4 py-3 rounded-lg text-red-600 hover:bg-red-50 active:bg-red-100 transition-colors touch-manipulation"
+            className="w-full flex items-center gap-3 px-4 py-3 rounded-lg text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20 active:bg-red-100 dark:active:bg-red-900/30 transition-colors touch-manipulation"
           >
             <LogOut className="w-5 h-5 flex-shrink-0" />
             <span className="text-sm font-medium break-keep">로그아웃</span>
