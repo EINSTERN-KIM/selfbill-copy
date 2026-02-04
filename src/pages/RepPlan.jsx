@@ -227,7 +227,7 @@ export default function RepPlan() {
                 </div>
                 <div className="flex justify-between">
                   <span className="text-slate-500">예금주</span>
-                  <span className="font-medium">똑빌</span>
+                  <span className="font-medium">김경아(똑빌)</span>
                 </div>
                 <div className="flex justify-between">
                   <span className="text-slate-500">계좌번호</span>
