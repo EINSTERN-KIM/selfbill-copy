@@ -98,13 +98,11 @@ export default function Onboarding() {
         return;
       }
       
-      // Check which buildings the user is already a member of
+      // Check existing memberships for this user
       const existingMemberships = await base44.entities.BuildingMember.filter({
         user_email: user.email,
         status: "활성"
       });
-      
-      const existingBuildingIds = (existingMemberships || []).map(m => m.building_id).filter(Boolean);
       
       // Get building and unit details for each invitation
       const invitationsWithDetails = await Promise.all(
@@ -112,22 +110,30 @@ export default function Onboarding() {
           const buildings = await base44.entities.Building.filter({ id: invitation.building_id });
           const units = await base44.entities.Unit.filter({ id: invitation.unit_id });
           
+          // Check if this specific unit already has an active 입주자 membership for this user
+          const existingTenantMembership = existingMemberships.find(m => 
+            m.building_id === invitation.building_id && 
+            m.unit_id === invitation.unit_id && 
+            m.role === "입주자"
+          );
+          
           // Check if this unit already has an active member from a DIFFERENT account
           const unitMembers = await base44.entities.BuildingMember.filter({
             building_id: invitation.building_id,
             unit_id: invitation.unit_id,
+            role: "입주자",
             status: "활성"
           });
 
-          // Allow same user to be both 대표자 and 입주자, but block different users
-          const isAlreadyUsed = unitMembers.length > 0 && unitMembers.some(m => m.user_id !== user.id);
+          // Block if: different user already registered OR same user already has 입주자 role for this unit
+          const isAlreadyUsed = unitMembers.some(m => m.user_id !== user.id) || !!existingTenantMembership;
 
           return {
             ...invitation,
             buildingName: buildings[0]?.name || '건물명 없음',
             buildingAddress: buildings[0]?.address || '',
             unitName: units[0]?.unit_name || units[0]?.ho || '세대 정보 없음',
-            isRegistered: existingBuildingIds.includes(invitation.building_id) || isAlreadyUsed
+            isRegistered: isAlreadyUsed
           };
           })
           );
