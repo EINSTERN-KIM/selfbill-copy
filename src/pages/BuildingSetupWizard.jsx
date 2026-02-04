@@ -279,7 +279,8 @@ export default function BuildingSetupWizard() {
           tenant_phone,
           share_ratio: unitForm.share_ratio ? parseFloat(unitForm.share_ratio) : null,
           building_id: buildingId,
-          status: "active"
+          status: "active",
+          needs_review: false
         });
       }
 

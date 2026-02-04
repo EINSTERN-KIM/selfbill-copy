@@ -19,7 +19,7 @@ export default function TenantDashboard() {
   const buildingId = urlParams.get('buildingId');
   const navigate = useNavigate();
   
-  const { isLoading, user, building, memberships, hasTenantRole, error } = useBuildingAuth(buildingId, "입주자");
+  const { isLoading, user, building, memberships, hasTenantRole, hasRepRole, error } = useBuildingAuth(buildingId, "입주자");
   
   // 입주자 멤버십 찾기 (복수 역할 가능하므로 입주자 멤버십만 필터)
   const membership = memberships?.find(m => m.role === "입주자");
@@ -39,7 +39,8 @@ export default function TenantDashboard() {
           setUnit(unitData);
           
           // needs_review가 true인 경우 추가 정보 입력 페이지로 리다이렉트
-          if (unitData.needs_review) {
+          // 단, 대표자인 경우는 제외 (대표자는 이미 모든 정보를 입력했음)
+          if (unitData.needs_review && !hasRepRole) {
             sessionStorage.setItem('pendingInvitation', JSON.stringify({
               buildingId: buildingId,
               unitId: unitData.id
