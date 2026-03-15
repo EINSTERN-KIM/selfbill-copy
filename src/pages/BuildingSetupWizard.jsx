@@ -508,7 +508,6 @@ export default function BuildingSetupWizard() {
     { num: 2, label: "관리비 설정", icon: Settings },
     { num: 3, label: "세대 정보", icon: Home },
     { num: 4, label: "관리비 항목", icon: FileText },
-    { num: 5, label: "요금제 확인", icon: Receipt }
   ];
 
   const totalShareRatio = units.reduce((sum, u) => sum + (u.share_ratio || 0), 0);
