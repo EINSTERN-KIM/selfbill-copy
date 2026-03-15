@@ -176,6 +176,23 @@ ${emailForm.message}
 
             <Card 
               className="cursor-pointer hover:shadow-md transition-shadow"
+              onClick={() => window.open('https://ttokbill.framer.website/', '_blank')}
+            >
+              <CardContent className="p-6">
+                <div className="flex items-center gap-4">
+                  <div className="w-12 h-12 rounded-xl bg-green-100 flex items-center justify-center">
+                    <BookOpen className="w-6 h-6 text-green-600" />
+                  </div>
+                  <div className="flex-1">
+                    <h3 className="font-semibold text-slate-900 mb-1">서비스 이용가이드</h3>
+                    <p className="text-sm text-slate-500">똑빌 사용방법 안내</p>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+
+            <Card 
+              className="cursor-pointer hover:shadow-md transition-shadow"
               onClick={handleViewMyInquiries}
             >
               <CardContent className="p-6">
