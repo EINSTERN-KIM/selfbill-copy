@@ -103,7 +103,7 @@ export default function RepUnitsInvite() {
 
       let webhookSuccess = false;
       try {
-        const webhookRes = await fetch('https://primary-production-e4e2a6.up.railway.app/webhook/cc6b6bff-d62f-4602-9b1b-e28005af8bfb', {
+        const webhookRes = await fetch('https://primary-production-e4e2a6.up.railway.app/webhook/6a12b6e6-417a-42c5-9fb5-d8f2b5990625', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
@@ -198,7 +198,7 @@ export default function RepUnitsInvite() {
 
         let webhookOk = false;
         try {
-          const webhookRes = await fetch('https://primary-production-e4e2a6.up.railway.app/webhook/cc6b6bff-d62f-4602-9b1b-e28005af8bfb', {
+          const webhookRes = await fetch('https://primary-production-e4e2a6.up.railway.app/webhook/6a12b6e6-417a-42c5-9fb5-d8f2b5990625', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({
