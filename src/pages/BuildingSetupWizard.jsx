@@ -478,17 +478,7 @@ export default function BuildingSetupWizard() {
       return;
     }
 
-    setIsSaving(true);
-    try {
-      await base44.entities.Building.update(buildingId, {
-        setup_step: 5
-      });
-      setBuilding(prev => ({ ...prev, setup_step: 5 }));
-      setCurrentStep(5);
-    } catch (err) {
-      console.error("Error saving step 4:", err);
-    }
-    setIsSaving(false);
+    await completeSetup();
   };
 
   const completeSetup = async () => {
