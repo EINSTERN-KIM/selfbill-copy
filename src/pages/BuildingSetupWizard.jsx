@@ -78,11 +78,6 @@ export default function BuildingSetupWizard() {
     default_unit_amounts: {}
   });
 
-  // Step 5: 요금제 확인
-  const [step5Data, setStep5Data] = useState({
-    agreedToPlan: false
-  });
-
   useEffect(() => {
     init();
   }, [buildingId]);

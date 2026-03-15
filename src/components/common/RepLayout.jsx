@@ -53,7 +53,6 @@ export default function RepLayout({ children, buildingId, building, currentPage 
         { label: "건물 기본정보", icon: Building2, page: "RepBuildingSetup" },
         { label: "관리비 부과 방식", icon: Settings, page: "RepBillingSettings" },
         { label: "관리비 입금 계좌", icon: CreditCard, page: "RepBankAccount" },
-        { label: "똑빌 이용 요금", icon: Receipt, page: "RepPlan" },
       ]
     },
     {
