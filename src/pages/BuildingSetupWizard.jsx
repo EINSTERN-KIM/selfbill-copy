@@ -491,49 +491,6 @@ export default function BuildingSetupWizard() {
     setIsSaving(false);
   };
 
-  const getSubscriptionDate = () => {
-    return building?.created_date ? building.created_date.split('T')[0] : null;
-  };
-
-  const getAutoStartDate = () => {
-    // 이미 저장된 자동이체 시작일이 있으면 그것을 사용
-    if (building?.selfbill_auto_start_date) {
-      return building.selfbill_auto_start_date;
-    }
-    
-    const baseDate = building?.created_date;
-    if (!baseDate) return null;
-    
-    return addMonthsClamped(baseDate, 1);
-  };
-
-  // addMonthsClamped: 정확히 1개월 후 같은 일자 (말일 보정 포함, 하루 앞당김 금지)
-  const addMonthsClamped = (dateStr, months) => {
-    const base = new Date(dateStr);
-    const y = base.getFullYear();
-    const m = base.getMonth();
-    const d = base.getDate();
-    
-    const baseAtNoon = new Date(y, m, d, 12, 0, 0);
-    
-    const targetYear = baseAtNoon.getFullYear();
-    const targetMonth = baseAtNoon.getMonth() + months;
-    const targetDay = baseAtNoon.getDate();
-    
-    const tempDate = new Date(targetYear, targetMonth + 1, 0, 12, 0, 0);
-    const lastDay = tempDate.getDate();
-    
-    const clampedDay = targetDay > lastDay ? lastDay : targetDay;
-    
-    const result = new Date(targetYear, targetMonth, clampedDay, 12, 0, 0);
-    
-    const yyyy = result.getFullYear();
-    const mm = String(result.getMonth() + 1).padStart(2, '0');
-    const dd = String(result.getDate()).padStart(2, '0');
-    
-    return `${yyyy}-${mm}-${dd}`;
-  };
-
   const completeSetup = async () => {
     setIsSaving(true);
     try {
