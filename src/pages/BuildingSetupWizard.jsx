@@ -494,29 +494,10 @@ export default function BuildingSetupWizard() {
   const completeSetup = async () => {
     setIsSaving(true);
     try {
-      const unitCount = units.length;
-      const monthlyFee = unitCount * 3900;
-      
-      // Save auto payment account info if provided
-      const today = new Date();
-      const todayStr = `${today.getFullYear()}-${String(today.getMonth() + 1).padStart(2, '0')}-${String(today.getDate()).padStart(2, '0')}`;
-      
-      const updateData = {
-        billing_monthly_fee_krw: monthlyFee,
-        selfbill_plan_confirmed_at: todayStr,
+      await base44.entities.Building.update(buildingId, {
         setup_step: 5,
         status: "active"
-      };
-      
-      if (step2Data.bank_name && step2Data.bank_account && step2Data.bank_holder) {
-        updateData.selfbill_auto_bank_name = step2Data.bank_name;
-        updateData.selfbill_auto_bank_account = step2Data.bank_account;
-        updateData.selfbill_auto_bank_holder = step2Data.bank_holder;
-        updateData.selfbill_auto_start_date = addMonthsClamped(todayStr, 1);
-      }
-
-      await base44.entities.Building.update(buildingId, updateData);
-
+      });
       navigate(createPageUrl(`RepDashboard?buildingId=${buildingId}`));
     } catch (err) {
       console.error("Error completing setup:", err);
