@@ -13,7 +13,7 @@ import { Badge } from "@/components/ui/badge";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Separator } from "@/components/ui/separator";
 import { 
-  Building2, Settings, Home, FileText, Receipt, 
+  Building2, Settings, Home, FileText,
   Loader2, Check, AlertCircle, ChevronRight, Trash2 
 } from 'lucide-react';
 import LoadingSpinner from '@/components/common/LoadingSpinner';
@@ -1177,10 +1177,9 @@ export default function BuildingSetupWizard() {
                 <Button variant="outline" onClick={() => setCurrentStep(3)}>
                   이전
                 </Button>
-                <Button onClick={saveStep4} disabled={isSaving} className="flex-1">
-                  {isSaving ? <Loader2 className="w-4 h-4 mr-2 animate-spin" /> : null}
-                  다음 단계
-                  <ChevronRight className="w-4 h-4 ml-2" />
+                <Button onClick={saveStep4} disabled={isSaving} className="flex-1 bg-green-600 hover:bg-green-700">
+                  {isSaving ? <Loader2 className="w-4 h-4 mr-2 animate-spin" /> : <Check className="w-5 h-5 mr-2" />}
+                  등록 완료
                 </Button>
               </div>
             </CardContent>
