@@ -264,6 +264,14 @@ export default function Onboarding() {
                 >
                   로그인/회원가입 하기
                 </Button>
+                <Button
+                  onClick={() => window.open('https://ttokbill.framer.website/%EC%84%9C%EB%B9%84%EC%8A%A4-%EC%9D%B4%EC%9A%A9-%EA%B0%80%EC%9D%B4%EB%93%9C', '_blank')}
+                  size="lg"
+                  variant="outline"
+                  className="w-full font-semibold"
+                >
+                  서비스 이용가이드
+                </Button>
                 </CardContent>
                 </Card>
 
