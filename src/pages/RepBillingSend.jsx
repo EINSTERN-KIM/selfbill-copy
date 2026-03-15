@@ -192,24 +192,29 @@ export default function RepBillingSend() {
             .map(([key, value]) => `${key}: ${value.toLocaleString()}원`)
             .join(', ');
 
-          await fetch('https://primary-production-e4e2a6.up.railway.app/webhook/65ee42a7-2d1c-40c0-945d-e14a4e7a7ff4', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({
-              buildingName: building?.name,
-              billingYearMonth: selectedYearMonth,
-              dueDate: dueDateStr,
-              chargeAmount: charge.amount_total?.toLocaleString() + '원',
-              chargeBreakdown: breakdownText || '항목 없음',
-              billDetailLink: billDetailUrl,
-              tenantName: unit.tenant_name,
-              tenantUnit: unit.ho || '-',
-              tenantPhone: unit.tenant_phone,
-              bankName: building?.bank_name,
-              bankAccount: building?.bank_account,
-              bankHolder: building?.bank_holder
-            })
-          }).catch(err => console.log("Webhook error:", err));
+          try {
+            const webhookRes = await fetch('https://primary-production-e4e2a6.up.railway.app/webhook/65ee42a7-2d1c-40c0-945d-e14a4e7a7ff4', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({
+                buildingName: building?.name,
+                billingYearMonth: selectedYearMonth,
+                dueDate: dueDateStr,
+                chargeAmount: charge.amount_total?.toLocaleString() + '원',
+                chargeBreakdown: breakdownText || '항목 없음',
+                billDetailLink: billDetailUrl,
+                tenantName: unit.tenant_name,
+                tenantUnit: unit.ho || '-',
+                tenantPhone: unit.tenant_phone,
+                bankName: building?.bank_name,
+                bankAccount: building?.bank_account,
+                bankHolder: building?.bank_holder
+              })
+            });
+            if (!webhookRes.ok) console.error(`[${unit.ho}호] Webhook failed:`, webhookRes.status, await webhookRes.text().catch(() => ''));
+          } catch (err) {
+            console.error(`[${unit.ho}호] Webhook error:`, err);
+          }
 
           await base44.functions.invoke('sendTwilioSMS', {
             to_phone: unit.tenant_phone,

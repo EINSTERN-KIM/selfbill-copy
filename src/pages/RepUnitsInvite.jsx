@@ -101,19 +101,26 @@ export default function RepUnitsInvite() {
         if (repUnits.length > 0) repUnit = repUnits[0];
       }
 
-      await fetch('https://primary-production-e4e2a6.up.railway.app/webhook/cc6b6bff-d62f-4602-9b1b-e28005af8bfb', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          buildingName: building.name,
-          representativeName: repUnit ? repUnit.tenant_name : user.full_name,
-          representativeUnit: repUnit ? repUnit.ho : '-',
-          tenantName: unit.tenant_name,
-          tenantUnit: unit.ho || '-',
-          tenantPhone: unit.tenant_phone,
-          selfbillLink: inviteUrl
-        })
-      }).catch(err => console.log("Webhook error:", err));
+      let webhookSuccess = false;
+      try {
+        const webhookRes = await fetch('https://primary-production-e4e2a6.up.railway.app/webhook/cc6b6bff-d62f-4602-9b1b-e28005af8bfb', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            buildingName: building.name,
+            representativeName: repUnit ? repUnit.tenant_name : user.full_name,
+            representativeUnit: repUnit ? repUnit.ho : '-',
+            tenantName: unit.tenant_name,
+            tenantUnit: unit.ho || '-',
+            tenantPhone: unit.tenant_phone,
+            selfbillLink: inviteUrl
+          })
+        });
+        webhookSuccess = webhookRes.ok;
+        if (!webhookSuccess) console.error("Webhook failed:", webhookRes.status, await webhookRes.text().catch(() => ''));
+      } catch (err) {
+        console.error("Webhook error:", err);
+      }
 
       await base44.functions.invoke('sendTwilioSMS', {
         to_phone: unit.tenant_phone,
@@ -124,7 +131,8 @@ export default function RepUnitsInvite() {
       }).catch(err => console.log("SMS error:", err));
 
       await loadData();
-      alert(`✅ 초대 성공\n\n${unit.ho ? `${unit.ho}호` : unit.unit_name} (${unit.tenant_name}님)에게 초대가 성공적으로 전송되었습니다.`);
+      const webhookNote = webhookSuccess ? '' : '\n\n⚠️ 알림 웹훅 전송에 실패했습니다.';
+      alert(`✅ 초대 성공\n\n${unit.ho ? `${unit.ho}호` : unit.unit_name} (${unit.tenant_name}님)에게 초대가 성공적으로 전송되었습니다.${webhookNote}`);
     } catch (err) {
       console.error("Error sending invitation:", err);
       await loadData();
@@ -188,19 +196,26 @@ export default function RepUnitsInvite() {
           if (repUnits.length > 0) repUnit = repUnits[0];
         }
 
-        await fetch('https://primary-production-e4e2a6.up.railway.app/webhook/cc6b6bff-d62f-4602-9b1b-e28005af8bfb', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            buildingName: building.name,
-            representativeName: repUnit ? repUnit.tenant_name : user.full_name,
-            representativeUnit: repUnit ? repUnit.ho : '-',
-            tenantName: unit.tenant_name,
-            tenantUnit: unit.ho || '-',
-            tenantPhone: unit.tenant_phone,
-            selfbillLink: inviteUrl
-          })
-        }).catch(err => console.log("Webhook error:", err));
+        let webhookOk = false;
+        try {
+          const webhookRes = await fetch('https://primary-production-e4e2a6.up.railway.app/webhook/cc6b6bff-d62f-4602-9b1b-e28005af8bfb', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              buildingName: building.name,
+              representativeName: repUnit ? repUnit.tenant_name : user.full_name,
+              representativeUnit: repUnit ? repUnit.ho : '-',
+              tenantName: unit.tenant_name,
+              tenantUnit: unit.ho || '-',
+              tenantPhone: unit.tenant_phone,
+              selfbillLink: inviteUrl
+            })
+          });
+          webhookOk = webhookRes.ok;
+          if (!webhookOk) console.error(`[${unit.ho}호] Webhook failed:`, webhookRes.status, await webhookRes.text().catch(() => ''));
+        } catch (err) {
+          console.error(`[${unit.ho}호] Webhook error:`, err);
+        }
 
         await base44.functions.invoke('sendTwilioSMS', {
           to_phone: unit.tenant_phone,
@@ -210,7 +225,8 @@ export default function RepUnitsInvite() {
           event_ref_id: invitation.id
         }).catch(err => console.log("SMS error:", err));
         
-        successCount++;
+        if (webhookOk) successCount++;
+        else { successCount++; console.warn(`[${unit.ho}호] 웹훅 실패`); }
       } catch (err) {
         console.error("Error sending invitation:", err);
         successCount++;

@@ -89,22 +89,25 @@ export default function RepRoleChange() {
       const toUnit = units.find(u => u.id === selectedMember.unit_id);
       const selfbillLink = `${window.location.origin}${createPageUrl(`TenantDashboard?buildingId=${buildingId}`)}`;
 
-      const webhookResponse = await fetch('https://primary-production-e4e2a6.up.railway.app/webhook/2ec6cd7c-b85a-4f23-bc75-35a6c39e02d6', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          buildingName: building?.name,
-          currentRepName: currentRepUnit?.tenant_name || user.full_name,
-          currentRepUnit: currentRepUnit ? currentRepUnit.ho : '-',
-          newRepName: toUnit?.tenant_name || selectedMember.user_email,
-          newRepUnit: toUnit ? toUnit.ho : '-',
-          newRepPhone: toUnit?.tenant_phone,
-          selfbillLink: selfbillLink
-        })
-      });
-
-      if (!webhookResponse.ok) {
-        throw new Error('웹훅 전송 실패');
+      let webhookSuccess = false;
+      try {
+        const webhookResponse = await fetch('https://primary-production-e4e2a6.up.railway.app/webhook/2ec6cd7c-b85a-4f23-bc75-35a6c39e02d6', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            buildingName: building?.name,
+            currentRepName: currentRepUnit?.tenant_name || user.full_name,
+            currentRepUnit: currentRepUnit ? currentRepUnit.ho : '-',
+            newRepName: toUnit?.tenant_name || selectedMember.user_email,
+            newRepUnit: toUnit ? toUnit.ho : '-',
+            newRepPhone: toUnit?.tenant_phone,
+            selfbillLink: selfbillLink
+          })
+        });
+        webhookSuccess = webhookResponse.ok;
+        if (!webhookSuccess) console.error("Webhook failed:", webhookResponse.status, await webhookResponse.text().catch(() => ''));
+      } catch (err) {
+        console.error("Webhook error:", err);
       }
 
       // Create role change request - DO NOT modify building_members
@@ -116,8 +119,8 @@ export default function RepRoleChange() {
         requested_at: new Date().toISOString()
       });
 
-      // 요청 전송 완료 팝업
-      alert("대표자 변경 요청이 전송되었습니다.\n\n입주자가 대표자 권한 양도를 수락하면 대표자 변경이 완료됩니다.");
+      const webhookNote = webhookSuccess ? '' : '\n\n⚠️ 알림 웹훅 전송에 실패했습니다.';
+      alert(`대표자 변경 요청이 전송되었습니다.\n\n입주자가 대표자 권한 양도를 수락하면 대표자 변경이 완료됩니다.${webhookNote}`);
       await loadData();
       setSelectedMemberId("");
     } catch (err) {
