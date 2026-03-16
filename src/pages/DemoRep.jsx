@@ -286,7 +286,7 @@ export default function DemoRep({ onLoginRequired }) {
           {view === VIEWS.INVITE && (
             <>
               <div className="flex items-center justify-between">
-                <h2 className="text-xl font-bold text-slate-900">입주자 초대</h2>
+                <h2 className="text-xl font-bold text-slate-900 dark:text-slate-100">입주자 초대</h2>
                 <Button size="sm" onClick={handleAction} className="bg-primary text-white" {...triggerProps('미가입 세대에 초대 SMS를 일괄 발송합니다')}>전체 재발송</Button>
               </div>
               {/* Summary */}
