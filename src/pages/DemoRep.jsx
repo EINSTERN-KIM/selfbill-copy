@@ -64,6 +64,7 @@ export default function DemoRep({ onLoginRequired }) {
   const [view, setView] = useState(VIEWS.DASHBOARD);
   const [showLoginModal, setShowLoginModal] = useState(false);
   const [sidebarOpen, setSidebarOpen] = useState(false);
+  const containerRef = React.useRef(null);
 
   const unpaid  = DEMO_PAYMENTS.filter(p => p.status === '미납').length;
   const partial = DEMO_PAYMENTS.filter(p => p.status === '부분납').length;

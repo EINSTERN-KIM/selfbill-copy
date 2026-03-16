@@ -45,6 +45,7 @@ export default function DemoTenant({ onLoginRequired }) {
   const [view, setView] = useState(VIEWS.DASHBOARD);
   const [showLoginModal, setShowLoginModal] = useState(false);
   const [sidebarOpen, setSidebarOpen] = useState(false);
+  const containerRef = React.useRef(null);
   const { tooltip, triggerProps } = useDemoTooltip();
 
   const handleAction = () => setShowLoginModal(true);
