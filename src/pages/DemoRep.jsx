@@ -72,6 +72,7 @@ export default function DemoRep({ onLoginRequired }) {
   const inviteSent  = DEMO_INVITATIONS.filter(i => i.status === '초대 발송').length;
   const inviteNone  = DEMO_INVITATIONS.filter(i => i.status === '초대 전').length;
   const sentCharges = DEMO_UNIT_CHARGES.filter(c => c.is_sent).length;
+  const { tooltip, triggerProps } = useDemoTooltip();
 
   const handleAction = () => setShowLoginModal(true);
 
