@@ -12,6 +12,7 @@ export default function Demo() {
   const navigate = useNavigate();
   const [role, setRole] = useState('rep');
   const [showWelcome, setShowWelcome] = useState(true);
+  const [autoStartTutorial, setAutoStartTutorial] = useState(false);
 
   useEffect(() => {
     base44.auth.isAuthenticated().then((auth) => {
@@ -24,7 +25,10 @@ export default function Demo() {
     base44.auth.redirectToLogin(createPageUrl('Onboarding'));
   };
 
-  const handleStartDemo = () => setShowWelcome(false);
+  const handleStartDemo = () => {
+    setShowWelcome(false);
+    setAutoStartTutorial(true);
+  };
 
   return (
     <div className="min-h-screen bg-slate-50 flex flex-col">
