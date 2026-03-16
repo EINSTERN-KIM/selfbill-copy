@@ -13,7 +13,7 @@ export const DEMO_BUILDING = {
 };
 
 export const DEMO_UNITS = [
-  { id: 'u1',  unit_name: '101호', tenant_name: '김민준', tenant_phone: '010-1234-5678', floor: '1', status: 'active' },
+  { id: 'u1',  unit_name: '101호', tenant_name: '똑똑이', tenant_phone: '010-1234-5678', floor: '1', status: 'active' },
   { id: 'u2',  unit_name: '102호', tenant_name: '이서연', tenant_phone: '010-2345-6789', floor: '1', status: 'active' },
   { id: 'u3',  unit_name: '201호', tenant_name: '박지호', tenant_phone: '010-3456-7890', floor: '2', status: 'active' },
   { id: 'u4',  unit_name: '202호', tenant_name: '최유나', tenant_phone: '010-4567-8901', floor: '2', status: 'active' },
