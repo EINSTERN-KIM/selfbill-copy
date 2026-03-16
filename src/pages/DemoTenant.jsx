@@ -34,6 +34,7 @@ const MENU = [
 
 const TUTORIAL_STEPS = {
   [VIEWS.DASHBOARD]: [
+    { id: 'sidebar-menu-btn', title: '사이드 메뉴', description: '이 버튼을 눌러 청구서 상세, 납부 내역, 내 세대 정보 등 다양한 메뉴를 경험해보세요!' },
     { id: 'bill-card',   title: '이번 달 청구서',  description: '이번 달 관리비 청구서를 확인하세요. 클릭하면 상세 내역을 볼 수 있습니다.' },
     { id: 'quick-bills', title: '청구서 상세 보기', description: '항목별 관리비 내역을 확인하고 납부 계좌 정보를 조회하세요.' },
     { id: 'quick-pay',   title: '납부 내역 확인',   description: '지난 달부터 현재까지의 납부 기록을 한눈에 볼 수 있습니다.' },
