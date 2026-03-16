@@ -343,7 +343,7 @@ export default function DemoRep({ onLoginRequired }) {
                           <FileText className="w-4 h-4 text-primary" />
                         </div>
                         <div>
-                          <p className="font-semibold text-slate-900">{f.name}</p>
+                          <p className="font-semibold text-slate-900 dark:text-slate-100">{f.name}</p>
                           <Badge variant="outline" className="text-xs">{f.category}</Badge>
                         </div>
                       </div>
