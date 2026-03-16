@@ -31,9 +31,10 @@ export function TutorialProvider({ viewKey, autoStart = false, children }) {
     setItems(newItems);
   }, []);
 
-  const next = useCallback(() => {
+  const next = useCallback((totalSteps) => {
     setStep(s => {
-      if (s >= items.length - 1) {
+      const total = totalSteps ?? items.length;
+      if (s >= total - 1) {
         setActive(false);
         return s;
       }
