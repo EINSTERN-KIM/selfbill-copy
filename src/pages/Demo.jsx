@@ -91,8 +91,8 @@ export default function Demo() {
       {/* Demo Content */}
       <div className="flex-1">
         {role === 'rep'
-          ? <DemoRep onLoginRequired={() => handleLoginClick('rep')} />
-          : <DemoTenant onLoginRequired={() => handleLoginClick('tenant')} />
+          ? <DemoRep onLoginRequired={() => handleLoginClick('rep')} autoStartTutorial={autoStartTutorial} />
+          : <DemoTenant onLoginRequired={() => handleLoginClick('tenant')} autoStartTutorial={autoStartTutorial} />
         }
       </div>
     </div>
