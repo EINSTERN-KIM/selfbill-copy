@@ -335,8 +335,8 @@ export default function DemoTenant({ onLoginRequired }) {
           {/* ── MY UNIT ── */}
           {view === VIEWS.MY_UNIT && (
             <>
-              <h2 className="text-lg font-bold text-slate-900">내 세대 정보</h2>
-              <Card className="border-0 shadow-sm">
+              <h2 className="text-lg font-bold text-slate-900 dark:text-slate-100">내 세대 정보</h2>
+              <Card data-tutorial="unit-info" className="border-0 shadow-sm">
                 <CardContent className="p-5 space-y-4">
                   {[
                     { label: '건물명', value: DEMO_BUILDING.name },
