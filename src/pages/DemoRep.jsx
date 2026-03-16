@@ -179,8 +179,8 @@ export default function DemoRep({ onLoginRequired }) {
           {view === VIEWS.DASHBOARD && (
             <>
               <div>
-                <p className="text-sm text-slate-500">대표자님, 환영합니다</p>
-                <h1 className="text-2xl font-bold text-slate-900">{DEMO_BUILDING.name}</h1>
+                <p className="text-sm text-slate-500 dark:text-slate-400">대표자님, 환영합니다</p>
+                <h1 className="text-2xl font-bold text-slate-900 dark:text-slate-100">{DEMO_BUILDING.name}</h1>
               </div>
 
               {/* Primary Card */}
