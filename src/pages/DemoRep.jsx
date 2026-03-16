@@ -85,14 +85,14 @@ export default function DemoRep({ onLoginRequired }) {
   const Sidebar = () => (
     <div className="flex flex-col h-full">
       {/* Building info */}
-      <div className="p-4 border-b border-slate-200 flex-shrink-0">
+      <div className="p-4 border-b border-slate-200 dark:border-slate-700 flex-shrink-0">
         <div className="flex items-center gap-3">
           <div className="w-10 h-10 rounded-xl bg-primary flex items-center justify-center flex-shrink-0">
             <Building2 className="w-5 h-5 text-white" />
           </div>
           <div className="min-w-0">
-            <p className="font-bold text-slate-900 text-sm truncate">{DEMO_BUILDING.name}</p>
-            <p className="text-xs text-slate-500 truncate">{DEMO_BUILDING.address}</p>
+            <p className="font-bold text-slate-900 dark:text-slate-100 text-sm truncate">{DEMO_BUILDING.name}</p>
+            <p className="text-xs text-slate-500 dark:text-slate-400 truncate">{DEMO_BUILDING.address}</p>
           </div>
         </div>
       </div>
