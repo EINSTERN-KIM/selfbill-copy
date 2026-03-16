@@ -289,7 +289,7 @@ export default function DemoRep({ onLoginRequired }) {
             <>
               <h2 className="text-xl font-bold text-slate-900 dark:text-slate-100">입주자 목록</h2>
 
-              <div className="space-y-2">
+              <div data-tutorial="units-list" className="space-y-2">
                 {DEMO_UNITS.map(u => {
                   const inv = DEMO_INVITATIONS.find(i => i.unit_id === u.id);
                   return (
