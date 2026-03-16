@@ -60,7 +60,7 @@ const MENU_SECTIONS = [
   },
 ];
 
-export default function DemoRep({ onLoginRequired }) {
+export default function DemoRep({ onLoginRequired, autoStartTutorial = false }) {
   const [view, setView] = useState(VIEWS.DASHBOARD);
   const [showLoginModal, setShowLoginModal] = useState(false);
   const [sidebarOpen, setSidebarOpen] = useState(false);
