@@ -9,15 +9,15 @@ export default function Home() {
   useEffect(() => {
     const checkAuth = async () => {
       try {
-        const user = await base44.auth.me();
-        if (user) {
+        const isAuth = await base44.auth.isAuthenticated();
+        if (isAuth) {
           navigate(createPageUrl('MyBuildings'));
         } else {
-          navigate(createPageUrl('Onboarding'));
+          // 첫 진입: 데모 대시보드로
+          navigate(createPageUrl('Demo'));
         }
       } catch (err) {
-        console.error('Auth check error:', err);
-        navigate(createPageUrl('Onboarding'));
+        navigate(createPageUrl('Demo'));
       }
     };
     checkAuth();
