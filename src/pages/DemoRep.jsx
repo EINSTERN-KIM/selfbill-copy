@@ -526,5 +526,6 @@ export default function DemoRep({ onLoginRequired }) {
 
       <DemoLoginModal isOpen={showLoginModal} onClose={() => setShowLoginModal(false)} role="rep" />
     </div>
+    </TutorialProvider>
   );
 }
