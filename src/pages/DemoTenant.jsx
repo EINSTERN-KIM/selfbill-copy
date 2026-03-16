@@ -180,6 +180,7 @@ export default function DemoTenant({ onLoginRequired }) {
 
               {/* Bill Summary Card */}
               <Card
+                data-tutorial="bill-card"
                 className="border-0 shadow-md overflow-hidden cursor-pointer hover:shadow-lg transition-shadow"
                 onClick={() => navigate(VIEWS.BILL_DETAIL)}
                 style={{ background: 'linear-gradient(135deg, #1d4ed8 0%, #1e40af 100%)' }}
