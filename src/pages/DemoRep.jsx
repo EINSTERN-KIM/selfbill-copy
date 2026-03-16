@@ -512,7 +512,7 @@ export default function DemoRep({ onLoginRequired }) {
               </Card>
               <Card className="border-primary/20 bg-primary/5">
                 <CardContent className="p-4 text-center">
-                  <p className="text-sm text-slate-600 mb-3">상세 보고서는 로그인 후 확인 가능합니다.</p>
+                  <p className="text-sm text-slate-600 dark:text-slate-300 mb-3">상세 보고서는 로그인 후 확인 가능합니다.</p>
                   <Button onClick={onLoginRequired} size="sm" className="bg-primary text-white">
                     로그인 후 보고서 보기
                   </Button>
