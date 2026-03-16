@@ -6,6 +6,7 @@ import { Button } from '@/components/ui/button';
 import { Shield, Users, LogIn } from 'lucide-react';
 import DemoRep from './DemoRep';
 import DemoTenant from './DemoTenant';
+import DemoWelcomeModal from '@/components/demo/DemoWelcomeModal';
 
 export default function Demo() {
   const navigate = useNavigate();
