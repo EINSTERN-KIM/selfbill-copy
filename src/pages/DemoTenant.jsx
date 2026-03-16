@@ -114,9 +114,32 @@ export default function DemoTenant({ onLoginRequired }) {
     </div>
   );
 
+  // 뷰별 튜토리얼 스텝
+  const tutorialSteps = {
+    [VIEWS.DASHBOARD]: [
+      { id: 'bill-card',   title: '이번 달 청구서',  description: '이번 달 관리비 청구서를 확인하세요. 클릭하면 상세 내역을 볼 수 있습니다.' },
+      { id: 'quick-bills', title: '청구서 상세 보기', description: '항목별 관리비 내역을 확인하고 납부 계좌 정보를 조회하세요.' },
+      { id: 'quick-pay',   title: '납부 내역 확인',   description: '지난 달부터 현재까지의 납부 기록을 한눈에 볼 수 있습니다.' },
+      { id: 'quick-unit',  title: '내 세대 정보',     description: '나의 세대 정보와 입주 현황을 확인하고 수정할 수 있습니다.' },
+    ],
+    [VIEWS.BILL_DETAIL]: [
+      { id: 'bill-detail-card', title: '청구서 상세', description: '부과 기간, 항목별 금액, 납부 기한을 확인하세요.' },
+    ],
+    [VIEWS.PAYMENTS]: [
+      { id: 'payments-history', title: '납부 내역', description: '월별 납부 금액과 완납/미납 현황을 확인할 수 있습니다.' },
+    ],
+    [VIEWS.MY_UNIT]: [
+      { id: 'unit-info', title: '세대 정보', description: '내 세대의 건물명, 주소, 입주 정보를 확인하세요.' },
+    ],
+  };
+
+  const currentSteps = tutorialSteps[view] || [];
+
   return (
+    <TutorialProvider viewKey={view}>
     <div className="flex h-[calc(100vh-88px)]">
       <DemoTooltipOverlay tooltip={tooltip} />
+      <SpotlightTutorial steps={currentSteps} />
 
       {/* Mobile overlay */}
       {sidebarOpen && (
@@ -125,7 +148,7 @@ export default function DemoTenant({ onLoginRequired }) {
 
       {/* Sidebar */}
       <div className={`
-        fixed lg:static inset-y-0 left-0 z-50 w-60 bg-white border-r border-slate-200 shadow-xl lg:shadow-none
+        fixed lg:static inset-y-0 left-0 z-50 w-60 bg-white dark:bg-slate-800 border-r border-slate-200 dark:border-slate-700 shadow-xl lg:shadow-none
         transform transition-transform duration-300
         ${sidebarOpen ? 'translate-x-0' : '-translate-x-full'}
         lg:translate-x-0 flex flex-col
@@ -135,13 +158,13 @@ export default function DemoTenant({ onLoginRequired }) {
       </div>
 
       {/* Main content */}
-      <div className="flex-1 overflow-y-auto bg-slate-50">
+      <div className="flex-1 overflow-y-auto bg-slate-50 dark:bg-slate-900">
         {/* Mobile header */}
-        <div className="lg:hidden flex items-center gap-3 px-4 py-3 bg-white border-b border-slate-200 sticky top-0 z-30">
+        <div className="lg:hidden flex items-center gap-3 px-4 py-3 bg-white dark:bg-slate-800 border-b border-slate-200 dark:border-slate-700 sticky top-0 z-30">
           <button onClick={() => setSidebarOpen(true)} className="p-1">
-            <Menu className="w-5 h-5 text-slate-600" />
+            <Menu className="w-5 h-5 text-slate-600 dark:text-slate-300" />
           </button>
-          <span className="font-semibold text-slate-800 text-sm">{currentLabel}</span>
+          <span className="font-semibold text-slate-800 dark:text-slate-100 text-sm">{currentLabel}</span>
         </div>
 
         <div className="max-w-2xl mx-auto px-4 py-5 space-y-5">
