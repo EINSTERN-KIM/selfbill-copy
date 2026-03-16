@@ -1,12 +1,11 @@
-import React, { useState, useRef } from 'react';
 import React, { useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import {
   Building2, Users, Receipt, CreditCard, Send, FileText,
-  PlusCircle, BarChart3, CheckCircle2, Clock, ChevronRight,
-  Settings, Home, Menu, X, LogIn
+  BarChart3, CheckCircle2, Clock, ChevronRight,
+  Home, Menu, LogIn
 } from 'lucide-react';
 import {
   DEMO_BUILDING, DEMO_UNITS, DEMO_FEE_ITEMS, DEMO_BILL_CYCLE,
@@ -28,39 +27,40 @@ const VIEWS = {
 };
 
 const MENU_SECTIONS = [
-  {
-    title: '대시보드',
-    items: [{ label: '대시보드', view: VIEWS.DASHBOARD, icon: Home }],
-  },
-  {
-    title: '세대 관리',
-    items: [
-      { label: '입주자 목록', view: VIEWS.UNITS, icon: Users },
-      { label: '입주자 초대', view: VIEWS.INVITE, icon: Send },
-    ],
-  },
-  {
-    title: '관리비 청구',
-    items: [
-      { label: '관리비 항목 설정', view: VIEWS.FEE_ITEMS, icon: FileText },
-      { label: '세대별 청구서 조회', view: VIEWS.CHARGES, icon: Receipt },
-      { label: '청구서 발송', view: VIEWS.SEND, icon: Send },
-    ],
-  },
-  {
-    title: '납부 현황',
-    items: [
-      { label: '납부 현황 관리', view: VIEWS.PAYMENTS, icon: CreditCard },
-    ],
-  },
-  {
-    title: '보고서',
-    items: [
-      { label: '관리비 현황 보고서', view: VIEWS.REPORTS, icon: BarChart3 },
-    ],
-  },
+  { title: '대시보드', items: [{ label: '대시보드', view: VIEWS.DASHBOARD, icon: Home }] },
+  { title: '세대 관리', items: [
+    { label: '입주자 목록', view: VIEWS.UNITS, icon: Users },
+    { label: '입주자 초대', view: VIEWS.INVITE, icon: Send },
+  ]},
+  { title: '관리비 청구', items: [
+    { label: '관리비 항목 설정', view: VIEWS.FEE_ITEMS, icon: FileText },
+    { label: '세대별 청구서 조회', view: VIEWS.CHARGES, icon: Receipt },
+    { label: '청구서 발송', view: VIEWS.SEND, icon: Send },
+  ]},
+  { title: '납부 현황', items: [
+    { label: '납부 현황 관리', view: VIEWS.PAYMENTS, icon: CreditCard },
+  ]},
+  { title: '보고서', items: [
+    { label: '관리비 현황 보고서', view: VIEWS.REPORTS, icon: BarChart3 },
+  ]},
 ];
 
+const TUTORIAL_STEPS = {
+  [VIEWS.DASHBOARD]: [
+    { id: 'quick-invite',   title: '입주자 초대 현황',   description: '입주자들에게 초대 SMS를 보내고 가입 현황을 확인하세요.' },
+    { id: 'quick-charges',  title: '세대별 청구서 조회', description: '각 세대의 관리비 청구 내역을 상세하게 조회할 수 있습니다.' },
+    { id: 'quick-send',     title: '청구서 발송',         description: '한 번의 클릭으로 모든 세대에 청구서를 문자로 발송합니다.' },
+    { id: 'quick-payments', title: '납부 현황 관리',      description: '세대별 납부 여부를 기록하고 미납 세대를 관리하세요.' },
+  ],
+  [VIEWS.UNITS]:    [{ id: 'units-list',    title: '입주자 목록', description: '등록된 모든 세대와 입주자 정보, 초대 상태를 한눈에 확인하세요.' }],
+  [VIEWS.INVITE]:   [{ id: 'invite-resend', title: '전체 재발송', description: '아직 가입하지 않은 세대에 초대 문자를 일괄 재발송합니다.' }],
+  [VIEWS.FEE_ITEMS]:[{ id: 'fee-add',       title: '항목 추가',   description: '관리비 항목(청소비, 전기료 등)을 추가하고 금액을 설정하세요.' }],
+  [VIEWS.SEND]:     [{ id: 'send-all',      title: '일괄 발송',   description: '미발송 세대에 청구서를 한 번에 문자로 발송합니다.' }],
+  [VIEWS.PAYMENTS]: [{ id: 'payments-list', title: '납부 현황',   description: '완납/부분납/미납 세대를 확인하고 납부 정보를 수정할 수 있습니다.' }],
+  [VIEWS.REPORTS]:  [{ id: 'reports-chart', title: '관리비 추이', description: '월별 관리비 변동 추이를 그래프로 확인하세요.' }],
+};
+
+// TutorialProvider 바깥 wrapper
 export default function DemoRep({ onLoginRequired, autoStartTutorial = false }) {
   const [view, setView] = useState(VIEWS.DASHBOARD);
   return (
@@ -70,10 +70,11 @@ export default function DemoRep({ onLoginRequired, autoStartTutorial = false }) 
   );
 }
 
+// TutorialProvider 안쪽 실제 컨텐츠
 function DemoRepContent({ onLoginRequired, view, setView }) {
   const [showLoginModal, setShowLoginModal] = useState(false);
   const [sidebarOpen, setSidebarOpen] = useState(false);
-  const containerRef = React.useRef(null);
+  const { tooltip, triggerProps } = useDemoTooltip();
 
   const unpaid  = DEMO_PAYMENTS.filter(p => p.status === '미납').length;
   const partial = DEMO_PAYMENTS.filter(p => p.status === '부분납').length;
@@ -82,18 +83,14 @@ function DemoRepContent({ onLoginRequired, view, setView }) {
   const inviteSent  = DEMO_INVITATIONS.filter(i => i.status === '초대 발송').length;
   const inviteNone  = DEMO_INVITATIONS.filter(i => i.status === '초대 전').length;
   const sentCharges = DEMO_UNIT_CHARGES.filter(c => c.is_sent).length;
-  const { tooltip, triggerProps } = useDemoTooltip();
 
   const handleAction = () => setShowLoginModal(true);
+  const navigate = (v) => { setView(v); setSidebarOpen(false); };
 
-  const navigate = (v) => {
-    setView(v);
-    setSidebarOpen(false);
-  };
+  const currentSteps = TUTORIAL_STEPS[view] || [];
 
   const Sidebar = () => (
     <div className="flex flex-col h-full">
-      {/* Building info */}
       <div className="p-4 border-b border-slate-200 dark:border-slate-700 flex-shrink-0">
         <div className="flex items-center gap-3">
           <div className="w-10 h-10 rounded-xl bg-primary flex items-center justify-center flex-shrink-0">
@@ -105,14 +102,10 @@ function DemoRepContent({ onLoginRequired, view, setView }) {
           </div>
         </div>
       </div>
-
-      {/* Nav */}
       <nav className="flex-1 overflow-y-auto p-3 space-y-1">
         {MENU_SECTIONS.map((section) => (
           <div key={section.title} className="space-y-0.5">
-            <p className="px-3 pt-3 pb-1 text-xs font-semibold text-slate-400 uppercase tracking-wide">
-              {section.title}
-            </p>
+            <p className="px-3 pt-3 pb-1 text-xs font-semibold text-slate-400 uppercase tracking-wide">{section.title}</p>
             {section.items.map((item) => {
               const Icon = item.icon;
               const active = view === item.view;
@@ -121,12 +114,10 @@ function DemoRepContent({ onLoginRequired, view, setView }) {
                   key={item.view}
                   onClick={() => navigate(item.view)}
                   className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-left text-sm transition-colors ${
-                    active
-                      ? 'bg-primary text-white font-semibold'
-                      : 'text-slate-700 dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-700'
+                    active ? 'bg-primary text-white font-semibold' : 'text-slate-700 dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-700'
                   }`}
                 >
-                  <Icon className={`w-4 h-4 flex-shrink-0 ${active ? 'text-white' : 'text-slate-400 dark:text-slate-400'}`} />
+                  <Icon className={`w-4 h-4 flex-shrink-0 ${active ? 'text-white' : 'text-slate-400'}`} />
                   {item.label}
                 </button>
               );
@@ -134,8 +125,6 @@ function DemoRepContent({ onLoginRequired, view, setView }) {
           </div>
         ))}
       </nav>
-
-      {/* Bottom CTA */}
       <div className="p-3 border-t border-slate-200 dark:border-slate-700 flex-shrink-0">
         <button
           onClick={onLoginRequired}
@@ -148,60 +137,25 @@ function DemoRepContent({ onLoginRequired, view, setView }) {
     </div>
   );
 
-  // 뷰별 튜토리얼 스텝 정의
-  const tutorialSteps = {
-    [VIEWS.DASHBOARD]: [
-      { id: 'quick-invite',   title: '입주자 초대 현황',    description: '입주자들에게 초대 SMS를 보내고 가입 현황을 확인하세요.' },
-      { id: 'quick-charges',  title: '세대별 청구서 조회',  description: '각 세대의 관리비 청구 내역을 상세하게 조회할 수 있습니다.' },
-      { id: 'quick-send',    title: '청구서 발송',          description: '한 번의 클릭으로 모든 세대에 청구서를 문자로 발송합니다.' },
-      { id: 'quick-payments', title: '납부 현황 관리',      description: '세대별 납부 여부를 기록하고 미납 세대를 관리하세요.' },
-    ],
-    [VIEWS.UNITS]: [
-      { id: 'units-list', title: '입주자 목록', description: '등록된 모든 세대와 입주자 정보, 초대 상태를 한눈에 확인하세요.' },
-    ],
-    [VIEWS.INVITE]: [
-      { id: 'invite-resend', title: '전체 재발송', description: '아직 가입하지 않은 세대에 초대 문자를 일괄 재발송합니다.' },
-    ],
-    [VIEWS.FEE_ITEMS]: [
-      { id: 'fee-add', title: '항목 추가', description: '관리비 항목(청소비, 전기료 등)을 추가하고 금액을 설정하세요.' },
-    ],
-    [VIEWS.SEND]: [
-      { id: 'send-all', title: '일괄 발송', description: '미발송 세대에 청구서를 한 번에 문자로 발송합니다.' },
-    ],
-    [VIEWS.PAYMENTS]: [
-      { id: 'payments-list', title: '납부 현황', description: '완납/부분납/미납 세대를 확인하고 납부 정보를 수정할 수 있습니다.' },
-    ],
-    [VIEWS.REPORTS]: [
-      { id: 'reports-chart', title: '관리비 추이', description: '월별 관리비 변동 추이를 그래프로 확인하세요.' },
-    ],
-  };
-
-  const currentSteps = tutorialSteps[view] || [];
-
   return (
     <div className="flex h-[calc(100vh-88px)]">
       <DemoTooltipOverlay tooltip={tooltip} />
       <SpotlightTutorial steps={currentSteps} />
 
-      {/* Mobile overlay */}
       {sidebarOpen && (
         <div className="lg:hidden fixed inset-0 bg-black/40 z-40" onClick={() => setSidebarOpen(false)} />
       )}
 
-      {/* Sidebar */}
       <div className={`
         fixed lg:static inset-y-0 left-0 z-50 w-60 bg-white dark:bg-slate-800 border-r border-slate-200 dark:border-slate-700 shadow-xl lg:shadow-none
         transform transition-transform duration-300
         ${sidebarOpen ? 'translate-x-0' : '-translate-x-full'}
-        lg:translate-x-0 flex flex-col
-        top-[88px] bottom-0
+        lg:translate-x-0 flex flex-col top-[88px] bottom-0
       `}>
         <Sidebar />
       </div>
 
-      {/* Main content */}
       <div className="flex-1 overflow-y-auto bg-slate-50 dark:bg-slate-900">
-        {/* Mobile header */}
         <div className="lg:hidden flex items-center gap-3 px-4 py-3 bg-white dark:bg-slate-800 border-b border-slate-200 dark:border-slate-700 sticky top-0 z-30">
           <button onClick={() => setSidebarOpen(true)} className="p-1">
             <Menu className="w-5 h-5 text-slate-600 dark:text-slate-300" />
@@ -211,7 +165,7 @@ function DemoRepContent({ onLoginRequired, view, setView }) {
           </span>
         </div>
 
-        <div ref={containerRef} className="max-w-3xl mx-auto px-4 py-6 space-y-6">
+        <div className="max-w-3xl mx-auto px-4 py-6 space-y-6">
 
           {/* ── DASHBOARD ── */}
           {view === VIEWS.DASHBOARD && (
@@ -221,7 +175,6 @@ function DemoRepContent({ onLoginRequired, view, setView }) {
                 <h1 className="text-2xl font-bold text-slate-900 dark:text-slate-100">{DEMO_BUILDING.name}</h1>
               </div>
 
-              {/* Primary Card */}
               <Card className="border-0 shadow-md overflow-hidden relative" style={{ background: 'linear-gradient(135deg, #2F6F4F 0%, #1E5A3A 100%)' }}>
                 <CardContent className="p-5 relative">
                   <p className="text-white/80 text-sm mb-2">2026년 3월 관리비 청구</p>
@@ -236,12 +189,11 @@ function DemoRepContent({ onLoginRequired, view, setView }) {
                 </CardContent>
               </Card>
 
-              {/* Stats */}
               <div className="grid grid-cols-3 gap-3">
                 {[
-                  { label: '총 세대', value: DEMO_BUILDING.building_units_count, icon: Users, color: 'blue' },
-                  { label: '완납',   value: paid,           icon: CheckCircle2, color: 'green' },
-                  { label: '미납',   value: unpaid + partial, icon: Clock,       color: 'red' },
+                  { label: '총 세대', value: DEMO_BUILDING.building_units_count, icon: Users,       color: 'blue' },
+                  { label: '완납',   value: paid,                                icon: CheckCircle2, color: 'green' },
+                  { label: '미납',   value: unpaid + partial,                    icon: Clock,        color: 'red' },
                 ].map((s, i) => {
                   const Icon = s.icon;
                   return (
@@ -258,15 +210,14 @@ function DemoRepContent({ onLoginRequired, view, setView }) {
                 })}
               </div>
 
-              {/* Quick Actions */}
               <div>
                 <h2 className="text-sm font-semibold text-slate-500 dark:text-slate-400 mb-3">빠른 작업</h2>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
                   {[
-                    { id: 'quick-invite',   label: '입주자 초대 현황', icon: Send,        color: 'orange',  view: VIEWS.INVITE,   tip: '입주자 초대 발송 현황을 확인합니다' },
-                    { id: 'quick-charges',  label: '세대별 청구서 조회', icon: Receipt,   color: 'emerald', view: VIEWS.CHARGES,  tip: '각 세대 청구 내역을 조회합니다' },
-                    { id: 'quick-send',    label: '청구서 발송',        icon: Send,      color: 'rose',    action: true,         tip: '세대에 청구서 문자를 발송합니다' },
-                    { id: 'quick-payments', label: '납부 현황 관리',     icon: CreditCard, color: 'teal',   view: VIEWS.PAYMENTS, tip: '납부 완료 여부를 기록·관리합니다' },
+                    { id: 'quick-invite',   label: '입주자 초대 현황',    icon: Send,       color: 'orange',  view: VIEWS.INVITE,   tip: '입주자 초대 발송 현황을 확인합니다' },
+                    { id: 'quick-charges',  label: '세대별 청구서 조회', icon: Receipt,    color: 'emerald', view: VIEWS.CHARGES,  tip: '각 세대 청구 내역을 조회합니다' },
+                    { id: 'quick-send',     label: '청구서 발송',         icon: Send,       color: 'rose',    action: true,         tip: '세대에 청구서 문자를 발송합니다' },
+                    { id: 'quick-payments', label: '납부 현황 관리',      icon: CreditCard, color: 'teal',    view: VIEWS.PAYMENTS, tip: '납부 완료 여부를 기록·관리합니다' },
                   ].map((item, i) => {
                     const Icon = item.icon;
                     return (
@@ -296,7 +247,6 @@ function DemoRepContent({ onLoginRequired, view, setView }) {
           {view === VIEWS.UNITS && (
             <>
               <h2 className="text-xl font-bold text-slate-900 dark:text-slate-100">입주자 목록</h2>
-
               <div data-tutorial="units-list" className="space-y-2">
                 {DEMO_UNITS.map(u => {
                   const inv = DEMO_INVITATIONS.find(i => i.unit_id === u.id);
@@ -328,7 +278,6 @@ function DemoRepContent({ onLoginRequired, view, setView }) {
                 <h2 className="text-xl font-bold text-slate-900 dark:text-slate-100">입주자 초대</h2>
                 <Button data-tutorial="invite-resend" size="sm" onClick={handleAction} className="bg-primary text-white" {...triggerProps('미가입 세대에 초대 SMS를 일괄 발송합니다')}>전체 재발송</Button>
               </div>
-              {/* Summary */}
               <div className="grid grid-cols-3 gap-3">
                 {[
                   { label: '가입 완료', value: inviteDone, color: 'green' },
@@ -406,9 +355,7 @@ function DemoRepContent({ onLoginRequired, view, setView }) {
           {/* ── CHARGES ── */}
           {view === VIEWS.CHARGES && (
             <>
-              <div className="flex items-center justify-between">
-                <h2 className="text-xl font-bold text-slate-900 dark:text-slate-100">세대별 청구서 <span className="text-base text-slate-500 dark:text-slate-400 font-normal">2026-03</span></h2>
-              </div>
+              <h2 className="text-xl font-bold text-slate-900 dark:text-slate-100">세대별 청구서 <span className="text-base text-slate-500 dark:text-slate-400 font-normal">2026-03</span></h2>
               <div className="space-y-2">
                 {DEMO_UNIT_CHARGES.map(c => (
                   <Card key={c.id} className="border-0 shadow-sm">
@@ -436,7 +383,7 @@ function DemoRepContent({ onLoginRequired, view, setView }) {
               <h2 className="text-xl font-bold text-slate-900 dark:text-slate-100">청구서 발송 <span className="text-base text-slate-500 dark:text-slate-400 font-normal">2026-03</span></h2>
               <div className="grid grid-cols-2 gap-3">
                 {[
-                  { label: '발송 완료', value: sentCharges,                         color: 'blue' },
+                  { label: '발송 완료', value: sentCharges,                    color: 'blue' },
                   { label: '미발송',   value: DEMO_UNITS.length - sentCharges, color: 'slate' },
                 ].map((s, i) => (
                   <Card key={i} className="border-0 shadow-sm text-center">
@@ -453,7 +400,7 @@ function DemoRepContent({ onLoginRequired, view, setView }) {
                     <CardContent className="p-4 flex items-center justify-between">
                       <div className="flex items-center gap-3">
                         <div className="w-9 h-9 rounded-xl bg-slate-100 flex items-center justify-center text-xs font-bold text-slate-600">{c.unit_name}</div>
-                        <span className="font-semibold text-slate-900">{c.tenant_name}</span>
+                        <span className="font-semibold text-slate-900 dark:text-slate-100">{c.tenant_name}</span>
                       </div>
                       <div className="flex items-center gap-2">
                         <Badge className={c.is_sent ? 'bg-blue-100 text-blue-700' : 'bg-slate-100 text-slate-500'}>
@@ -479,9 +426,9 @@ function DemoRepContent({ onLoginRequired, view, setView }) {
               <h2 className="text-xl font-bold text-slate-900 dark:text-slate-100">납부 현황 <span className="text-base text-slate-500 dark:text-slate-400 font-normal">2026-03</span></h2>
               <div className="grid grid-cols-3 gap-3">
                 {[
-                  { label: '완납',  count: paid,    color: 'green' },
-                  { label: '부분납', count: partial, color: 'yellow' },
-                  { label: '미납',  count: unpaid,  color: 'red' },
+                  { label: '완납',   count: paid,    color: 'green' },
+                  { label: '부분납', count: partial,  color: 'yellow' },
+                  { label: '미납',   count: unpaid,   color: 'red' },
                 ].map((s, i) => (
                   <Card key={i} className="border-0 shadow-sm text-center">
                     <CardContent className="py-4">
@@ -505,7 +452,7 @@ function DemoRepContent({ onLoginRequired, view, setView }) {
                       <div className="text-right flex items-center gap-2">
                         <div>
                           <Badge className={
-                            p.status === '완납'  ? 'bg-green-100 text-green-700'
+                            p.status === '완납'   ? 'bg-green-100 text-green-700'
                             : p.status === '미납' ? 'bg-red-100 text-red-700'
                             : 'bg-yellow-100 text-yellow-700'
                           }>{p.status}</Badge>
