@@ -64,6 +64,10 @@ const AuthenticatedApp = () => {
           }
         />
       ))}
+      {/* Public demo routes - no auth required */}
+      <Route path="/Demo" element={<LayoutWrapper currentPageName="Demo"><Demo /></LayoutWrapper>} />
+      <Route path="/DemoRep" element={<LayoutWrapper currentPageName="DemoRep"><DemoRep onLoginRequired={() => {}} /></LayoutWrapper>} />
+      <Route path="/DemoTenant" element={<LayoutWrapper currentPageName="DemoTenant"><DemoTenant onLoginRequired={() => {}} /></LayoutWrapper>} />
       <Route path="*" element={<PageNotFound />} />
     </Routes>
   );
