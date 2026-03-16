@@ -28,6 +28,11 @@ export default function Demo() {
 
   return (
     <div className="min-h-screen bg-slate-50 flex flex-col">
+      <DemoWelcomeModal
+        isOpen={showWelcome}
+        onStartDemo={handleStartDemo}
+        onLogin={() => handleLoginClick(role)}
+      />
       {/* Top Header */}
       <header className="sticky top-0 z-50 bg-white border-b border-slate-200 shadow-sm" style={{ paddingTop: 'var(--safe-area-inset-top)' }}>
         <div className="max-w-5xl mx-auto px-4 h-14 flex items-center justify-between gap-3">
