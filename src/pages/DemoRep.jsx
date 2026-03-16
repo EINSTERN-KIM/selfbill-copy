@@ -368,7 +368,7 @@ export default function DemoRep({ onLoginRequired }) {
           {view === VIEWS.CHARGES && (
             <>
               <div className="flex items-center justify-between">
-                <h2 className="text-xl font-bold text-slate-900">세대별 청구서 <span className="text-base text-slate-500 font-normal">2026-03</span></h2>
+                <h2 className="text-xl font-bold text-slate-900 dark:text-slate-100">세대별 청구서 <span className="text-base text-slate-500 dark:text-slate-400 font-normal">2026-03</span></h2>
               </div>
               <div className="space-y-2">
                 {DEMO_UNIT_CHARGES.map(c => (
