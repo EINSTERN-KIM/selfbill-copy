@@ -29,7 +29,7 @@ export const DEMO_UNITS = [
 
 // 초대 상태: 완료 7세대, 발송중 3세대, 미초대 2세대
 export const DEMO_INVITATIONS = [
-  { id: 'i1',  unit_id: 'u1',  unit_name: '101호', tenant_name: '김민준', status: '가입 완료' },
+  { id: 'i1',  unit_id: 'u1',  unit_name: '101호', tenant_name: '똑똑이', status: '가입 완료' },
   { id: 'i2',  unit_id: 'u2',  unit_name: '102호', tenant_name: '이서연', status: '가입 완료' },
   { id: 'i3',  unit_id: 'u3',  unit_name: '201호', tenant_name: '박지호', status: '가입 완료' },
   { id: 'i4',  unit_id: 'u4',  unit_name: '202호', tenant_name: '최유나', status: '가입 완료' },
