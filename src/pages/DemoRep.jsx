@@ -308,9 +308,9 @@ export default function DemoRep({ onLoginRequired }) {
                 {DEMO_INVITATIONS.map(inv => (
                   <Card key={inv.id} className="border-0 shadow-sm">
                     <CardContent className="p-4 flex items-center gap-3">
-                      <div className="w-9 h-9 rounded-xl bg-slate-100 flex items-center justify-center text-xs font-bold text-slate-600">{inv.unit_name}</div>
+                      <div className="w-9 h-9 rounded-xl bg-slate-100 dark:bg-slate-700 flex items-center justify-center text-xs font-bold text-slate-600 dark:text-slate-200">{inv.unit_name}</div>
                       <div className="flex-1">
-                        <p className="font-semibold text-slate-900">{inv.tenant_name}</p>
+                        <p className="font-semibold text-slate-900 dark:text-slate-100">{inv.tenant_name}</p>
                       </div>
                       <Badge className={
                         inv.status === '가입 완료' ? 'bg-green-100 text-green-700'
