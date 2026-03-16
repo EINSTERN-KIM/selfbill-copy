@@ -1,29 +1,31 @@
 import React, { useState, useEffect, useCallback, createContext, useContext, useRef } from 'react';
 
-/**
- * 게임 튜토리얼 스타일 - Spotlight 방식
- * - 한 번에 하나의 요소만 강조
- * - 나머지는 어둡게 + 블러
- * - 말풍선으로 설명
- * - 다음/건너뛰기 버튼
- */
-
-const TutorialContext = createContext({ active: false, step: 0, total: 0, next: () => {}, dismiss: () => {} });
+const TutorialContext = createContext({
+  active: false, step: 0, total: 0, items: [],
+  next: () => {}, dismiss: () => {}, register: () => {},
+});
 
 export function useTutorial() {
   return useContext(TutorialContext);
 }
 
-export function TutorialProvider({ viewKey, children }) {
-  const [active, setActive] = useState(true);
+export function TutorialProvider({ viewKey, autoStart = false, children }) {
+  const [active, setActive] = useState(false);
   const [step, setStep] = useState(0);
   const [items, setItems] = useState([]);
 
+  // 뷰 바뀌면 리셋 (autoStart면 자동 시작)
   useEffect(() => {
-    setActive(true);
     setStep(0);
     setItems([]);
+    if (autoStart) setActive(true);
+    else setActive(false);
   }, [viewKey]);
+
+  // autoStart가 true로 바뀌면 즉시 시작
+  useEffect(() => {
+    if (autoStart) setActive(true);
+  }, [autoStart]);
 
   const register = useCallback((newItems) => {
     setItems(newItems);
@@ -49,24 +51,26 @@ export function TutorialProvider({ viewKey, children }) {
 }
 
 /**
- * SpotlightTutorial — 등록된 요소들을 순서대로 강조하는 오버레이
+ * SpotlightTutorial
+ * - 대상 요소로 자동 스크롤
+ * - 말풍선은 스포트라이트 밖(위/아래/화면하단 고정)에 배치
+ * - 스포트라이트 영역은 절대 가리지 않음
  */
 export function SpotlightTutorial({ steps }) {
   const { active, step, next, dismiss, register } = useTutorial();
   const [rect, setRect] = useState(null);
-  const rafRef = useRef(null);
+  const [bubblePos, setBubblePos] = useState(null);
 
-  // steps를 context에 등록
+  // steps context 등록
   useEffect(() => {
-    if (steps && steps.length > 0) {
-      register(steps);
-    }
+    if (steps && steps.length > 0) register(steps);
   }, [steps, register]);
 
-  // 현재 step의 타겟 요소 위치 추적
+  // 현재 step 요소 추적 + 스크롤
   useEffect(() => {
     if (!active || !steps || steps.length === 0) {
       setRect(null);
+      setBubblePos(null);
       return;
     }
 
@@ -75,17 +79,72 @@ export function SpotlightTutorial({ steps }) {
 
     const measure = () => {
       const el = document.querySelector(`[data-tutorial="${currentStep.id}"]`);
-      if (el) {
-        const r = el.getBoundingClientRect();
-        setRect({ top: r.top, left: r.left, width: r.width, height: r.height });
-      } else {
+      if (!el) {
         setRect(null);
+        setBubblePos(null);
+        return;
       }
+
+      // 요소가 화면 밖이면 스크롤
+      const r = el.getBoundingClientRect();
+      const vw = window.innerWidth;
+      const vh = window.innerHeight;
+      const MARGIN = 80; // 헤더 여백
+
+      if (r.top < MARGIN || r.bottom > vh - MARGIN) {
+        el.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        // 스크롤 후 재측정
+        setTimeout(() => {
+          const r2 = el.getBoundingClientRect();
+          updatePositions(r2, vw, vh);
+        }, 400);
+        return;
+      }
+
+      updatePositions(r, vw, vh);
+    };
+
+    const updatePositions = (r, vw, vh) => {
+      const PADDING = 8;
+      const newRect = { top: r.top, left: r.left, width: r.width, height: r.height, bottom: r.bottom, right: r.right };
+      setRect(newRect);
+
+      // 말풍선 위치 계산: 스포트라이트 밖에 배치
+      const bubbleW = Math.min(300, vw - 32);
+      const bubbleH = 150;
+      const spotTop    = r.top    - PADDING;
+      const spotBottom = r.bottom + PADDING;
+      const spaceBelow = vh - spotBottom;
+      const spaceAbove = spotTop;
+
+      let top, placement;
+
+      if (spaceBelow >= bubbleH + 20) {
+        // 아래에 공간 충분
+        top = spotBottom + 12;
+        placement = 'below';
+      } else if (spaceAbove >= bubbleH + 20) {
+        // 위에 공간 충분
+        top = spotTop - bubbleH - 12;
+        placement = 'above';
+      } else {
+        // 화면 하단 고정 (스포트라이트 아래를 침범하지 않게)
+        top = Math.min(spotBottom + 12, vh - bubbleH - 12);
+        // 그래도 스포트라이트와 겹치면 위로 올림
+        if (top < spotBottom) top = Math.max(12, spotTop - bubbleH - 12);
+        placement = 'fixed';
+      }
+
+      // 수평 중앙 정렬 (화면 경계 보정)
+      const cx = r.left + r.width / 2;
+      let left = cx - bubbleW / 2;
+      left = Math.max(16, Math.min(left, vw - bubbleW - 16));
+
+      setBubblePos({ top, left, width: bubbleW, placement, spotTop, spotBottom });
     };
 
     measure();
-    // 레이아웃 변화 대응
-    const timer = setTimeout(measure, 100);
+    const timer = setTimeout(measure, 150);
     return () => clearTimeout(timer);
   }, [active, step, steps]);
 
@@ -95,166 +154,136 @@ export function SpotlightTutorial({ steps }) {
   if (!currentStep) return null;
 
   const PADDING = 8;
-  const spotTop    = rect ? rect.top    - PADDING : -999;
-  const spotLeft   = rect ? rect.left   - PADDING : -999;
+  const spotTop    = rect ? rect.top    - PADDING : 0;
+  const spotLeft   = rect ? rect.left   - PADDING : 0;
   const spotWidth  = rect ? rect.width  + PADDING * 2 : 0;
   const spotHeight = rect ? rect.height + PADDING * 2 : 0;
 
-  // 말풍선 위치 계산 (화면 밖으로 나가지 않도록)
-  const getBubblePosition = () => {
-    if (!rect) return { top: '50%', left: '50%', transform: 'translate(-50%, -50%)' };
-
-    const vw = window.innerWidth;
-    const vh = window.innerHeight;
-    const bubbleWidth = Math.min(280, vw - 32);
-    const bubbleHeight = 130;
-
-    // 아래에 공간이 있으면 아래, 없으면 위
-    const spaceBelow = vh - (rect.bottom + PADDING);
-    const spaceAbove = rect.top - PADDING;
-
-    let top, left;
-
-    if (spaceBelow >= bubbleHeight + 16) {
-      top = rect.bottom + PADDING + 12;
-    } else if (spaceAbove >= bubbleHeight + 16) {
-      top = rect.top - PADDING - bubbleHeight - 12;
-    } else {
-      // 중앙 아래
-      top = Math.min(rect.bottom + PADDING + 8, vh - bubbleHeight - 16);
-    }
-
-    // 수평 위치: 요소 중앙에 맞추되 화면 밖으로 안 나가게
-    const centerX = rect.left + rect.width / 2;
-    left = centerX - bubbleWidth / 2;
-    left = Math.max(16, Math.min(left, vw - bubbleWidth - 16));
-
-    return { top, left, width: bubbleWidth };
-  };
-
-  const bubblePos = getBubblePosition();
-  const isBelow = rect && bubblePos.top > (rect.bottom ?? 0);
+  const isBelow = bubblePos?.placement === 'below';
 
   return (
-    <div className="fixed inset-0 z-[200]" style={{ pointerEvents: 'all' }}>
-      {/* SVG 마스크 오버레이 */}
-      <svg
-        className="absolute inset-0 w-full h-full"
-        style={{ pointerEvents: 'none' }}
-      >
+    <div className="fixed inset-0 z-[200]">
+      {/* SVG 마스크 배경 */}
+      <svg className="absolute inset-0 w-full h-full" style={{ pointerEvents: 'none' }}>
         <defs>
           <mask id="spotlight-mask">
             <rect width="100%" height="100%" fill="white" />
             {rect && (
               <rect
-                x={spotLeft}
-                y={spotTop}
-                width={spotWidth}
-                height={spotHeight}
-                rx="12"
-                fill="black"
+                x={spotLeft} y={spotTop}
+                width={spotWidth} height={spotHeight}
+                rx="12" fill="black"
               />
             )}
           </mask>
         </defs>
-        {/* 어두운 배경 */}
         <rect
-          width="100%"
-          height="100%"
-          fill="rgba(0,0,0,0.72)"
+          width="100%" height="100%"
+          fill="rgba(0,0,0,0.70)"
           mask="url(#spotlight-mask)"
-          style={{ backdropFilter: 'blur(4px)' }}
         />
       </svg>
 
-      {/* 강조 요소 테두리 */}
+      {/* 강조 테두리 */}
       {rect && (
         <div
           className="absolute pointer-events-none rounded-xl"
           style={{
-            top: spotTop,
-            left: spotLeft,
-            width: spotWidth,
-            height: spotHeight,
-            boxShadow: '0 0 0 3px #22c55e, 0 0 24px rgba(34,197,94,0.5)',
-            transition: 'all 0.3s cubic-bezier(0.4,0,0.2,1)',
+            top: spotTop, left: spotLeft,
+            width: spotWidth, height: spotHeight,
+            boxShadow: '0 0 0 3px #22c55e, 0 0 28px rgba(34,197,94,0.5)',
+            transition: 'all 0.35s cubic-bezier(0.4,0,0.2,1)',
+            zIndex: 201,
           }}
         />
       )}
 
-      {/* 클릭 차단 - 강조 영역 제외 */}
-      <div
-        className="absolute inset-0"
-        onClick={dismiss}
-        style={{ pointerEvents: rect ? 'none' : 'all' }}
-      />
+      {/* 어두운 영역 클릭 → 닫기 (스포트라이트 제외) */}
+      {rect && (
+        <>
+          {/* 위쪽 */}
+          <div className="absolute left-0 right-0" style={{ top: 0, height: spotTop, cursor: 'pointer' }} onClick={dismiss} />
+          {/* 아래쪽 */}
+          <div className="absolute left-0 right-0" style={{ top: spotTop + spotHeight, bottom: 0, cursor: 'pointer' }} onClick={dismiss} />
+          {/* 왼쪽 */}
+          <div className="absolute" style={{ top: spotTop, height: spotHeight, left: 0, width: spotLeft, cursor: 'pointer' }} onClick={dismiss} />
+          {/* 오른쪽 */}
+          <div className="absolute" style={{ top: spotTop, height: spotHeight, left: spotLeft + spotWidth, right: 0, cursor: 'pointer' }} onClick={dismiss} />
+        </>
+      )}
+      {!rect && (
+        <div className="absolute inset-0 cursor-pointer" onClick={dismiss} />
+      )}
 
       {/* 말풍선 */}
-      <div
-        className="absolute z-[210]"
-        style={{
-          top: bubblePos.top,
-          left: bubblePos.left,
-          width: bubblePos.width,
-          transition: 'all 0.3s cubic-bezier(0.4,0,0.2,1)',
-        }}
-        onClick={e => e.stopPropagation()}
-      >
-        {/* 꼬리 */}
-        {rect && (
-          <div
-            className="absolute left-1/2 -translate-x-1/2 w-3 h-3 bg-white rotate-45 border-slate-100"
-            style={isBelow
-              ? { top: -6, borderLeft: '1px solid #e2e8f0', borderTop: '1px solid #e2e8f0' }
-              : { bottom: -6, borderRight: '1px solid #e2e8f0', borderBottom: '1px solid #e2e8f0' }
-            }
-          />
-        )}
+      {bubblePos && (
+        <div
+          className="absolute z-[210]"
+          style={{
+            top: bubblePos.top,
+            left: bubblePos.left,
+            width: bubblePos.width,
+            transition: 'all 0.35s cubic-bezier(0.4,0,0.2,1)',
+            pointerEvents: 'all',
+          }}
+          onClick={e => e.stopPropagation()}
+        >
+          {/* 꼬리 */}
+          {rect && (
+            <div
+              className="absolute left-1/2 -translate-x-1/2 w-3 h-3 bg-white rotate-45"
+              style={isBelow
+                ? { top: -6, borderLeft: '1px solid #e2e8f0', borderTop: '1px solid #e2e8f0' }
+                : { bottom: -6, borderRight: '1px solid #e2e8f0', borderBottom: '1px solid #e2e8f0' }
+              }
+            />
+          )}
 
-        <div className="bg-white rounded-2xl shadow-2xl border border-slate-100 overflow-hidden">
-          {/* 헤더 */}
-          <div className="bg-gradient-to-r from-green-500 to-green-600 px-4 py-2 flex items-center justify-between">
-            <div className="flex items-center gap-1.5">
-              {Array.from({ length: steps.length }).map((_, i) => (
-                <div
-                  key={i}
-                  className={`h-1.5 rounded-full transition-all duration-300 ${
-                    i === step ? 'bg-white w-5' : i < step ? 'bg-white/60 w-1.5' : 'bg-white/30 w-1.5'
-                  }`}
-                />
-              ))}
+          <div className="bg-white rounded-2xl shadow-2xl border border-slate-100 overflow-hidden">
+            {/* 헤더 */}
+            <div className="bg-gradient-to-r from-green-500 to-green-600 px-4 py-2 flex items-center justify-between">
+              <div className="flex items-center gap-1.5">
+                {Array.from({ length: steps.length }).map((_, i) => (
+                  <div
+                    key={i}
+                    className={`h-1.5 rounded-full transition-all duration-300 ${
+                      i === step ? 'bg-white w-5' : i < step ? 'bg-white/60 w-1.5' : 'bg-white/30 w-1.5'
+                    }`}
+                  />
+                ))}
+              </div>
+              <span className="text-white/80 text-xs">{step + 1} / {steps.length}</span>
             </div>
-            <span className="text-white/80 text-xs">{step + 1} / {steps.length}</span>
-          </div>
 
-          {/* 내용 */}
-          <div className="px-4 py-3">
-            <p className="text-xs font-bold text-green-600 mb-0.5">{currentStep.title}</p>
-            <p className="text-sm text-slate-700 leading-relaxed break-keep">{currentStep.description}</p>
-          </div>
+            {/* 내용 */}
+            <div className="px-4 py-3">
+              <p className="text-xs font-bold text-green-600 mb-0.5">{currentStep.title}</p>
+              <p className="text-sm text-slate-700 leading-relaxed break-keep">{currentStep.description}</p>
+            </div>
 
-          {/* 버튼 */}
-          <div className="px-4 pb-3 flex gap-2">
-            <button
-              onClick={dismiss}
-              className="flex-1 py-2 text-xs text-slate-400 hover:text-slate-600 transition-colors"
-            >
-              건너뛰기
-            </button>
-            <button
-              onClick={next}
-              className="flex-[2] py-2 bg-green-500 hover:bg-green-600 text-white text-sm font-semibold rounded-lg transition-colors"
-            >
-              {step < steps.length - 1 ? '다음 →' : '시작하기 ✓'}
-            </button>
+            {/* 버튼 */}
+            <div className="px-4 pb-3 flex gap-2">
+              <button
+                onClick={dismiss}
+                className="flex-1 py-2 text-xs text-slate-400 hover:text-slate-600 transition-colors"
+              >
+                건너뛰기
+              </button>
+              <button
+                onClick={next}
+                className="flex-[2] py-2 bg-green-500 hover:bg-green-600 text-white text-sm font-semibold rounded-lg transition-colors"
+              >
+                {step < steps.length - 1 ? '다음 →' : '완료 ✓'}
+              </button>
+            </div>
           </div>
         </div>
-      </div>
+      )}
     </div>
   );
 }
 
-/** 커서 옆 말풍선 (튜토리얼 해제 후 호버용) */
+/** 커서 옆 말풍선 (튜토리얼 꺼진 후 호버용) */
 export function useDemoTooltip() {
   const [hoverTooltip, setHoverTooltip] = useState({ visible: false, text: '', x: 0, y: 0 });
   const { active } = useTutorial();
@@ -295,5 +324,4 @@ export default function DemoTooltipOverlay({ tooltip }) {
   );
 }
 
-// 하위 호환성을 위한 빈 컴포넌트
 export function TutorialBubbles() { return null; }
