@@ -10,10 +10,10 @@ import DemoWelcomeModal from '@/components/demo/DemoWelcomeModal';
 
 export default function Demo() {
   const navigate = useNavigate();
-  const [role, setRole] = useState('rep'); // 'rep' | 'tenant'
+  const [role, setRole] = useState('rep');
+  const [showWelcome, setShowWelcome] = useState(true);
 
   useEffect(() => {
-    // 이미 로그인된 사용자는 실제 서비스로 이동
     base44.auth.isAuthenticated().then((auth) => {
       if (auth) navigate(createPageUrl('MyBuildings'));
     });
@@ -23,6 +23,8 @@ export default function Demo() {
     sessionStorage.setItem('demoRole', targetRole || role);
     base44.auth.redirectToLogin(createPageUrl('Onboarding'));
   };
+
+  const handleStartDemo = () => setShowWelcome(false);
 
   return (
     <div className="min-h-screen bg-slate-50 flex flex-col">
