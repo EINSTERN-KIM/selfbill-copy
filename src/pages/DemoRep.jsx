@@ -47,6 +47,7 @@ const MENU_SECTIONS = [
 
 const TUTORIAL_STEPS = {
   [VIEWS.DASHBOARD]: [
+    { id: 'sidebar-menu-btn', title: '사이드 메뉴', description: '이 버튼을 눌러 세대 관리, 관리비 청구, 납부 현황, 보고서 등 다양한 메뉴를 경험해보세요!' },
     { id: 'quick-invite',   title: '입주자 초대 현황',   description: '입주자들에게 초대 SMS를 보내고 가입 현황을 확인하세요.' },
     { id: 'quick-charges',  title: '세대별 청구서 조회', description: '각 세대의 관리비 청구 내역을 상세하게 조회할 수 있습니다.' },
     { id: 'quick-send',     title: '청구서 발송',         description: '한 번의 클릭으로 모든 세대에 청구서를 문자로 발송합니다.' },
