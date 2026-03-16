@@ -425,7 +425,7 @@ export default function DemoRep({ onLoginRequired }) {
                   </Card>
                 ))}
               </div>
-              <Button onClick={handleAction} className="w-full bg-primary text-white">
+              <Button onClick={handleAction} className="w-full bg-primary text-white" {...triggerProps('아직 받지 못한 세대에 청구서를 한 번에 발송합니다')}>
                 <Send className="w-4 h-4 mr-2" />미발송 세대 일괄 발송
               </Button>
             </>
