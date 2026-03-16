@@ -486,7 +486,7 @@ export default function DemoRep({ onLoginRequired }) {
           {/* ── REPORTS ── */}
           {view === VIEWS.REPORTS && (
             <>
-              <h2 className="text-xl font-bold text-slate-900">관리비 현황 보고서</h2>
+              <h2 className="text-xl font-bold text-slate-900 dark:text-slate-100">관리비 현황 보고서</h2>
               <Card className="border-0 shadow-sm">
                 <CardHeader>
                   <CardTitle className="text-base">월별 관리비 추이</CardTitle>
