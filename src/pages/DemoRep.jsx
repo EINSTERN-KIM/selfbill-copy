@@ -139,11 +139,41 @@ export default function DemoRep({ onLoginRequired }) {
     </div>
   );
 
+  // 뷰별 튜토리얼 스텝 정의
+  const tutorialSteps = {
+    [VIEWS.DASHBOARD]: [
+      { id: 'quick-invite',   title: '입주자 초대 현황',    description: '입주자들에게 초대 SMS를 보내고 가입 현황을 확인하세요.' },
+      { id: 'quick-charges',  title: '세대별 청구서 조회',  description: '각 세대의 관리비 청구 내역을 상세하게 조회할 수 있습니다.' },
+      { id: 'quick-send',    title: '청구서 발송',          description: '한 번의 클릭으로 모든 세대에 청구서를 문자로 발송합니다.' },
+      { id: 'quick-payments', title: '납부 현황 관리',      description: '세대별 납부 여부를 기록하고 미납 세대를 관리하세요.' },
+    ],
+    [VIEWS.UNITS]: [
+      { id: 'units-list', title: '입주자 목록', description: '등록된 모든 세대와 입주자 정보, 초대 상태를 한눈에 확인하세요.' },
+    ],
+    [VIEWS.INVITE]: [
+      { id: 'invite-resend', title: '전체 재발송', description: '아직 가입하지 않은 세대에 초대 문자를 일괄 재발송합니다.' },
+    ],
+    [VIEWS.FEE_ITEMS]: [
+      { id: 'fee-add', title: '항목 추가', description: '관리비 항목(청소비, 전기료 등)을 추가하고 금액을 설정하세요.' },
+    ],
+    [VIEWS.SEND]: [
+      { id: 'send-all', title: '일괄 발송', description: '미발송 세대에 청구서를 한 번에 문자로 발송합니다.' },
+    ],
+    [VIEWS.PAYMENTS]: [
+      { id: 'payments-list', title: '납부 현황', description: '완납/부분납/미납 세대를 확인하고 납부 정보를 수정할 수 있습니다.' },
+    ],
+    [VIEWS.REPORTS]: [
+      { id: 'reports-chart', title: '관리비 추이', description: '월별 관리비 변동 추이를 그래프로 확인하세요.' },
+    ],
+  };
+
+  const currentSteps = tutorialSteps[view] || [];
+
   return (
     <TutorialProvider viewKey={view}>
     <div className="flex h-[calc(100vh-88px)]">
       <DemoTooltipOverlay tooltip={tooltip} />
-      <TutorialBubbles containerRef={containerRef} />
+      <SpotlightTutorial steps={currentSteps} />
 
       {/* Mobile overlay */}
       {sidebarOpen && (
