@@ -483,7 +483,7 @@ export default function DemoRep({ onLoginRequired }) {
                   </Card>
                 ))}
               </div>
-              <div className="space-y-2">
+              <div data-tutorial="payments-list" className="space-y-2">
                 {DEMO_PAYMENTS.map(p => (
                   <Card key={p.id} className="border-0 shadow-sm">
                     <CardContent className="p-4 flex items-center justify-between">
