@@ -303,8 +303,8 @@ export default function DemoTenant({ onLoginRequired }) {
           {/* ── PAYMENTS ── */}
           {view === VIEWS.PAYMENTS && (
             <>
-              <h2 className="text-lg font-bold text-slate-900">납부 내역</h2>
-              <div className="space-y-2">
+              <h2 className="text-lg font-bold text-slate-900 dark:text-slate-100">납부 내역</h2>
+              <div data-tutorial="payments-history" className="space-y-2">
                 {[DEMO_MY_PAYMENT, ...DEMO_PAST_BILLS.map((b) => ({
                   year_month: b.year_month,
                   status: b.status,
