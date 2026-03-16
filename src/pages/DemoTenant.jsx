@@ -173,9 +173,9 @@ export default function DemoTenant({ onLoginRequired }) {
           {view === VIEWS.DASHBOARD && (
             <>
               <div>
-                <p className="text-sm text-slate-500">안녕하세요,</p>
-                <h1 className="text-xl font-bold text-slate-900">{DEMO_MY_UNIT.tenant_name}님 👋</h1>
-                <p className="text-sm text-slate-500 mt-0.5">{DEMO_BUILDING.name} {DEMO_MY_UNIT.unit_name}</p>
+                <p className="text-sm text-slate-500 dark:text-slate-400">안녕하세요,</p>
+                <h1 className="text-xl font-bold text-slate-900 dark:text-slate-100">{DEMO_MY_UNIT.tenant_name}님 👋</h1>
+                <p className="text-sm text-slate-500 dark:text-slate-400 mt-0.5">{DEMO_BUILDING.name} {DEMO_MY_UNIT.unit_name}</p>
               </div>
 
               {/* Bill Summary Card */}
