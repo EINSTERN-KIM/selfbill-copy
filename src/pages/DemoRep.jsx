@@ -242,8 +242,8 @@ export default function DemoRep({ onLoginRequired }) {
                           <div className={`w-10 h-10 rounded-xl bg-${item.color}-100 flex items-center justify-center`}>
                             <Icon className={`w-5 h-5 text-${item.color}-600`} />
                           </div>
-                          <span className="font-semibold text-slate-800 flex-1 text-sm">{item.label}</span>
-                          <ChevronRight className="w-4 h-4 text-slate-300" />
+                          <span className="font-semibold text-slate-800 dark:text-slate-100 flex-1 text-sm">{item.label}</span>
+                          <ChevronRight className="w-4 h-4 text-slate-300 dark:text-slate-500" />
                         </CardContent>
                       </Card>
                     );
