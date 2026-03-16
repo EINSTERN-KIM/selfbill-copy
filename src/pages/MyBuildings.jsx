@@ -238,7 +238,7 @@ export default function MyBuildings() {
           <div className="space-y-4">
             {buildingsData.map((item) => (
               <Card 
-                key={item.id}
+                key={item.building_id}
                 className="cursor-pointer hover:shadow-xl transition-all group card-rounded border border-slate-200"
                 onClick={() => handleBuildingClick(item)}
               >
