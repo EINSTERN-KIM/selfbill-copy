@@ -16,7 +16,7 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
-import { Building2, Receipt, Palette, Trash2 } from 'lucide-react';
+import { Building2, Palette, Trash2 } from 'lucide-react';
 import LoadingSpinner from '@/components/common/LoadingSpinner';
 import RepLayout from '@/components/common/RepLayout';
 import { useBuildingAuth } from '@/components/common/useBuildingAuth';
