@@ -212,8 +212,8 @@ export default function DemoRep({ onLoginRequired }) {
                         <div className={`w-10 h-10 rounded-xl bg-${s.color}-50 flex items-center justify-center mx-auto mb-2`}>
                           <Icon className={`w-5 h-5 text-${s.color}-600`} />
                         </div>
-                        <p className="text-2xl font-bold text-slate-900">{s.value}</p>
-                        <p className="text-xs text-slate-500">{s.label}</p>
+                        <p className="text-2xl font-bold text-slate-900 dark:text-slate-100">{s.value}</p>
+                        <p className="text-xs text-slate-500 dark:text-slate-400">{s.label}</p>
                       </CardContent>
                     </Card>
                   );
