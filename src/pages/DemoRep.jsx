@@ -375,11 +375,11 @@ export default function DemoRep({ onLoginRequired }) {
                   <Card key={c.id} className="border-0 shadow-sm">
                     <CardContent className="p-4 flex items-center justify-between">
                       <div className="flex items-center gap-3">
-                        <div className="w-9 h-9 rounded-xl bg-slate-100 flex items-center justify-center text-xs font-bold text-slate-600">{c.unit_name}</div>
-                        <span className="font-semibold text-slate-900">{c.tenant_name}</span>
+                        <div className="w-9 h-9 rounded-xl bg-slate-100 dark:bg-slate-700 flex items-center justify-center text-xs font-bold text-slate-600 dark:text-slate-200">{c.unit_name}</div>
+                        <span className="font-semibold text-slate-900 dark:text-slate-100">{c.tenant_name}</span>
                       </div>
                       <div className="text-right">
-                        <p className="font-bold text-slate-900">{formatWon(c.amount_total)}</p>
+                        <p className="font-bold text-slate-900 dark:text-slate-100">{formatWon(c.amount_total)}</p>
                         <Badge className={c.is_sent ? 'bg-blue-100 text-blue-700' : 'bg-slate-100 text-slate-500'}>
                           {c.is_sent ? '발송완료' : '미발송'}
                         </Badge>
