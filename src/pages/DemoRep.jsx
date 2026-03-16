@@ -256,7 +256,7 @@ export default function DemoRep({ onLoginRequired }) {
           {/* ── UNITS ── */}
           {view === VIEWS.UNITS && (
             <>
-              <h2 className="text-xl font-bold text-slate-900">입주자 목록</h2>
+              <h2 className="text-xl font-bold text-slate-900 dark:text-slate-100">입주자 목록</h2>
 
               <div className="space-y-2">
                 {DEMO_UNITS.map(u => {
@@ -264,10 +264,10 @@ export default function DemoRep({ onLoginRequired }) {
                   return (
                     <Card key={u.id} className="border-0 shadow-sm">
                       <CardContent className="p-4 flex items-center gap-3">
-                        <div className="w-10 h-10 rounded-xl bg-slate-100 flex items-center justify-center text-xs font-bold text-slate-600">{u.unit_name}</div>
+                        <div className="w-10 h-10 rounded-xl bg-slate-100 dark:bg-slate-700 flex items-center justify-center text-xs font-bold text-slate-600 dark:text-slate-200">{u.unit_name}</div>
                         <div className="flex-1">
-                          <p className="font-semibold text-slate-900">{u.tenant_name}</p>
-                          <p className="text-xs text-slate-500">{u.tenant_phone}</p>
+                          <p className="font-semibold text-slate-900 dark:text-slate-100">{u.tenant_name}</p>
+                          <p className="text-xs text-slate-500 dark:text-slate-400">{u.tenant_phone}</p>
                         </div>
                         <Badge className={
                           inv?.status === '가입 완료' ? 'bg-green-100 text-green-700'
