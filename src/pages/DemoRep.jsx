@@ -12,7 +12,7 @@ import {
   DEMO_UNIT_CHARGES, DEMO_PAYMENTS, DEMO_INVITATIONS
 } from '@/components/demo/demoData';
 import DemoLoginModal from '@/components/demo/DemoLoginModal';
-import DemoTooltipOverlay, { useDemoTooltip, TutorialProvider, TutorialBubbles } from '@/components/demo/DemoTooltip';
+import DemoTooltipOverlay, { useDemoTooltip, TutorialProvider, SpotlightTutorial } from '@/components/demo/DemoTooltip';
 import { formatWon } from '@/components/utils/formatters';
 
 const VIEWS = {
