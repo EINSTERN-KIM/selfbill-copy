@@ -564,6 +564,5 @@ function DemoRepContent({ onLoginRequired, view, setView }) {
 
       <DemoLoginModal isOpen={showLoginModal} onClose={() => setShowLoginModal(false)} role="rep" />
     </div>
-    </TutorialProvider>
   );
 }
