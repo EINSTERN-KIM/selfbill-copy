@@ -357,7 +357,7 @@ export default function DemoRep({ onLoginRequired }) {
               </div>
               <Card className="border-0 bg-slate-50 shadow-sm">
                 <CardContent className="p-4 flex justify-between items-center">
-                  <span className="font-semibold text-slate-700">총 합계</span>
+                  <span className="font-semibold text-slate-700 dark:text-slate-200">총 합계</span>
                   <span className="text-xl font-bold text-primary">{formatWon(DEMO_BILL_CYCLE.total_amount)}</span>
                 </CardContent>
               </Card>
