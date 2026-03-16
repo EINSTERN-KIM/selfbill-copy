@@ -140,6 +140,8 @@ export default function DemoRep({ onLoginRequired }) {
 
   return (
     <div className="flex h-[calc(100vh-88px)]">
+      <DemoTooltipOverlay tooltip={tooltip} />
+
       {/* Mobile overlay */}
       {sidebarOpen && (
         <div className="lg:hidden fixed inset-0 bg-black/40 z-40" onClick={() => setSidebarOpen(false)} />
