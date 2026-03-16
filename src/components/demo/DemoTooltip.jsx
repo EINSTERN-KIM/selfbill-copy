@@ -283,45 +283,14 @@ export function SpotlightTutorial({ steps }) {
   );
 }
 
-/** 커서 옆 말풍선 (튜토리얼 꺼진 후 호버용) */
+/** 호버 툴팁 제거됨 - 하위 호환용 빈 훅 */
 export function useDemoTooltip() {
-  const [hoverTooltip, setHoverTooltip] = useState({ visible: false, text: '', x: 0, y: 0 });
-  const { active } = useTutorial();
-
-  const show = useCallback((text, e) => {
-    if (active) return;
-    setHoverTooltip({ visible: true, text, x: e?.clientX ?? 0, y: e?.clientY ?? 0 });
-  }, [active]);
-
-  const move = useCallback((text, e) => {
-    if (active) return;
-    setHoverTooltip(prev => ({ ...prev, x: e?.clientX ?? 0, y: e?.clientY ?? 0 }));
-  }, [active]);
-
-  const hide = useCallback(() => {
-    setHoverTooltip(prev => ({ ...prev, visible: false }));
-  }, []);
-
-  const triggerProps = useCallback((text) => ({
-    'data-demo-tip': text,
-    onMouseEnter: (e) => show(text, e),
-    onMouseMove: (e) => move(text, e),
-    onMouseLeave: hide,
-  }), [show, move, hide]);
-
-  return { tooltip: hoverTooltip, triggerProps };
+  const triggerProps = useCallback(() => ({}), []);
+  return { tooltip: { visible: false, text: '', x: 0, y: 0 }, triggerProps };
 }
 
-export default function DemoTooltipOverlay({ tooltip }) {
-  if (!tooltip.visible || !tooltip.text) return null;
-  const offsetX = tooltip.x > window.innerWidth * 0.65 ? -180 : 14;
-  return (
-    <div className="fixed z-[200] pointer-events-none" style={{ left: tooltip.x + offsetX, top: tooltip.y - 36 }}>
-      <div className="bg-slate-900/90 text-white text-xs px-3 py-1.5 rounded-lg shadow-xl whitespace-nowrap max-w-[200px] break-keep">
-        {tooltip.text}
-      </div>
-    </div>
-  );
+export default function DemoTooltipOverlay() {
+  return null;
 }
 
 export function TutorialBubbles() { return null; }
