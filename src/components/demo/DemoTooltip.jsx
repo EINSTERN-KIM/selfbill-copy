@@ -271,7 +271,7 @@ export function SpotlightTutorial({ steps }) {
                 건너뛰기
               </button>
               <button
-                onClick={next}
+                onClick={() => next(steps.length)}
                 className="flex-[2] py-2 bg-green-500 hover:bg-green-600 text-white text-sm font-semibold rounded-lg transition-colors"
               >
                 {step < steps.length - 1 ? '다음 →' : '완료 ✓'}
