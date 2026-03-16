@@ -178,7 +178,6 @@ function DemoRepContent({ onLoginRequired, view, setView }) {
   const currentSteps = tutorialSteps[view] || [];
 
   return (
-    <TutorialProvider viewKey={view} autoStart={autoStartTutorial}>
     <div className="flex h-[calc(100vh-88px)]">
       <DemoTooltipOverlay tooltip={tooltip} />
       <SpotlightTutorial steps={currentSteps} />
