@@ -158,7 +158,7 @@ function DemoRepContent({ onLoginRequired, view, setView }) {
 
       <div className="flex-1 overflow-y-auto bg-slate-50 dark:bg-slate-900">
         <div className="lg:hidden flex items-center gap-3 px-4 py-3 bg-white dark:bg-slate-800 border-b border-slate-200 dark:border-slate-700 sticky top-0 z-30">
-          <button onClick={() => setSidebarOpen(true)} className="p-1">
+          <button data-tutorial="sidebar-menu-btn" onClick={() => setSidebarOpen(true)} className="p-2 -ml-1">
             <Menu className="w-5 h-5 text-slate-600 dark:text-slate-300" />
           </button>
           <span className="font-semibold text-slate-800 dark:text-slate-100 text-sm">
