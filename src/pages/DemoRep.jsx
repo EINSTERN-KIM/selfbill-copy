@@ -60,7 +60,16 @@ const MENU_SECTIONS = [
   },
 ];
 
-function DemoRepInner({ onLoginRequired, autoStartTutorial }) {
+export default function DemoRep({ onLoginRequired, autoStartTutorial = false }) {
+  const [view, setView] = useState(VIEWS.DASHBOARD);
+  return (
+    <TutorialProvider viewKey={view} autoStart={autoStartTutorial}>
+      <DemoRepContent onLoginRequired={onLoginRequired} view={view} setView={setView} />
+    </TutorialProvider>
+  );
+}
+
+function DemoRepContent({ onLoginRequired, view, setView }) {
   const [view, setView] = useState(VIEWS.DASHBOARD);
   const [showLoginModal, setShowLoginModal] = useState(false);
   const [sidebarOpen, setSidebarOpen] = useState(false);
