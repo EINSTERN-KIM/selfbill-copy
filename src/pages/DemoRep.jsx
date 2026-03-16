@@ -500,11 +500,11 @@ export default function DemoRep({ onLoginRequired }) {
                       { ym: '2025-12', amount: 471000, pct: 100 },
                     ].map(row => (
                       <div key={row.ym} className="flex items-center gap-3">
-                        <span className="text-sm text-slate-500 w-16">{row.ym}</span>
-                        <div className="flex-1 bg-slate-100 rounded-full h-2.5">
+                        <span className="text-sm text-slate-500 dark:text-slate-400 w-16">{row.ym}</span>
+                        <div className="flex-1 bg-slate-100 dark:bg-slate-700 rounded-full h-2.5">
                           <div className="bg-primary rounded-full h-2.5" style={{ width: `${row.pct}%` }} />
                         </div>
-                        <span className="text-sm font-semibold text-slate-800 w-20 text-right">{formatWon(row.amount)}</span>
+                        <span className="text-sm font-semibold text-slate-800 dark:text-slate-100 w-20 text-right">{formatWon(row.amount)}</span>
                       </div>
                     ))}
                   </div>
