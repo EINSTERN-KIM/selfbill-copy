@@ -70,7 +70,6 @@ export default function DemoRep({ onLoginRequired, autoStartTutorial = false }) 
 }
 
 function DemoRepContent({ onLoginRequired, view, setView }) {
-  const [view, setView] = useState(VIEWS.DASHBOARD);
   const [showLoginModal, setShowLoginModal] = useState(false);
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const containerRef = React.useRef(null);
