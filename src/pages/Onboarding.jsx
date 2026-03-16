@@ -68,6 +68,20 @@ export default function Onboarding() {
     }
   };
 
+  // 데모 모드에서 로그인한 경우 역할 기반으로 자동 연결
+  useEffect(() => {
+    if (!user) return;
+    const demoRole = sessionStorage.getItem('demoRole');
+    if (!demoRole) return;
+    sessionStorage.removeItem('demoRole');
+    // 이미 멤버십이 있으면 MyBuildings로 (init에서 처리)
+    if (demoRole === 'rep') {
+      navigate(createPageUrl("BuildingSetupWizard"));
+    } else {
+      setStep("invite-check");
+    }
+  }, [user]);
+
   const handleCheckInvite = async () => {
     // Validate phone format
     if (!phone1 || !phone2 || !phone3) {
