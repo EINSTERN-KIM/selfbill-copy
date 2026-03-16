@@ -88,7 +88,10 @@ function DemoRepContent({ onLoginRequired, view, setView }) {
   const handleAction = () => setShowLoginModal(true);
   const navigate = (v) => { setView(v); setSidebarOpen(false); };
 
-  const currentSteps = TUTORIAL_STEPS[view] || [];
+  const isMobile = window.innerWidth < 1024;
+  const currentSteps = (TUTORIAL_STEPS[view] || []).filter(
+    s => s.id !== 'sidebar-menu-btn' || isMobile
+  );
 
   const Sidebar = () => (
     <div className="flex flex-col h-full">

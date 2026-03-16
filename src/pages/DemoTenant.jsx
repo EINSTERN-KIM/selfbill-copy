@@ -75,7 +75,10 @@ function DemoTenantContent({ onLoginRequired, view, setView }) {
   };
 
   const currentLabel = MENU.flatMap(s => s.items).find(i => i.view === view)?.label || '대시보드';
-  const currentSteps = TUTORIAL_STEPS[view] || [];
+  const isMobile = window.innerWidth < 1024;
+  const currentSteps = (TUTORIAL_STEPS[view] || []).filter(
+    s => s.id !== 'sidebar-menu-btn' || isMobile
+  );
 
   const Sidebar = () => (
     <div className="flex flex-col h-full">
