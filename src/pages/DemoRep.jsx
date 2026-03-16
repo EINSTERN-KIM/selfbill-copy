@@ -457,10 +457,10 @@ export default function DemoRep({ onLoginRequired }) {
                   <Card key={p.id} className="border-0 shadow-sm">
                     <CardContent className="p-4 flex items-center justify-between">
                       <div className="flex items-center gap-3">
-                        <div className="w-9 h-9 rounded-xl bg-slate-100 flex items-center justify-center text-xs font-bold text-slate-600">{p.unit_name}</div>
+                        <div className="w-9 h-9 rounded-xl bg-slate-100 dark:bg-slate-700 flex items-center justify-center text-xs font-bold text-slate-600 dark:text-slate-200">{p.unit_name}</div>
                         <div>
-                          <p className="font-semibold text-slate-900">{p.tenant_name}</p>
-                          <p className="text-xs text-slate-500">{formatWon(p.charged_amount)} 청구</p>
+                          <p className="font-semibold text-slate-900 dark:text-slate-100">{p.tenant_name}</p>
+                          <p className="text-xs text-slate-500 dark:text-slate-400">{formatWon(p.charged_amount)} 청구</p>
                         </div>
                       </div>
                       <div className="text-right flex items-center gap-2">
