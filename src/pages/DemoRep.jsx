@@ -394,7 +394,7 @@ export default function DemoRep({ onLoginRequired }) {
           {/* ── SEND ── */}
           {view === VIEWS.SEND && (
             <>
-              <h2 className="text-xl font-bold text-slate-900">청구서 발송 <span className="text-base text-slate-500 font-normal">2026-03</span></h2>
+              <h2 className="text-xl font-bold text-slate-900 dark:text-slate-100">청구서 발송 <span className="text-base text-slate-500 dark:text-slate-400 font-normal">2026-03</span></h2>
               <div className="grid grid-cols-2 gap-3">
                 {[
                   { label: '발송 완료', value: sentCharges,                         color: 'blue' },
