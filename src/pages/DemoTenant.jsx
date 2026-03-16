@@ -130,7 +130,7 @@ export default function DemoTenant({ onLoginRequired, autoStartTutorial = false 
   );
 
   return (
-    <TutorialProvider viewKey={view}>
+    <TutorialProvider viewKey={view} autoStart={autoStartTutorial}>
       <div className="flex h-[calc(100vh-88px)]">
         <DemoTooltipOverlay tooltip={tooltip} />
         <SpotlightTutorial steps={currentSteps} />
