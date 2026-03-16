@@ -348,7 +348,7 @@ export default function DemoRep({ onLoginRequired }) {
                         </div>
                       </div>
                       <div className="text-right">
-                        <p className="font-bold text-slate-900">{formatWon(f.amount_total)}</p>
+                        <p className="font-bold text-slate-900 dark:text-slate-100">{formatWon(f.amount_total)}</p>
                         <button onClick={handleAction} className="text-xs text-primary underline">수정</button>
                       </div>
                     </CardContent>
