@@ -35,37 +35,34 @@ export default function Demo() {
       />
       {/* Top Header */}
       <header className="sticky top-0 z-50 bg-white border-b border-slate-200 shadow-sm" style={{ paddingTop: 'var(--safe-area-inset-top)' }}>
-        <div className="max-w-5xl mx-auto px-4 h-14 flex items-center justify-between gap-3">
+        <div className="px-3 sm:px-4 h-14 flex items-center justify-between gap-2">
           {/* Logo */}
           <img
             src="https://qtrypzzcjebvfcihiynt.supabase.co/storage/v1/object/public/base44-prod/public/6955621ae58823aa6ee78811/43a1bd447__260126_IMG__byW.png"
             alt="똑빌"
-            className="h-7 flex-shrink-0"
+            className="h-6 sm:h-7 flex-shrink-0"
           />
 
           {/* Role Toggle */}
-          <div className="flex items-center bg-slate-100 rounded-full p-1 gap-1 flex-1 max-w-xs mx-2">
+          <div className="flex items-center bg-slate-100 rounded-full p-1 gap-0.5 flex-1 max-w-xs mx-1 sm:mx-2">
             <button
               onClick={() => setRole('rep')}
-              className={`flex-1 flex items-center justify-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-semibold transition-all ${
-                role === 'rep'
-                  ? 'bg-white text-primary shadow-sm'
-                  : 'text-slate-500 hover:text-slate-700'
+              className={`flex-1 flex items-center justify-center gap-1 px-2 sm:px-3 py-1.5 rounded-full text-xs font-semibold transition-all ${
+                role === 'rep' ? 'bg-white text-primary shadow-sm' : 'text-slate-500'
               }`}
             >
-              <Shield className="w-3.5 h-3.5" />
-              빌라대표자 체험
+              <Shield className="w-3 h-3 sm:w-3.5 sm:h-3.5 flex-shrink-0" />
+              <span className="hidden xs:inline sm:inline">대표자</span>
+              <span className="xs:hidden sm:hidden">대표자</span>
             </button>
             <button
               onClick={() => setRole('tenant')}
-              className={`flex-1 flex items-center justify-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-semibold transition-all ${
-                role === 'tenant'
-                  ? 'bg-white text-blue-600 shadow-sm'
-                  : 'text-slate-500 hover:text-slate-700'
+              className={`flex-1 flex items-center justify-center gap-1 px-2 sm:px-3 py-1.5 rounded-full text-xs font-semibold transition-all ${
+                role === 'tenant' ? 'bg-white text-blue-600 shadow-sm' : 'text-slate-500'
               }`}
             >
-              <Users className="w-3.5 h-3.5" />
-              빌라입주자 체험
+              <Users className="w-3 h-3 sm:w-3.5 sm:h-3.5 flex-shrink-0" />
+              <span>입주자</span>
             </button>
           </div>
 
@@ -73,17 +70,17 @@ export default function Demo() {
           <Button
             size="sm"
             onClick={() => handleLoginClick()}
-            className="bg-primary text-white hover:bg-primary-dark font-semibold flex-shrink-0 text-xs px-3"
+            className="bg-primary text-white hover:bg-primary-dark font-semibold flex-shrink-0 text-xs px-2.5 sm:px-3 h-8"
           >
-            <LogIn className="w-3.5 h-3.5 mr-1" />
-            {role === 'rep' ? '내 빌라 등록하기' : '내 빌라 연결하기'}
+            <LogIn className="w-3.5 h-3.5 sm:mr-1" />
+            <span className="hidden sm:inline">{role === 'rep' ? '내 빌라 등록' : '내 빌라 연결'}</span>
           </Button>
         </div>
 
         {/* Demo Banner */}
-        <div className="bg-amber-50 border-t border-amber-100 px-4 py-1.5 flex items-center justify-center gap-2 text-xs text-amber-800">
+        <div className="bg-amber-50 border-t border-amber-100 px-3 py-1.5 flex items-center justify-center gap-1.5 text-xs text-amber-800">
           <span>💡</span>
-          <span className="break-keep">현재 체험 모드입니다. 실제 저장·발송은 로그인 후 가능합니다.</span>
+          <span className="break-keep">체험 모드 — 실제 저장·발송은 로그인 후 가능합니다.</span>
         </div>
       </header>
 
