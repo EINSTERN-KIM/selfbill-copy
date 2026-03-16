@@ -437,7 +437,7 @@ export default function DemoRep({ onLoginRequired }) {
           {/* ── PAYMENTS ── */}
           {view === VIEWS.PAYMENTS && (
             <>
-              <h2 className="text-xl font-bold text-slate-900">납부 현황 <span className="text-base text-slate-500 font-normal">2026-03</span></h2>
+              <h2 className="text-xl font-bold text-slate-900 dark:text-slate-100">납부 현황 <span className="text-base text-slate-500 dark:text-slate-400 font-normal">2026-03</span></h2>
               <div className="grid grid-cols-3 gap-3">
                 {[
                   { label: '완납',  count: paid,    color: 'green' },
