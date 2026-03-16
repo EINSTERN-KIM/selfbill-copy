@@ -219,14 +219,15 @@ export default function DemoTenant({ onLoginRequired }) {
               {/* Quick Links */}
               <div className="space-y-2">
                 {[
-                  { label: '이번 달 청구서 보기', icon: Receipt,     view: VIEWS.BILL_DETAIL, tip: '항목별 관리비 상세 내역을 확인합니다' },
-                  { label: '납부 내역 확인',      icon: CreditCard,  view: VIEWS.PAYMENTS,    tip: '월별 납부 현황을 확인합니다' },
-                  { label: '내 세대 정보',        icon: Building2,   view: VIEWS.MY_UNIT,     tip: '내 세대 기본 정보를 확인합니다' },
+                  { id: 'quick-bills', label: '이번 달 청구서 보기', icon: Receipt,     view: VIEWS.BILL_DETAIL, tip: '항목별 관리비 상세 내역을 확인합니다' },
+                  { id: 'quick-pay',   label: '납부 내역 확인',      icon: CreditCard,  view: VIEWS.PAYMENTS,    tip: '월별 납부 현황을 확인합니다' },
+                  { id: 'quick-unit',  label: '내 세대 정보',        icon: Building2,   view: VIEWS.MY_UNIT,     tip: '내 세대 기본 정보를 확인합니다' },
                 ].map((item, i) => {
                   const Icon = item.icon;
                   return (
                     <Card
                       key={i}
+                      data-tutorial={item.id}
                       className="border-0 shadow-sm cursor-pointer hover:shadow-md transition-shadow"
                       onClick={() => navigate(item.view)}
                       {...triggerProps(item.tip)}
