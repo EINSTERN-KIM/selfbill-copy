@@ -11,7 +11,7 @@ import {
   DEMO_PAST_BILLS, DEMO_BREAKDOWN, DEMO_BILL_CYCLE
 } from '@/components/demo/demoData';
 import DemoLoginModal from '@/components/demo/DemoLoginModal';
-import DemoTooltipOverlay, { useDemoTooltip } from '@/components/demo/DemoTooltip';
+import DemoTooltipOverlay, { useDemoTooltip, TutorialProvider, TutorialBubbles } from '@/components/demo/DemoTooltip';
 import { formatWon } from '@/components/utils/formatters';
 
 const VIEWS = {
