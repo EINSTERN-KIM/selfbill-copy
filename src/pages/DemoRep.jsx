@@ -222,10 +222,10 @@ export default function DemoRep({ onLoginRequired }) {
                 <h2 className="text-sm font-semibold text-slate-500 mb-3">빠른 작업</h2>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
                   {[
-                    { label: '입주자 초대 현황', icon: Send,        color: 'orange',  view: VIEWS.INVITE },
-                    { label: '세대별 청구서 조회', icon: Receipt,    color: 'emerald', view: VIEWS.CHARGES },
-                    { label: '청구서 발송',        icon: Send,       color: 'rose',    action: true },
-                    { label: '납부 현황 관리',     icon: CreditCard, color: 'teal',    view: VIEWS.PAYMENTS },
+                    { label: '입주자 초대 현황', icon: Send,        color: 'orange',  view: VIEWS.INVITE,   tip: '입주자 초대 발송 현황을 확인합니다' },
+                    { label: '세대별 청구서 조회', icon: Receipt,   color: 'emerald', view: VIEWS.CHARGES,  tip: '각 세대 청구 내역을 조회합니다' },
+                    { label: '청구서 발송',        icon: Send,      color: 'rose',    action: true,         tip: '세대에 청구서 문자를 발송합니다' },
+                    { label: '납부 현황 관리',     icon: CreditCard, color: 'teal',   view: VIEWS.PAYMENTS, tip: '납부 완료 여부를 기록·관리합니다' },
                   ].map((item, i) => {
                     const Icon = item.icon;
                     return (
@@ -233,6 +233,7 @@ export default function DemoRep({ onLoginRequired }) {
                         key={i}
                         className="cursor-pointer hover:shadow-md transition-all border-0 shadow-sm"
                         onClick={() => item.action ? handleAction() : navigate(item.view)}
+                        {...triggerProps(item.tip)}
                       >
                         <CardContent className="p-4 flex items-center gap-3">
                           <div className={`w-10 h-10 rounded-xl bg-${item.color}-100 flex items-center justify-center`}>
