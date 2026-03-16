@@ -363,7 +363,7 @@ export default function DemoRep({ onLoginRequired }) {
             <>
               <div className="flex items-center justify-between">
                 <h2 className="text-xl font-bold text-slate-900 dark:text-slate-100">관리비 항목 설정</h2>
-                <Button size="sm" onClick={handleAction} className="bg-primary text-white">항목 추가</Button>
+                <Button data-tutorial="fee-add" size="sm" onClick={handleAction} className="bg-primary text-white">항목 추가</Button>
               </div>
               <div className="space-y-2">
                 {DEMO_FEE_ITEMS.map(f => (
