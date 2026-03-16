@@ -222,7 +222,7 @@ export default function DemoRep({ onLoginRequired }) {
 
               {/* Quick Actions */}
               <div>
-                <h2 className="text-sm font-semibold text-slate-500 mb-3">빠른 작업</h2>
+                <h2 className="text-sm font-semibold text-slate-500 dark:text-slate-400 mb-3">빠른 작업</h2>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
                   {[
                     { label: '입주자 초대 현황', icon: Send,        color: 'orange',  view: VIEWS.INVITE,   tip: '입주자 초대 발송 현황을 확인합니다' },
