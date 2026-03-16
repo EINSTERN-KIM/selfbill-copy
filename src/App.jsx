@@ -48,11 +48,11 @@ const AuthenticatedApp = () => {
   // Render the main app
   return (
     <Routes>
-      <Route path="/" element={
-        <LayoutWrapper currentPageName={mainPageKey}>
-          <MainPage />
-        </LayoutWrapper>
-      } />
+      {/* Public routes - no auth required */}
+      <Route path="/" element={<Navigate to="/Demo" replace />} />
+      <Route path="/Demo" element={<LayoutWrapper currentPageName="Demo"><Demo /></LayoutWrapper>} />
+      <Route path="/DemoRep" element={<LayoutWrapper currentPageName="DemoRep"><DemoRep onLoginRequired={() => {}} /></LayoutWrapper>} />
+      <Route path="/DemoTenant" element={<LayoutWrapper currentPageName="DemoTenant"><DemoTenant onLoginRequired={() => {}} /></LayoutWrapper>} />
       {Object.entries(Pages).map(([path, Page]) => (
         <Route
           key={path}
@@ -64,10 +64,6 @@ const AuthenticatedApp = () => {
           }
         />
       ))}
-      {/* Public demo routes - no auth required */}
-      <Route path="/Demo" element={<LayoutWrapper currentPageName="Demo"><Demo /></LayoutWrapper>} />
-      <Route path="/DemoRep" element={<LayoutWrapper currentPageName="DemoRep"><DemoRep onLoginRequired={() => {}} /></LayoutWrapper>} />
-      <Route path="/DemoTenant" element={<LayoutWrapper currentPageName="DemoTenant"><DemoTenant onLoginRequired={() => {}} /></LayoutWrapper>} />
       <Route path="*" element={<PageNotFound />} />
     </Routes>
   );
