@@ -249,8 +249,8 @@ export default function DemoTenant({ onLoginRequired }) {
           {/* ── BILL DETAIL ── */}
           {view === VIEWS.BILL_DETAIL && (
             <>
-              <h2 className="text-lg font-bold text-slate-900">2026년 3월 청구서</h2>
-              <Card className="border-0 shadow-sm">
+              <h2 className="text-lg font-bold text-slate-900 dark:text-slate-100">2026년 3월 청구서</h2>
+              <Card data-tutorial="bill-detail-card" className="border-0 shadow-sm">
                 <CardContent className="p-4 space-y-3">
                   <div className="flex justify-between text-sm text-slate-500 pb-2 border-b">
                     <span>부과 기간</span>
