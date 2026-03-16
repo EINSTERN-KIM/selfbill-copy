@@ -135,35 +135,6 @@ export default function RepSettings() {
             </CardContent>
           </Card>
 
-          {/* 이용 요금 정보 */}
-          <Card className="dark:bg-slate-800 dark:border-slate-700">
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2 text-slate-900 dark:text-white">
-                <Receipt className="w-5 h-5 text-primary" />
-                똑빌 이용 요금
-              </CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              <div>
-                <Label className="text-slate-600 dark:text-slate-400">요금 계산 방식</Label>
-                <p className="text-slate-900 dark:text-white mt-1">
-                  세대당 월 {(totalMonthlyFee / (building.building_units_count || 1)).toLocaleString()}원
-                </p>
-              </div>
-              <div className="pt-4 border-t dark:border-slate-700">
-                <div className="flex items-center justify-between">
-                  <Label className="text-slate-600 dark:text-slate-400">총 월 이용료</Label>
-                  <p className="text-2xl font-bold text-primary">
-                    {totalMonthlyFee.toLocaleString()}원
-                  </p>
-                </div>
-                <p className="text-xs text-slate-500 dark:text-slate-400 mt-2">
-                  * 현재 {building.building_units_count || 0}세대 기준
-                </p>
-              </div>
-            </CardContent>
-          </Card>
-
           {/* 테마 설정 */}
           <Card className="dark:bg-slate-800 dark:border-slate-700">
             <CardHeader>
