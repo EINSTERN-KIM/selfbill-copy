@@ -374,5 +374,6 @@ export default function DemoTenant({ onLoginRequired }) {
 
       <DemoLoginModal isOpen={showLoginModal} onClose={() => setShowLoginModal(false)} role="tenant" />
     </div>
+    </TutorialProvider>
   );
 }
