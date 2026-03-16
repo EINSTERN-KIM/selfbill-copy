@@ -59,7 +59,7 @@ const TUTORIAL_STEPS = {
   ],
 };
 
-export default function DemoTenant({ onLoginRequired }) {
+export default function DemoTenant({ onLoginRequired, autoStartTutorial = false }) {
   const [view, setView] = useState(VIEWS.DASHBOARD);
   const [showLoginModal, setShowLoginModal] = useState(false);
   const [sidebarOpen, setSidebarOpen] = useState(false);
