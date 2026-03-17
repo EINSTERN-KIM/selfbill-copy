@@ -187,12 +187,12 @@ export default function RepDashboard() {
   }
 
   const quickActions = [
-    { label: "세대 목록", icon: Users, page: "RepUnits", color: "purple" },
+    { label: "입주자 목록 변경/조회", icon: Users, page: "RepUnits", color: "purple" },
     { label: "입주자 초대", icon: Send, page: "RepUnitsInvite", color: "orange" },
-    { label: "관리비 항목", icon: FileText, page: "RepFeeItems", color: "indigo" },
-    { label: "월별 관리비 입력", icon: PlusCircle, page: "RepBillingMonthlyEdit", color: "blue" },
-    { label: "세대별 청구 확인", icon: Receipt, page: "RepBillingUnitCharges", color: "emerald" },
-    { label: "청구서 발송", icon: Send, page: "RepBillingSend", color: "rose" },
+    { label: "관리비 항목/금액 설정", icon: FileText, page: "RepFeeItems", color: "indigo" },
+    { label: "월별 관리비 작성/수정", icon: PlusCircle, page: "RepBillingMonthlyEdit", color: "blue" },
+    { label: "세대별 청구서 조회", icon: Receipt, page: "RepBillingUnitCharges", color: "emerald" },
+    { label: "세대별 청구서 발송", icon: Send, page: "RepBillingSend", color: "rose" },
     { label: "납부 현황 관리", icon: CreditCard, page: "RepPaymentsManage", color: "teal" },
   ];
 
