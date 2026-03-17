@@ -29,7 +29,7 @@ const VIEWS = {
 const MENU_SECTIONS = [
   { title: '대시보드', items: [{ label: '대시보드', view: VIEWS.DASHBOARD, icon: Home }] },
   { title: '세대 관리', items: [
-    { label: '입주자 목록', view: VIEWS.UNITS, icon: Users },
+    { label: '입주자 목록 변경/조회', view: VIEWS.UNITS, icon: Users },
     { label: '입주자 초대', view: VIEWS.INVITE, icon: Send },
   ]},
   { title: '관리비 청구', items: [
@@ -250,7 +250,7 @@ function DemoRepContent({ onLoginRequired, view, setView }) {
           {/* ── UNITS ── */}
           {view === VIEWS.UNITS && (
             <>
-              <h2 className="text-xl font-bold text-slate-900 dark:text-slate-100">입주자 목록</h2>
+              <h2 className="text-xl font-bold text-slate-900 dark:text-slate-100">입주자 목록 변경/조회</h2>
               <div data-tutorial="units-list" className="space-y-2">
                 {DEMO_UNITS.map(u => {
                   const inv = DEMO_INVITATIONS.find(i => i.unit_id === u.id);
