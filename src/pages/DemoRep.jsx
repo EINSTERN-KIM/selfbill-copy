@@ -41,7 +41,7 @@ const MENU_SECTIONS = [
     { label: '납부 현황 관리', view: VIEWS.PAYMENTS, icon: CreditCard },
   ]},
   { title: '보고서', items: [
-    { label: '관리비 현황 보고서', view: VIEWS.REPORTS, icon: BarChart3 },
+    { label: '전체 관리비 현황', view: VIEWS.REPORTS, icon: BarChart3 },
   ]},
 ];
 
