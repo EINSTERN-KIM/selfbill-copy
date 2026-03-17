@@ -324,7 +324,7 @@ function DemoRepContent({ onLoginRequired, view, setView }) {
           {view === VIEWS.FEE_ITEMS && (
             <>
               <div className="flex items-center justify-between">
-                <h2 className="text-xl font-bold text-slate-900 dark:text-slate-100">관리비 항목 설정</h2>
+                <h2 className="text-xl font-bold text-slate-900 dark:text-slate-100">관리비 항목/금액 설정</h2>
                 <Button data-tutorial="fee-add" size="sm" onClick={handleAction} className="bg-primary text-white">항목 추가</Button>
               </div>
               <div className="space-y-2">
