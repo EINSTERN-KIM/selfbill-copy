@@ -33,9 +33,9 @@ const MENU_SECTIONS = [
     { label: '입주자 초대', view: VIEWS.INVITE, icon: Send },
   ]},
   { title: '관리비 청구', items: [
-    { label: '관리비 항목 설정', view: VIEWS.FEE_ITEMS, icon: FileText },
+    { label: '관리비 항목/금액 설정', view: VIEWS.FEE_ITEMS, icon: FileText },
     { label: '세대별 청구서 조회', view: VIEWS.CHARGES, icon: Receipt },
-    { label: '청구서 발송', view: VIEWS.SEND, icon: Send },
+    { label: '세대별 청구서 발송', view: VIEWS.SEND, icon: Send },
   ]},
   { title: '납부 현황', items: [
     { label: '납부 현황 관리', view: VIEWS.PAYMENTS, icon: CreditCard },
