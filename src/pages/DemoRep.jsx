@@ -7,6 +7,7 @@ import {
   BarChart3, CheckCircle2, Clock, ChevronRight,
   Home, Menu, LogIn
 } from 'lucide-react';
+import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts';
 import {
   DEMO_BUILDING, DEMO_UNITS, DEMO_FEE_ITEMS, DEMO_BILL_CYCLE,
   DEMO_UNIT_CHARGES, DEMO_PAYMENTS, DEMO_INVITATIONS
