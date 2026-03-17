@@ -475,42 +475,64 @@ function DemoRepContent({ onLoginRequired, view, setView }) {
           )}
 
           {/* ── REPORTS ── */}
-          {view === VIEWS.REPORTS && (
-            <>
-              <h2 className="text-xl font-bold text-slate-900 dark:text-slate-100">관리비 현황 보고서</h2>
-              <Card data-tutorial="reports-chart" className="border-0 shadow-sm">
-                <CardHeader>
-                  <CardTitle className="text-base">월별 관리비 추이</CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <div className="space-y-3">
-                    {[
-                      { ym: '2026-03', amount: DEMO_BILL_CYCLE.total_amount, pct: 67 },
-                      { ym: '2026-02', amount: 458000, pct: 83 },
-                      { ym: '2026-01', amount: 462000, pct: 92 },
-                      { ym: '2025-12', amount: 471000, pct: 100 },
-                    ].map(row => (
-                      <div key={row.ym} className="flex items-center gap-3">
-                        <span className="text-sm text-slate-500 dark:text-slate-400 w-16">{row.ym}</span>
-                        <div className="flex-1 bg-slate-100 dark:bg-slate-700 rounded-full h-2.5">
-                          <div className="bg-primary rounded-full h-2.5" style={{ width: `${row.pct}%` }} />
-                        </div>
-                        <span className="text-sm font-semibold text-slate-800 dark:text-slate-100 w-20 text-right">{formatWon(row.amount)}</span>
-                      </div>
-                    ))}
-                  </div>
-                </CardContent>
-              </Card>
-              <Card className="border-primary/20 bg-primary/5">
-                <CardContent className="p-4 text-center">
-                  <p className="text-sm text-slate-600 dark:text-slate-300 mb-3">상세 보고서는 로그인 후 확인 가능합니다.</p>
-                  <Button onClick={onLoginRequired} size="sm" className="bg-primary text-white">
-                    로그인 후 보고서 보기
-                  </Button>
-                </CardContent>
-              </Card>
-            </>
-          )}
+          {view === VIEWS.REPORTS && (() => {
+            const reportData = [
+              { month: '12월', 청구액: 471000, 수납액: 471000 },
+              { month: '1월',  청구액: 462000, 수납액: 450000 },
+              { month: '2월',  청구액: 458000, 수납액: 430000 },
+              { month: '3월',  청구액: DEMO_BILL_CYCLE.total_amount, 수납액: Math.round(DEMO_BILL_CYCLE.total_amount * 0.58) },
+            ];
+            const totalCharged = reportData.reduce((s, r) => s + r.청구액, 0);
+            const totalPaid    = reportData.reduce((s, r) => s + r.수납액, 0);
+            const rate = Math.round(totalPaid / totalCharged * 100);
+            return (
+              <>
+                <h2 className="text-xl font-bold text-slate-900 dark:text-slate-100">전체 관리비 현황</h2>
+                <div className="grid grid-cols-3 gap-3">
+                  {[
+                    { label: '총 청구액', value: formatWon(totalCharged), color: 'slate' },
+                    { label: '총 수납액', value: formatWon(totalPaid),    color: 'green' },
+                    { label: '수납률',    value: `${rate}%`,              color: 'blue'  },
+                  ].map((s, i) => (
+                    <Card key={i} className="border-0 shadow-sm text-center">
+                      <CardContent className="py-4">
+                        <p className={`text-lg font-bold text-${s.color}-600`}>{s.value}</p>
+                        <p className="text-xs text-slate-500">{s.label}</p>
+                      </CardContent>
+                    </Card>
+                  ))}
+                </div>
+                <Card data-tutorial="reports-chart" className="border-0 shadow-sm">
+                  <CardHeader>
+                    <CardTitle className="text-base">월별 관리비 추이</CardTitle>
+                  </CardHeader>
+                  <CardContent>
+                    <div className="h-64">
+                      <ResponsiveContainer width="100%" height="100%">
+                        <BarChart data={reportData} margin={{ top: 4, right: 8, left: 0, bottom: 0 }}>
+                          <CartesianGrid strokeDasharray="3 3" />
+                          <XAxis dataKey="month" tick={{ fontSize: 12 }} />
+                          <YAxis tickFormatter={(v) => `${Math.round(v / 10000)}만`} tick={{ fontSize: 11 }} />
+                          <Tooltip formatter={(value) => formatWon(value)} />
+                          <Legend />
+                          <Bar dataKey="청구액" fill="#3b82f6" radius={[4,4,0,0]} />
+                          <Bar dataKey="수납액" fill="#22c55e" radius={[4,4,0,0]} />
+                        </BarChart>
+                      </ResponsiveContainer>
+                    </div>
+                  </CardContent>
+                </Card>
+                <Card className="border-primary/20 bg-primary/5">
+                  <CardContent className="p-4 text-center">
+                    <p className="text-sm text-slate-600 dark:text-slate-300 mb-3">상세 보고서는 로그인 후 확인 가능합니다.</p>
+                    <Button onClick={onLoginRequired} size="sm" className="bg-primary text-white">
+                      로그인 후 보고서 보기
+                    </Button>
+                  </CardContent>
+                </Card>
+              </>
+            );
+          })()}
 
         </div>
       </div>
