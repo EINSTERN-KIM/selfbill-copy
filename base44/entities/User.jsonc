@@ -1,0 +1,18 @@
+{
+  "name": "User",
+  "type": "object",
+  "properties": {
+    "phone": {
+      "type": "string",
+      "description": "\uc0ac\uc6a9\uc790 \ud734\ub300\ud3f0 \ubc88\ud638 (010-1234-5678 \ud615\uc2dd)"
+    },
+    "phone_verified": {
+      "type": "boolean",
+      "description": "\ud734\ub300\ud3f0 \uc778\uc99d \uc644\ub8cc \uc5ec\ubd80",
+      "default": false
+    }
+  },
+  "required": [
+    "phone"
+  ]
+}

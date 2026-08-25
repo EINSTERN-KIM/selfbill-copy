@@ -1,0 +1,46 @@
+{
+  "name": "Inquiry",
+  "type": "object",
+  "properties": {
+    "user_id": {
+      "type": "string",
+      "description": "\ubb38\uc758\uc790 User ID"
+    },
+    "user_email": {
+      "type": "string",
+      "description": "\ubb38\uc758\uc790 \uc774\uba54\uc77c"
+    },
+    "reply_email": {
+      "type": "string",
+      "description": "\ud68c\uc2e0\ubc1b\uc744 \uc774\uba54\uc77c \uc8fc\uc18c"
+    },
+    "subject": {
+      "type": "string",
+      "description": "\ubb38\uc758 \uc81c\ubaa9"
+    },
+    "message": {
+      "type": "string",
+      "description": "\ubb38\uc758 \ub0b4\uc6a9"
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "\uc811\uc218",
+        "\ub2f5\ubcc0\uc644\ub8cc"
+      ],
+      "default": "\uc811\uc218",
+      "description": "\ubb38\uc758 \uc0c1\ud0dc"
+    },
+    "replied_at": {
+      "type": "string",
+      "format": "date-time",
+      "description": "\ub2f5\ubcc0 \uc644\ub8cc \uc77c\uc2dc"
+    }
+  },
+  "required": [
+    "user_email",
+    "reply_email",
+    "subject",
+    "message"
+  ]
+}
